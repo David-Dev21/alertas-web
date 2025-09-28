@@ -1,0 +1,47 @@
+/* Estilos para el componente de mapa con Leaflet */
+
+/* Importar estilos de Leaflet */
+@import 'leaflet/dist/leaflet.css';
+
+/* Estilos personalizados para popups */
+.custom-popup .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.custom-popup .leaflet-popup-content {
+  margin: 0;
+  min-width: 200px;
+}
+
+.custom-popup .leaflet-popup-tip {
+  border-top-color: white;
+}
+
+/* Asegurar que el mapa tenga altura completa */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+
+/* Estilos para divIcon personalizado */
+.custom-div-icon { pointer-events: auto; }
+.marker-pin {
+  position: relative;
+  display: inline-block;
+  transform: translateY(-8%);
+}
+.marker-pin .pin-body {
+  width: 60%;
+  height: 60%;
+  background: var(--pin-color, #ef4444);
+  border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%;
+  border: 3px solid var(--pin-border, #b91c1c);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  transform: translateX(-50%);
+}
+
