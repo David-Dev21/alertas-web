@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
-import { MapPin, Wifi, WifiOff } from 'lucide-react';
-import { alertasSocketService } from '@/services/alertas/alertasSocketService';
-import { useAutenticacionStore } from '@/stores/autenticacion/autenticacionStore';
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import { MapPin, Wifi, WifiOff } from "lucide-react";
+import { alertasSocketService } from "@/services/alertas/alertasSocketService";
+import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore";
 
 export function EstadoConexion() {
-  const { userData } = useAutenticacionStore();
+  const { datosUsuario } = useAutenticacionStore();
   const [conectado, setConectado] = useState(false);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export function EstadoConexion() {
     };
   }, []);
 
-  if (!userData?.ubicacion) {
+  if (!datosUsuario?.ubicacion) {
     return null;
   }
 
@@ -35,13 +35,13 @@ export function EstadoConexion() {
         {/* Estado de conexión WebSocket */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <Badge variant={conectado ? 'default' : 'destructive'} className="flex items-center gap-1 text-xs">
+            <Badge variant={conectado ? "default" : "destructive"} className="flex items-center gap-1 text-xs">
               {conectado ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-              {conectado ? 'Conectado' : 'Desconectado'}
+              {conectado ? "Conectado" : "Desconectado"}
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
-            <p>{conectado ? 'Conectado al sistema de alertas en tiempo real' : 'Sin conexión al sistema de alertas'}</p>
+            <p>{conectado ? "Conectado al sistema de alertas en tiempo real" : "Sin conexión al sistema de alertas"}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -50,11 +50,11 @@ export function EstadoConexion() {
           <TooltipTrigger asChild>
             <Badge variant="outline" className="flex items-center gap-1 text-xs">
               <MapPin className="w-3 h-3" />
-              {userData.ubicacion.departamento}
+              {datosUsuario.ubicacion.departamento}
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Monitoreando alertas del departamento: {userData.ubicacion.departamento}</p>
+            <p>Monitoreando alertas del departamento: {datosUsuario.ubicacion.departamento}</p>
           </TooltipContent>
         </Tooltip>
       </div>

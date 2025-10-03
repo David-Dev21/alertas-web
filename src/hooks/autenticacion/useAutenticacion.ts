@@ -1,55 +1,57 @@
-import { useAutenticacionStore } from '@/stores/autenticacion/autenticacionStore';
+import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore";
 
 /**
- * Hook conveniente para acceder a los datos de autenticación
- * Proporciona acceso fácil al estado y acciones del store de auth
+ * Hook para acceder a los datos de autenticación
+ * Proporciona acceso al estado y acciones del almacenamiento de autenticación
  */
 export function useAuth() {
-  const store = useAutenticacionStore();
+  const almacenamiento = useAutenticacionStore();
 
   return {
     // Estado
-    token: store.token,
-    userData: store.userData,
-    systemData: store.systemData,
-    isAuthenticated: store.isAuthenticated,
-    isHydrated: store.isHydrated,
+    token: almacenamiento.token,
+    datosUsuario: almacenamiento.datosUsuario,
+    datosSistema: almacenamiento.datosSistema,
+    estaAutenticado: almacenamiento.estaAutenticado,
+    estaHidratado: almacenamiento.estaHidratado,
 
-    // Datos específicos del usuario (con valores por defecto seguros)
-    user: {
-      name: store.userData?.name || '',
-      lastName: store.userData?.lastName || '',
-      fullName: store.userData?.fullName || (store.userData ? `${store.userData.name} ${store.userData.lastName}` : ''),
-      email: store.userData?.email || '',
-      imageUser: store.userData?.imageUser || '',
-      userId: store.userData?.userId || '',
-      username: store.userData?.username || '',
-      active: store.userData?.active || false,
-      verified: store.userData?.verified || false,
-      unidad: store.userData?.unidad || null,
-      unidadName: store.userData?.unidad?.organismoFullName || store.userData?.unidad?.abreviacion || '',
+    // Datos específicos del usuario
+    usuario: {
+      nombre: almacenamiento.datosUsuario?.nombre || "",
+      apellido: almacenamiento.datosUsuario?.apellido || "",
+      nombreCompleto:
+        almacenamiento.datosUsuario?.nombreCompleto ||
+        (almacenamiento.datosUsuario ? `${almacenamiento.datosUsuario.nombre} ${almacenamiento.datosUsuario.apellido}` : ""),
+      correo: almacenamiento.datosUsuario?.correo || "",
+      imagenUsuario: almacenamiento.datosUsuario?.imagenUsuario || "",
+      idUsuario: almacenamiento.datosUsuario?.idUsuario || "",
+      nombreUsuario: almacenamiento.datosUsuario?.nombreUsuario || "",
+      activo: almacenamiento.datosUsuario?.activo || false,
+      verificado: almacenamiento.datosUsuario?.verificado || false,
+      unidad: almacenamiento.datosUsuario?.unidad || null,
+      nombreUnidad: almacenamiento.datosUsuario?.unidad?.nombreCompletoOrganismo || almacenamiento.datosUsuario?.unidad?.abreviacion || "",
     },
 
-    // Datos del sistema (con valores por defecto seguros)
-    system: {
-      name: store.systemData?.name || '',
-      roles: store.systemData?.roles || [],
-      modules: store.systemData?.modules || [],
-      permissions: store.systemData?.permissions || [],
+    // Datos del sistema
+    sistema: {
+      nombre: almacenamiento.datosSistema?.nombre || "",
+      roles: almacenamiento.datosSistema?.roles || [],
+      modulos: almacenamiento.datosSistema?.modulos || [],
+      permisos: almacenamiento.datosSistema?.permisos || [],
     },
 
     // Acciones
-    setToken: store.setToken,
-    setUserData: store.setUserData,
-    setSystemData: store.setSystemData,
-    setRoles: store.setRoles,
-    setModules: store.setModules,
-    setPermissions: store.setPermissions,
-    logout: store.logout,
+    establecerToken: almacenamiento.establecerToken,
+    establecerDatosUsuario: almacenamiento.establecerDatosUsuario,
+    establecerDatosSistema: almacenamiento.establecerDatosSistema,
+    establecerRoles: almacenamiento.establecerRoles,
+    establecerModulos: almacenamiento.establecerModulos,
+    establecerPermisos: almacenamiento.establecerPermisos,
+    cerrarSesion: almacenamiento.cerrarSesion,
 
     // Helpers
-    hasRole: (role: string) => store.systemData?.roles.some((r) => r.name === role) || false,
-    hasPermission: (permission: string) => store.systemData?.permissions.includes(permission) || false,
-    hasModule: (module: string) => store.systemData?.modules.some((m) => m.name === module) || false,
+    tieneRol: (rol: string) => almacenamiento.datosSistema?.roles.some((r) => r.nombre === rol) || false,
+    tienePermiso: (permiso: string) => almacenamiento.datosSistema?.permisos.includes(permiso) || false,
+    tieneModulo: (modulo: string) => almacenamiento.datosSistema?.modulos.some((m) => m.nombre === modulo) || false,
   };
 }

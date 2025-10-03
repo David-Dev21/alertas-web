@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Home,
@@ -15,18 +15,18 @@ import {
   ClockAlert,
   ShieldAlert,
   type LucideIcon,
-} from 'lucide-react';
-import { NavSections } from '@/components/nav-sections';
-import { HeaderSystem } from '@/components/HeaderSystem';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from '@/hooks/autenticacion/useAutenticacion';
+} from "lucide-react";
+import { NavSections } from "@/components/nav-sections";
+import { HeaderSystem } from "@/components/HeaderSystem";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/autenticacion/useAutenticacion";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { system, isHydrated } = useAuth();
+  const { sistema, estaHidratado } = useAuth();
 
   // Mostrar loading mientras se hidrata
-  if (!isHydrated) {
+  if (!estaHidratado) {
     return (
       <Sidebar collapsible="icon" {...props}>
         <SidebarHeader>
@@ -71,7 +71,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       Settings: Shield,
       FileText: BarChart3,
     };
-    const normalizedIconName = iconName?.replace(/\s+/g, '').replace(/^\w/, (c) => c.toUpperCase()) || '';
+    const normalizedIconName = iconName?.replace(/\s+/g, "").replace(/^\w/, (c) => c.toUpperCase()) || "";
     return iconMap[normalizedIconName] || Home;
   };
 
@@ -82,15 +82,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {/* Módulos del sistema */}
-        {system.modules.map((module) => (
+        {sistema.modulos.map((modulo) => (
           <NavSections
-            key={module.name}
-            secciones={module.children.map((child) => ({
-              nombre: child.name,
-              url: child.path,
-              icono: getIcon(child.icon),
+            key={modulo.nombre}
+            secciones={modulo.hijos.map((hijo) => ({
+              nombre: hijo.nombre,
+              url: hijo.ruta,
+              icono: getIcon(hijo.icono),
             }))}
-            titulo={module.name}
+            titulo={modulo.nombre}
           />
         ))}
       </SidebarContent>

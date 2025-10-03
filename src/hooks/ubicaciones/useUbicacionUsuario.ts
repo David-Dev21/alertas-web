@@ -1,14 +1,14 @@
-import { useAutenticacionStore } from '@/stores/autenticacion/autenticacionStore';
+import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore";
 
 /**
  * Hook para acceder a la información de ubicación del usuario autenticado
  */
 export function useUbicacionUsuario() {
-  const { userData } = useAutenticacionStore();
+  const { datosUsuario } = useAutenticacionStore();
 
   return {
-    idDepartamento: userData?.ubicacion?.idDepartamento || null,
-    departamento: userData?.ubicacion?.departamento || null,
-    tieneUbicacion: !!userData?.ubicacion,
+    idDepartamento: datosUsuario?.ubicacion?.idDepartamento || null,
+    departamento: datosUsuario?.ubicacion?.departamento || null,
+    tieneUbicacion: !!datosUsuario?.ubicacion,
   };
 }

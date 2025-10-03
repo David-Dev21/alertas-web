@@ -1,110 +1,160 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { ErrorEstado } from '@/components/ErrorEstado';
-import { useAuth } from '@/hooks/autenticacion/useAutenticacion';
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ErrorEstado } from "@/components/ErrorEstado";
+import { useAuth } from "@/hooks/autenticacion/useAutenticacion";
 
 export default function InicializaPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [error, setError] = useState<string | null>(null);
-  const { setToken, setUserData, setSystemData } = useAuth();
+  const [mensajeError, setMensajeError] = useState<string | null>(null);
+  const { establecerToken, establecerDatosUsuario, establecerDatosSistema } = useAuth();
 
   useEffect(() => {
-    const initializeAuth = async () => {
+    const inicializarAutenticacion = async () => {
       try {
-        const encodedData = searchParams.get('auth');
+        // Obtener datos codificados desde la URL
+        const datosAutenticacionCodificados = searchParams.get("auth");
 
-        if (!encodedData || !encodedData.length) {
-          setError('No se encontraron datos de autenticación');
+        if (!datosAutenticacionCodificados || !datosAutenticacionCodificados.length) {
+          setMensajeError("No se encontraron datos de autenticación");
           return;
         }
 
-        // Decodificar directamente en el cliente
-        let authData = JSON.parse(atob(encodedData));
+        // Decodificar datos de autenticación
+        let respuestaBackend = JSON.parse(atob(datosAutenticacionCodificados));
 
-        // Función para corregir codificación de caracteres
-        const corregirCodificacion = (obj: any): any => {
-          if (typeof obj === 'string') {
-            return obj
-              .replace(/Ã©/g, 'é')
-              .replace(/Ã³/g, 'ó')
-              .replace(/Ã±/g, 'ñ')
-              .replace(/Ã¡/g, 'á')
-              .replace(/Ã­/g, 'í')
-              .replace(/Ãº/g, 'ú')
-              .replace(/Ã¼/g, 'ü');
-          } else if (Array.isArray(obj)) {
-            return obj.map(corregirCodificacion);
-          } else if (obj && typeof obj === 'object') {
-            const corrected: any = {};
-            for (const key in obj) {
-              corrected[key] = corregirCodificacion(obj[key]);
-            }
-            return corrected;
-          }
-          return obj;
-        };
+        // Corregir codificación de caracteres especiales
+        respuestaBackend = corregirCodificacionCaracteres(respuestaBackend);
 
-        // Corregir codificación en los datos
-        authData = corregirCodificacion(authData);
-
-        console.log('Auth data:', authData);
-
-        // Validar que los datos requeridos estén presentes
-        if (!authData.access_token || !authData.userData || !authData.systemData) {
-          throw new Error('Datos de autenticación incompletos');
+        // Validar estructura de datos (access_token y refresh_token se mantienen en inglés)
+        if (!respuestaBackend.access_token || !respuestaBackend.userData || !respuestaBackend.systemData) {
+          throw new Error("Datos de autenticación incompletos");
         }
 
-        const userData = {
-          name: authData.userData.name,
-          lastName: authData.userData.lastName,
-          fullName: authData.userData.fullName,
-          email: authData.userData.email,
-          imageUser: authData.userData.imageUser,
-          userId: authData.userData.userId,
-          username: authData.userData.username,
-          active: authData.userData.active,
-          verified: authData.userData.verified,
-          createdAt: authData.userData.createdAt,
-          lastAccess: authData.userData.lastAccess,
-          unidad: authData.userData.unidad,
+        const datosDelBackend = respuestaBackend.userData;
+        const datosDelSistema = respuestaBackend.systemData;
+
+        // Transformar datos del usuario a español
+        const datosUsuario = {
+          nombre: datosDelBackend.name,
+          apellido: datosDelBackend.lastName,
+          nombreCompleto: datosDelBackend.fullName,
+          correo: datosDelBackend.email,
+          imagenUsuario: datosDelBackend.imageUser,
+          idUsuario: datosDelBackend.userId,
+          nombreUsuario: datosDelBackend.username,
+          activo: datosDelBackend.active,
+          verificado: datosDelBackend.verified,
+          creadoEn: datosDelBackend.createdAt,
+          ultimoAcceso: datosDelBackend.lastAccess,
+          unidad: {
+            idUnidad: datosDelBackend.unidad.unidadId,
+            abreviacion: datosDelBackend.unidad.abreviacion,
+            idOrganismo: datosDelBackend.unidad.organismoId,
+            nombreCompletoOrganismo: datosDelBackend.unidad.organismoFullName,
+          },
         };
 
-        const systemData = {
-          name: authData.systemData.name,
-          roles: authData.systemData.roles,
-          modules: authData.systemData.modules,
-          permissions: authData.systemData.permissions,
+        // Transformar datos del sistema a español
+        const datosSistema = {
+          nombre: datosDelSistema.name,
+          roles: datosDelSistema.roles.map((rol: any) => ({
+            nombre: rol.name,
+          })),
+          modulos: datosDelSistema.modules.map((modulo: any) => ({
+            nombre: modulo.name,
+            ruta: modulo.path,
+            icono: modulo.icon,
+            orden: modulo.order,
+            hijos: modulo.children.map((hijo: any) => ({
+              icono: hijo.icon,
+              nombre: hijo.name,
+              orden: hijo.order,
+              ruta: hijo.path,
+            })),
+          })),
+          permisos: datosDelSistema.permissions,
         };
 
-        // Actualizar el store de Zustand inmediatamente
-        setToken(authData.access_token);
-        setUserData(userData);
-        setSystemData(systemData);
+        // Guardar refresh_token si existe (el resto lo guarda el store automáticamente)
+        if (respuestaBackend.refresh_token) {
+          localStorage.setItem("refresh_token", respuestaBackend.refresh_token);
+        }
 
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 5000);
+        // Actualizar el store de Zustand (esto automáticamente guarda en localStorage)
+        establecerToken(respuestaBackend.access_token);
+        establecerDatosUsuario(datosUsuario);
+        establecerDatosSistema(datosSistema);
+
+        console.log("Token:", respuestaBackend.access_token);
+        console.log("Usuario:", datosUsuario);
+        console.log("Sistema:", datosSistema);
+
+        // Redirigir al dashboard
+        router.push("/dashboard");
       } catch (error) {
-        setError(error instanceof Error ? error.message : 'Error decodificando datos de autenticación');
+        setMensajeError(error instanceof Error ? error.message : "Error al procesar datos de autenticación");
       }
     };
 
-    initializeAuth();
-  }, [searchParams, router, setToken, setUserData, setSystemData]);
+    inicializarAutenticacion();
+  }, [searchParams, router, establecerToken, establecerDatosUsuario, establecerDatosSistema]);
 
-  if (error) {
-    return <ErrorEstado mensaje={error} enlaceVolver="https://kerveros-dev.policia.bo/auth/login" />;
+  // Mostrar error si ocurrió algún problema
+  if (mensajeError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <ErrorEstado mensaje={mensajeError} enlaceVolver="https://kerveros-dev.policia.bo/auth/login" />
+      </div>
+    );
   }
 
+  // Mostrar pantalla de carga
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center space-y-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary mx-auto"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary mx-auto" />
         <p className="text-lg font-medium text-muted-foreground">Procesando autenticación...</p>
       </div>
     </div>
   );
+}
+
+/**
+ * Corrige problemas de codificación UTF-8 en los datos recibidos
+ * Convierte caracteres mal codificados a su forma correcta
+ */
+function corregirCodificacionCaracteres(objeto: any): any {
+  if (typeof objeto === "string") {
+    return objeto
+      .replace(/Ã©/g, "é")
+      .replace(/Ã³/g, "ó")
+      .replace(/Ã±/g, "ñ")
+      .replace(/Ã¡/g, "á")
+      .replace(/Ã­/g, "í")
+      .replace(/Ãº/g, "ú")
+      .replace(/Ã¼/g, "ü")
+      .replace(/Ã‰/g, "É")
+      .replace(/Ã"/g, "Ó")
+      .replace(/Ã'/g, "Ñ")
+      .replace(/Ã/g, "Á")
+      .replace(/Ã/g, "Í")
+      .replace(/Ãš/g, "Ú");
+  }
+
+  if (Array.isArray(objeto)) {
+    return objeto.map(corregirCodificacionCaracteres);
+  }
+
+  if (objeto && typeof objeto === "object") {
+    const objetoCorregido: any = {};
+    for (const clave in objeto) {
+      objetoCorregido[clave] = corregirCodificacionCaracteres(objeto[clave]);
+    }
+    return objetoCorregido;
+  }
+
+  return objeto;
 }

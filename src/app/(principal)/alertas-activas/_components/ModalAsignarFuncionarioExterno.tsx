@@ -1,15 +1,15 @@
-'use client';
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { UserPlus, Loader2, AlertCircle, MapPin } from 'lucide-react';
-import { RolAtencion, CrearAtencionExternaRequest } from '@/types/atenciones/Atencion';
-import { useAtencionesExternas } from '@/hooks/atenciones/useAtencionesExternas';
-import { useAuth } from '@/hooks/autenticacion/useAutenticacion';
+"use client";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { UserPlus, Loader2, AlertCircle, MapPin } from "lucide-react";
+import { RolAtencion, CrearAtencionExternaRequest } from "@/types/atenciones/Atencion";
+import { useAtencionesExternas } from "@/hooks/atenciones/useAtencionesExternas";
+import { useAuth } from "@/hooks/autenticacion/useAutenticacion";
 
 interface Turno {
   id: string;
@@ -19,21 +19,21 @@ interface Turno {
 }
 
 const TURNOS: Turno[] = [
-  { id: '1', nombre: '1er Turno (07:00 - 13:00)', inicioHora: '07:00:00', finHora: '13:00:00' },
-  { id: '2', nombre: '2do Turno (13:00 - 19:00)', inicioHora: '13:00:00', finHora: '19:00:00' },
-  { id: '3', nombre: '3er Turno (19:00 - 01:00)', inicioHora: '19:00:00', finHora: '01:00:00' },
-  { id: '4', nombre: '4to Turno (01:00 - 07:00)', inicioHora: '01:00:00', finHora: '07:00:00' },
-  { id: '5', nombre: 'Turno 24 horas (07:00 - 07:00)', inicioHora: '07:00:00', finHora: '07:00:00' },
-  { id: '6', nombre: 'Turno 48 horas (07:00 - 07:00)', inicioHora: '07:00:00', finHora: '07:00:00' },
+  { id: "1", nombre: "1er Turno (07:00 - 13:00)", inicioHora: "07:00:00", finHora: "13:00:00" },
+  { id: "2", nombre: "2do Turno (13:00 - 19:00)", inicioHora: "13:00:00", finHora: "19:00:00" },
+  { id: "3", nombre: "3er Turno (19:00 - 01:00)", inicioHora: "19:00:00", finHora: "01:00:00" },
+  { id: "4", nombre: "4to Turno (01:00 - 07:00)", inicioHora: "01:00:00", finHora: "07:00:00" },
+  { id: "5", nombre: "Turno 24 horas (07:00 - 07:00)", inicioHora: "07:00:00", finHora: "07:00:00" },
+  { id: "6", nombre: "Turno 48 horas (07:00 - 07:00)", inicioHora: "07:00:00", finHora: "07:00:00" },
 ];
 
 function calcularTimestampsTurno(turnoId: string): { turnoInicio: string; turnoFin: string } {
   const turno = TURNOS.find((t) => t.id === turnoId);
-  if (!turno) throw new Error('Turno no encontrado');
+  if (!turno) throw new Error("Turno no encontrado");
 
   const now = new Date();
-  const [inicioH, inicioM, inicioS] = turno.inicioHora.split(':').map(Number);
-  const [finH, finM, finS] = turno.finHora.split(':').map(Number);
+  const [inicioH, inicioM, inicioS] = turno.inicioHora.split(":").map(Number);
+  const [finH, finM, finS] = turno.finHora.split(":").map(Number);
 
   const turnoInicio = new Date(now.getFullYear(), now.getMonth(), now.getDate(), inicioH, inicioM, inicioS);
 
@@ -45,12 +45,12 @@ function calcularTimestampsTurno(turnoId: string): { turnoInicio: string; turnoF
   }
 
   // Para turno 24 horas, sumar 1 día a fin
-  if (turnoId === '5') {
+  if (turnoId === "5") {
     turnoFin.setDate(turnoFin.getDate() + 1);
   }
 
   // Para turno 48 horas, sumar 2 días a fin
-  if (turnoId === '6') {
+  if (turnoId === "6") {
     turnoFin.setDate(turnoFin.getDate() + 2);
   }
 
@@ -68,22 +68,22 @@ interface ModalAsignarFuncionarioExternoProps {
 
 export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignacionExitosa }: ModalAsignarFuncionarioExternoProps) {
   const [abierto, setAbierto] = useState(false);
-  const [siglaVehiculo, setSiglaVehiculo] = useState('');
-  const [siglaRadio, setSiglaRadio] = useState('');
+  const [siglaVehiculo, setSiglaVehiculo] = useState("");
+  const [siglaRadio, setSiglaRadio] = useState("");
   const [rolAtencion, setRolAtencion] = useState<RolAtencion | null>(null);
-  const [turnoId, setTurnoId] = useState('1');
-  const [grado, setGrado] = useState('');
-  const [nombreCompleto, setNombreCompleto] = useState('');
-  const [organismo, setOrganismo] = useState('');
-  const [unidad, setUnidad] = useState('');
+  const [turnoId, setTurnoId] = useState("1");
+  const [grado, setGrado] = useState("");
+  const [nombreCompleto, setNombreCompleto] = useState("");
+  const [organismo, setOrganismo] = useState("");
+  const [unidad, setUnidad] = useState("");
   const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<[number, number] | null>(null);
   const [mapaAbierto, setMapaAbierto] = useState(false);
-  const { user } = useAuth();
+  const { usuario } = useAuth();
   const { crearAtencionExterna, agregarFuncionarioExterno, cargando } = useAtencionesExternas();
 
   const manejarAsignacion = async () => {
-    if (!user?.userId) {
-      console.error('No hay usuario autenticado');
+    if (!usuario?.idUsuario) {
+      console.error("No hay usuario autenticado");
       return;
     }
 
@@ -94,9 +94,9 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
       rolAtencion: rolAtencion || RolAtencion.APOYO,
       ...(ubicacionSeleccionada && {
         ubicacion: {
-          type: 'Feature' as const,
+          type: "Feature" as const,
           geometry: {
-            type: 'Point' as const,
+            type: "Point" as const,
             coordinates: ubicacionSeleccionada,
           },
           properties: {
@@ -124,7 +124,7 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
       // Crear nueva atención
       const datosAtencion: CrearAtencionExternaRequest = {
         idAlerta,
-        idUsuarioAdmin: user.userId,
+        idUsuarioAdmin: usuario.idUsuario,
         siglaVehiculo: siglaVehiculo.trim(),
         siglaRadio: siglaRadio.trim(),
         funcionarios: [datosFuncionario],
@@ -134,14 +134,14 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
 
     if (resultado) {
       setAbierto(false);
-      setSiglaVehiculo('');
-      setSiglaRadio('');
+      setSiglaVehiculo("");
+      setSiglaRadio("");
       setRolAtencion(null);
-      setTurnoId('1');
-      setGrado('');
-      setNombreCompleto('');
-      setOrganismo('');
-      setUnidad('');
+      setTurnoId("1");
+      setGrado("");
+      setNombreCompleto("");
+      setOrganismo("");
+      setUnidad("");
       setUbicacionSeleccionada(null);
       onAsignacionExitosa?.();
     }
@@ -157,16 +157,16 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
       >
         <DialogTrigger asChild>
           <Button size="sm" variant="outline">
-            {idAtencion ? 'Agregar Funcionario Externo' : 'Asignar Funcionario Externo'}
+            {idAtencion ? "Agregar Funcionario Externo" : "Asignar Funcionario Externo"}
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[1000px] z-[10001] data-[state=open]:z-[10001]">
           <DialogHeader>
-            <DialogTitle>{idAtencion ? 'Agregar Funcionario Externo' : 'Asignar Funcionario Externo'}</DialogTitle>
+            <DialogTitle>{idAtencion ? "Agregar Funcionario Externo" : "Asignar Funcionario Externo"}</DialogTitle>
             <DialogDescription>
               {idAtencion
-                ? 'Agregue un nuevo funcionario externo a la atención existente.'
-                : 'Complete la información del funcionario externo y los detalles de la asignación.'}
+                ? "Agregue un nuevo funcionario externo a la atención existente."
+                : "Complete la información del funcionario externo y los detalles de la asignación."}
             </DialogDescription>
           </DialogHeader>
 
@@ -209,7 +209,7 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
                 <div className="space-y-2">
                   <Label className="text-sm">Rol de Atención</Label>
                   <RadioGroup
-                    value={rolAtencion || ''}
+                    value={rolAtencion || ""}
                     onValueChange={(value) => setRolAtencion(value as RolAtencion)}
                     disabled={cargando}
                     className="z-[10002] flex-col items-center space-x-4"
@@ -317,12 +317,12 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
               {cargando ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {idAtencion ? 'Agregando...' : 'Asignando...'}
+                  {idAtencion ? "Agregando..." : "Asignando..."}
                 </>
               ) : (
                 <>
                   <UserPlus className="w-4 h-4 mr-2" />
-                  {idAtencion ? 'Agregar' : 'Asignar'}
+                  {idAtencion ? "Agregar" : "Asignar"}
                 </>
               )}
             </Button>

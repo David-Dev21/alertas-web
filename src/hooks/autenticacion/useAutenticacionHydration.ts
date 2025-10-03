@@ -1,60 +1,60 @@
-import { useEffect } from 'react';
-import { useAutenticacionStore } from '@/stores/autenticacion/autenticacionStore';
+import { useEffect } from "react";
+import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore";
 
 /**
- * Hook que hidrata el store de Zustand con los datos de localStorage
+ * Hook que hidrata el almacenamiento de Zustand con los datos de localStorage
  * cuando la aplicación arranca.
  *
  * Este hook:
- * 1. Lee authToken, userData y systemData desde localStorage
- * 2. Hidrata el store de Zustand con esos valores
+ * 1. Lee access_token, datosUsuario y datosSistema desde localStorage
+ * 2. Hidrata el almacenamiento de Zustand con esos valores
  * 3. Si no encuentra valores, no hace nada
  * 4. Se ejecuta solo una vez cuando el componente se monta
  */
 export function useAutenticacionHydration() {
-  const { setToken, setUserData, setSystemData, isHydrated, setHydrated } = useAutenticacionStore();
+  const { establecerToken, establecerDatosUsuario, establecerDatosSistema, estaHidratado, establecerHidratado } = useAutenticacionStore();
 
   useEffect(() => {
     // Solo ejecutar si no ha sido hidratado aún
-    if (isHydrated) return;
+    if (estaHidratado) return;
 
     try {
-      // Leer authToken desde localStorage
-      const authToken = localStorage.getItem('authToken');
-      if (authToken) {
-        setToken(authToken);
+      // Leer access_token desde localStorage
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        establecerToken(token);
       }
 
-      // Leer userData desde localStorage
-      const userDataStr = localStorage.getItem('userData');
-      if (userDataStr) {
+      // Leer datosUsuario desde localStorage
+      const datosUsuarioStr = localStorage.getItem("datosUsuario");
+      if (datosUsuarioStr) {
         try {
-          const userData = JSON.parse(userDataStr);
-          setUserData(userData);
+          const datosUsuario = JSON.parse(datosUsuarioStr);
+          establecerDatosUsuario(datosUsuario);
         } catch (error) {
-          console.warn('Error parsing userData from localStorage:', error);
+          console.warn("Error al parsear datosUsuario desde localStorage:", error);
         }
       }
 
-      // Leer systemData desde localStorage
-      const systemDataStr = localStorage.getItem('systemData');
-      if (systemDataStr) {
+      // Leer datosSistema desde localStorage
+      const datosSistemaStr = localStorage.getItem("datosSistema");
+      if (datosSistemaStr) {
         try {
-          const systemData = JSON.parse(systemDataStr);
-          setSystemData(systemData);
+          const datosSistema = JSON.parse(datosSistemaStr);
+          establecerDatosSistema(datosSistema);
         } catch (error) {
-          console.warn('Error parsing systemData from localStorage:', error);
+          console.warn("Error al parsear datosSistema desde localStorage:", error);
         }
       }
 
       // Marcar como hidratado
-      setHydrated();
+      establecerHidratado();
     } catch (error) {
-      console.error('Error during auth hydration:', error);
+      console.error("Error durante la hidratación de autenticación:", error);
       // Marcar como hidratado incluso si hay error para evitar loops
-      setHydrated();
+      establecerHidratado();
     }
-  }, [setToken, setUserData, setSystemData, isHydrated, setHydrated]);
+  }, [establecerToken, establecerDatosUsuario, establecerDatosSistema, estaHidratado, establecerHidratado]);
 
-  return { isHydrated };
+  return { estaHidratado };
 }

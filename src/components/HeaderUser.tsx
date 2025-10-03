@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { LogOut, User } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { LogOut, User } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,20 +10,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/hooks/autenticacion/useAutenticacion';
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/autenticacion/useAutenticacion";
 
 export function HeaderUser() {
-  const { user, logout } = useAuth();
+  const { usuario, cerrarSesion } = useAuth();
 
-  const userData = {
-    name: user.fullName || user.name,
-    email: user.email,
-    avatar: user.imageUser,
+  const datosUsuario = {
+    nombre: usuario.nombreCompleto || usuario.nombre,
+    correo: usuario.correo,
+    avatar: usuario.imagenUsuario,
   };
 
-  const handleLogout = () => {
-    logout();
+  const manejarCerrarSesion = () => {
+    cerrarSesion();
   };
 
   return (
@@ -31,12 +31,12 @@ export function HeaderUser() {
       <DropdownMenuTrigger asChild>
         <button className="relative p-1 rounded-full hover:bg-muted transition-colors" aria-label="Menú de usuario">
           <Avatar className="h-8 w-8 rounded-full">
-            <AvatarImage src={userData.avatar} alt={userData.name} />
+            <AvatarImage src={datosUsuario.avatar} alt={datosUsuario.nombre} />
             <AvatarFallback className="rounded-full">
-              {userData.name
-                .split(' ')
+              {datosUsuario.nombre
+                .split(" ")
                 .map((n) => n[0])
-                .join('')
+                .join("")
                 .toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -46,18 +46,18 @@ export function HeaderUser() {
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-3 px-3 py-2 text-left text-sm">
             <Avatar className="h-10 w-10 rounded-full">
-              <AvatarImage src={userData.avatar} alt={userData.name} />
+              <AvatarImage src={datosUsuario.avatar} alt={datosUsuario.nombre} />
               <AvatarFallback className="rounded-full">
-                {userData.name
-                  .split(' ')
+                {datosUsuario.nombre
+                  .split(" ")
                   .map((n) => n[0])
-                  .join('')
+                  .join("")
                   .toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">{userData.name}</span>
-              <span className="truncate text-xs text-muted-foreground">{userData.email}</span>
+              <span className="truncate font-semibold">{datosUsuario.nombre}</span>
+              <span className="truncate text-xs text-muted-foreground">{datosUsuario.correo}</span>
             </div>
           </div>
         </DropdownMenuLabel>
@@ -69,7 +69,7 @@ export function HeaderUser() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+        <DropdownMenuItem onClick={manejarCerrarSesion} className="text-destructive focus:text-destructive">
           <LogOut className="w-4 h-4" />
           Cerrar Sesión
         </DropdownMenuItem>

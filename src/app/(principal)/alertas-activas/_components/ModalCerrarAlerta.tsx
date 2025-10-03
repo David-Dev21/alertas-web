@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Search } from 'lucide-react';
-import { useAuth } from '@/hooks/autenticacion/useAutenticacion';
-import { alertasService } from '@/services/alertas/alertasService';
-import { ModalAgregarAgresor } from './ModalAgregarAgresor';
-import { useAgresores } from '@/hooks/alertas/useAgresores';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, Search } from "lucide-react";
+import { useAuth } from "@/hooks/autenticacion/useAutenticacion";
+import { alertasService } from "@/services/alertas/alertasService";
+import { ModalAgregarAgresor } from "./ModalAgregarAgresor";
+import { useAgresores } from "@/hooks/alertas/useAgresores";
 
 interface ModalCerrarAlertaProps {
   abierto: boolean;
@@ -22,7 +22,7 @@ interface ModalCerrarAlertaProps {
 
 interface DatosCierre {
   idUsuarioAdmin: string;
-  motivoCierre: 'RESUELTA' | 'FALSA_ALERTA';
+  motivoCierre: "RESUELTA" | "FALSA_ALERTA";
   estadoVictima?: string;
   idAgresor?: string;
   observaciones: string;
@@ -44,46 +44,46 @@ interface AgresorEncontrado {
 }
 
 export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada }: ModalCerrarAlertaProps) {
-  const { user } = useAuth();
+  const { usuario } = useAuth();
   const { buscarAgresor: buscarAgresorHook, buscandoAgresor, creandoAgresor } = useAgresores();
   const [cargando, setCargando] = useState(false);
-  const [pestañaActiva, setPestañaActiva] = useState('relevante');
+  const [pestañaActiva, setPestañaActiva] = useState("relevante");
 
   const [datos, setDatos] = useState<DatosCierre>({
-    idUsuarioAdmin: user.userId || '',
-    motivoCierre: 'RESUELTA',
-    estadoVictima: '',
-    idAgresor: '',
-    observaciones: '',
+    idUsuarioAdmin: usuario.idUsuario || "",
+    motivoCierre: "RESUELTA",
+    estadoVictima: "",
+    idAgresor: "",
+    observaciones: "",
     fechaHora: new Date().toISOString(),
   });
 
   const [datosAgresor, setDatosAgresor] = useState<DatosAgresor>({
-    cedulaIdentidad: '',
-    nombres: '',
-    apellidos: '',
-    parentesco: '',
+    cedulaIdentidad: "",
+    nombres: "",
+    apellidos: "",
+    parentesco: "",
   });
 
-  const [cedulaBusqueda, setCedulaBusqueda] = useState('');
+  const [cedulaBusqueda, setCedulaBusqueda] = useState("");
   const [agresorEncontrado, setAgresorEncontrado] = useState<AgresorEncontrado | null>(null);
   const [mostrarCrearAgresor, setMostrarCrearAgresor] = useState(false);
 
   useEffect(() => {
     if (abierto) {
       // Resetear estados cuando se abre el modal
-      setCedulaBusqueda('');
+      setCedulaBusqueda("");
       setAgresorEncontrado(null);
       setMostrarCrearAgresor(false);
       setDatosAgresor({
-        cedulaIdentidad: '',
-        nombres: '',
-        apellidos: '',
-        parentesco: '',
+        cedulaIdentidad: "",
+        nombres: "",
+        apellidos: "",
+        parentesco: "",
       });
       setDatos((prev) => ({
         ...prev,
-        idAgresor: '',
+        idAgresor: "",
       }));
     }
   }, [abierto]);
@@ -92,7 +92,7 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
     setPestañaActiva(pestaña);
     setDatos((prev) => ({
       ...prev,
-      motivoCierre: pestaña === 'relevante' ? 'RESUELTA' : 'FALSA_ALERTA',
+      motivoCierre: pestaña === "relevante" ? "RESUELTA" : "FALSA_ALERTA",
     }));
   };
 
@@ -116,8 +116,8 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
         idAgresor: agresor.id,
       }));
       // Llenar datosAgresor con los datos encontrados
-      const [nombres, ...apellidosArray] = agresor.nombreCompleto.split(' ');
-      const apellidos = apellidosArray.join(' ');
+      const [nombres, ...apellidosArray] = agresor.nombreCompleto.split(" ");
+      const apellidos = apellidosArray.join(" ");
       setDatosAgresor({
         cedulaIdentidad: agresor.cedulaIdentidad,
         nombres: nombres,
@@ -167,22 +167,22 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
       };
 
       // Solo incluir estadoVictima para casos RESUELTA
-      if (pestañaActiva === 'relevante') {
+      if (pestañaActiva === "relevante") {
         datosEnvio.estadoVictima = datos.estadoVictima;
       }
 
       // Incluir idAgresor solo si se completó
-      if (pestañaActiva === 'relevante' && datos.idAgresor?.trim()) {
+      if (pestañaActiva === "relevante" && datos.idAgresor?.trim()) {
         datosEnvio.idAgresor = datos.idAgresor.trim();
       }
 
-      console.log('Datos a enviar:', datosEnvio);
+      console.log("Datos a enviar:", datosEnvio);
       await alertasService.cerrar(idAlerta, datosEnvio);
 
       onAlertaCerrada?.();
       onCerrar();
     } catch (error) {
-      console.error('Error al cerrar alerta:', error);
+      console.error("Error al cerrar alerta:", error);
       // Aquí podrías mostrar un toast de error
     } finally {
       setCargando(false);
@@ -196,12 +196,12 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
     }
 
     // Para caso relevante, estadoVictima es requerido
-    if (pestañaActiva === 'relevante' && !datos.estadoVictima?.trim()) {
+    if (pestañaActiva === "relevante" && !datos.estadoVictima?.trim()) {
       return false;
     }
 
     // Para caso relevante, si hay datos del agresor (encontrado o manual), validar que haya idAgresor
-    if (pestañaActiva === 'relevante' && (agresorEncontrado || datosAgresor.cedulaIdentidad.trim())) {
+    if (pestañaActiva === "relevante" && (agresorEncontrado || datosAgresor.cedulaIdentidad.trim())) {
       if (!datos.idAgresor?.trim()) {
         return false;
       }
@@ -232,7 +232,7 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
                   <Input
                     id="estado-victima"
                     value={datos.estadoVictima}
-                    onChange={(e) => manejarCambio('estadoVictima', e.target.value)}
+                    onChange={(e) => manejarCambio("estadoVictima", e.target.value)}
                     placeholder="Ej: Segura, En riesgo, Desaparecida..."
                   />
                 </div>
@@ -242,7 +242,7 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
                   <Textarea
                     id="observaciones-relevante"
                     value={datos.observaciones}
-                    onChange={(e) => manejarCambio('observaciones', e.target.value)}
+                    onChange={(e) => manejarCambio("observaciones", e.target.value)}
                     placeholder="Describa las acciones realizadas y el resultado..."
                     rows={3}
                   />
@@ -290,17 +290,17 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
                           size="sm"
                           onClick={() => {
                             setAgresorEncontrado(null);
-                            setCedulaBusqueda('');
+                            setCedulaBusqueda("");
                             setMostrarCrearAgresor(false);
                             setDatosAgresor({
-                              cedulaIdentidad: '',
-                              nombres: '',
-                              apellidos: '',
-                              parentesco: '',
+                              cedulaIdentidad: "",
+                              nombres: "",
+                              apellidos: "",
+                              parentesco: "",
                             });
                             setDatos((prev) => ({
                               ...prev,
-                              idAgresor: '',
+                              idAgresor: "",
                             }));
                           }}
                         >
@@ -319,7 +319,7 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
                 <Textarea
                   id="observaciones-falsa"
                   value={datos.observaciones}
-                  onChange={(e) => manejarCambio('observaciones', e.target.value)}
+                  onChange={(e) => manejarCambio("observaciones", e.target.value)}
                   placeholder="Explique por qué se considera falsa alarma..."
                   rows={4}
                 />
@@ -338,7 +338,7 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
                   Cerrando...
                 </>
               ) : (
-                'Cerrar Alerta'
+                "Cerrar Alerta"
               )}
             </Button>
           </DialogFooter>

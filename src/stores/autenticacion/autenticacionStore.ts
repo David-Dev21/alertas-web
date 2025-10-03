@@ -1,233 +1,216 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-interface UserData {
-  name: string;
-  lastName: string;
-  fullName: string;
-  email: string;
-  imageUser: string;
-  userId: string;
-  username: string;
-  active: boolean;
-  verified: boolean;
-  createdAt: string;
-  lastAccess: string;
+interface DatosUsuario {
+  nombre: string;
+  apellido: string;
+  nombreCompleto: string;
+  correo: string;
+  imagenUsuario: string;
+  idUsuario: string;
+  nombreUsuario: string;
+  activo: boolean;
+  verificado: boolean;
+  creadoEn: string;
+  ultimoAcceso: string;
   unidad: {
-    unidadId: number;
+    idUnidad: number;
     abreviacion: string;
-    organismoId: number;
-    organismoFullName: string;
+    idOrganismo: number;
+    nombreCompletoOrganismo: string;
   };
-  // Datos de ubicación/departamento
   ubicacion?: {
     idDepartamento: number;
     departamento: string;
   };
 }
 
-interface ModuleData {
-  name: string;
-  path: string;
-  icon: string;
-  order: number;
-  children: ModuleChild[];
+interface DatosModulo {
+  nombre: string;
+  ruta: string;
+  icono: string;
+  orden: number;
+  hijos: HijoModulo[];
 }
 
-interface ModuleChild {
-  icon: string;
-  name: string;
-  order: number;
-  path: string;
+interface HijoModulo {
+  icono: string;
+  nombre: string;
+  orden: number;
+  ruta: string;
 }
 
-interface RoleData {
-  name: string;
+interface DatosRol {
+  nombre: string;
 }
 
-interface SystemData {
-  name: string;
-  roles: RoleData[];
-  modules: ModuleData[];
-  permissions: any[];
+interface DatosSistema {
+  nombre: string;
+  roles: DatosRol[];
+  modulos: DatosModulo[];
+  permisos: any[];
 }
 
-interface AutenticacionStore {
-  // Estado
+interface AlmacenamientoAutenticacion {
   token: string | null;
-  userData: UserData | null;
-  systemData: SystemData | null;
-  isAuthenticated: boolean;
-
-  // Acciones
-  setToken: (token: string | null) => void;
-  setUserData: (userData: UserData | null) => void;
-  setUbicacionUsuario: (idDepartamento: number, departamento: string) => void;
-  setRoles: (roles: RoleData[]) => void;
-  setModules: (modules: ModuleData[]) => void;
-  setPermissions: (permissions: any[]) => void;
-  setSystemData: (systemData: SystemData | null) => void;
-  logout: () => void;
-  isHydrated: boolean;
-  setHydrated: () => void;
+  datosUsuario: DatosUsuario | null;
+  datosSistema: DatosSistema | null;
+  estaAutenticado: boolean;
+  estaHidratado: boolean;
+  establecerToken: (token: string | null) => void;
+  establecerDatosUsuario: (datosUsuario: DatosUsuario | null) => void;
+  establecerUbicacionUsuario: (idDepartamento: number, departamento: string) => void;
+  establecerRoles: (roles: DatosRol[]) => void;
+  establecerModulos: (modulos: DatosModulo[]) => void;
+  establecerPermisos: (permisos: any[]) => void;
+  establecerDatosSistema: (datosSistema: DatosSistema | null) => void;
+  cerrarSesion: () => void;
+  establecerHidratado: () => void;
 }
 
-export const useAutenticacionStore = create<AutenticacionStore>()(
+export const useAutenticacionStore = create<AlmacenamientoAutenticacion>()(
   persist(
     (set, get) => ({
-      // Estado inicial
       token: null,
-      userData: null,
-      systemData: null,
-      isAuthenticated: false,
-      isHydrated: false,
+      datosUsuario: null,
+      datosSistema: null,
+      estaAutenticado: false,
+      estaHidratado: false,
 
-      // Acciones
-      setToken: (token: string | null) => {
-        set((state) => ({
+      establecerToken: (token: string | null) => {
+        set((estado) => ({
           token,
-          isAuthenticated: !!token && !!state.userData,
+          estaAutenticado: !!token && !!estado.datosUsuario,
         }));
 
-        // Guardar token en localStorage
-        if (typeof window !== 'undefined') {
+        if (typeof window !== "undefined") {
           if (token) {
-            localStorage.setItem('authToken', token);
-            // También en cookie para middleware
-            document.cookie = `authToken=${token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`;
+            localStorage.setItem("access_token", token);
           } else {
-            localStorage.removeItem('authToken');
-            document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
           }
         }
       },
 
-      setUserData: (userData: UserData | null) => {
-        set((state) => ({
-          userData,
-          isAuthenticated: !!state.token && !!userData,
+      establecerDatosUsuario: (datosUsuario: DatosUsuario | null) => {
+        set((estado) => ({
+          datosUsuario,
+          estaAutenticado: !!estado.token && !!datosUsuario,
         }));
 
-        // Guardar userData en sessionStorage
-        if (typeof window !== 'undefined') {
-          if (userData) {
-            sessionStorage.setItem('userData', JSON.stringify(userData));
+        if (typeof window !== "undefined") {
+          if (datosUsuario) {
+            localStorage.setItem("datosUsuario", JSON.stringify(datosUsuario));
           } else {
-            sessionStorage.removeItem('userData');
+            localStorage.removeItem("datosUsuario");
           }
         }
       },
 
-      setUbicacionUsuario: (idDepartamento: number, departamento: string) => {
-        set((state) => {
-          if (!state.userData) return state;
+      establecerUbicacionUsuario: (idDepartamento: number, departamento: string) => {
+        set((estado) => {
+          if (!estado.datosUsuario) return estado;
 
-          // Si ya tiene la misma ubicación, no hacer nada
-          if (state.userData.ubicacion?.idDepartamento === idDepartamento && state.userData.ubicacion?.departamento === departamento) {
-            return state;
+          if (estado.datosUsuario.ubicacion?.idDepartamento === idDepartamento && estado.datosUsuario.ubicacion?.departamento === departamento) {
+            return estado;
           }
 
-          const updatedUserData = {
-            ...state.userData,
+          const datosUsuarioActualizados = {
+            ...estado.datosUsuario,
             ubicacion: {
               idDepartamento,
               departamento,
             },
           };
 
-          // Guardar userData actualizada en sessionStorage
-          if (typeof window !== 'undefined') {
-            sessionStorage.setItem('userData', JSON.stringify(updatedUserData));
+          if (typeof window !== "undefined") {
+            localStorage.setItem("datosUsuario", JSON.stringify(datosUsuarioActualizados));
           }
 
           return {
-            userData: updatedUserData,
+            datosUsuario: datosUsuarioActualizados,
           };
         });
       },
 
-      setRoles: (roles: RoleData[]) =>
-        set((state) => ({
-          systemData: state.systemData ? { ...state.systemData, roles } : { name: '', roles, modules: [], permissions: [] },
+      establecerRoles: (roles: DatosRol[]) =>
+        set((estado) => ({
+          datosSistema: estado.datosSistema ? { ...estado.datosSistema, roles } : { nombre: "", roles, modulos: [], permisos: [] },
         })),
 
-      setModules: (modules: ModuleData[]) =>
-        set((state) => ({
-          systemData: state.systemData ? { ...state.systemData, modules } : { name: '', roles: [], modules, permissions: [] },
+      establecerModulos: (modulos: DatosModulo[]) =>
+        set((estado) => ({
+          datosSistema: estado.datosSistema ? { ...estado.datosSistema, modulos } : { nombre: "", roles: [], modulos, permisos: [] },
         })),
 
-      setPermissions: (permissions: any[]) =>
-        set((state) => ({
-          systemData: state.systemData ? { ...state.systemData, permissions } : { name: '', roles: [], modules: [], permissions },
+      establecerPermisos: (permisos: any[]) =>
+        set((estado) => ({
+          datosSistema: estado.datosSistema ? { ...estado.datosSistema, permisos } : { nombre: "", roles: [], modulos: [], permisos },
         })),
 
-      setSystemData: (systemData: SystemData | null) => {
-        set({ systemData });
+      establecerDatosSistema: (datosSistema: DatosSistema | null) => {
+        set({ datosSistema });
 
-        // Guardar systemData en sessionStorage
-        if (typeof window !== 'undefined') {
-          if (systemData) {
-            sessionStorage.setItem('systemData', JSON.stringify(systemData));
+        if (typeof window !== "undefined") {
+          if (datosSistema) {
+            localStorage.setItem("datosSistema", JSON.stringify(datosSistema));
           } else {
-            sessionStorage.removeItem('systemData');
+            localStorage.removeItem("datosSistema");
           }
         }
       },
 
-      logout: () => {
+      cerrarSesion: () => {
         set({
           token: null,
-          userData: null,
-          systemData: null,
-          isAuthenticated: false,
+          datosUsuario: null,
+          datosSistema: null,
+          estaAutenticado: false,
         });
 
-        // Limpiar storages
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('authToken');
-          sessionStorage.removeItem('userData');
-          sessionStorage.removeItem('systemData');
-          // Limpiar datos de ubicación que se guardaban antes
-          sessionStorage.removeItem('idDepartamento');
-          sessionStorage.removeItem('departamento');
-          document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          localStorage.removeItem("datosUsuario");
+          localStorage.removeItem("datosSistema");
+          document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         }
       },
 
-      setHydrated: () => {
-        set({ isHydrated: true });
+      establecerHidratado: () => {
+        if (typeof window !== "undefined") {
+          const token = localStorage.getItem("access_token");
+          const datosUsuarioStr = localStorage.getItem("datosUsuario");
+          const datosSistemaStr = localStorage.getItem("datosSistema");
+          const datosUsuario = datosUsuarioStr ? JSON.parse(datosUsuarioStr) : null;
+          const datosSistema = datosSistemaStr ? JSON.parse(datosSistemaStr) : null;
 
-        // Cargar datos desde storages al hidratar
-        if (typeof window !== 'undefined') {
-          const token = localStorage.getItem('authToken');
-          const userData = sessionStorage.getItem('userData');
-          const systemData = sessionStorage.getItem('systemData');
-
-          if (token || userData || systemData) {
-            set({
-              token: token || null,
-              userData: userData ? JSON.parse(userData) : null,
-              systemData: systemData ? JSON.parse(systemData) : null,
-              isAuthenticated: !!(token && userData),
-            });
-          }
+          // Actualizar todo el estado en una sola llamada
+          set({
+            estaHidratado: true,
+            token: token || null,
+            datosUsuario,
+            datosSistema,
+            estaAutenticado: !!(token && datosUsuario),
+          });
+        } else {
+          set({ estaHidratado: true });
         }
       },
     }),
     {
-      name: 'auth-store',
-      // Solo persistir isHydrated en Zustand
-      partialize: (state) => ({
-        isHydrated: state.isHydrated,
+      name: "autenticacion",
+      partialize: (estado) => ({
+        estaHidratado: estado.estaHidratado,
       }),
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          state.setHydrated();
+      onRehydrateStorage: () => (estado) => {
+        if (estado) {
+          estado.establecerHidratado();
         }
       },
-    },
-  ),
+    }
+  )
 );
 
-// Tipos exportados para uso en otros archivos
-export type { UserData, SystemData, ModuleData, ModuleChild, AutenticacionStore };
+export type { DatosUsuario, DatosSistema, DatosModulo, HijoModulo, AlmacenamientoAutenticacion };

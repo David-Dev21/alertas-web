@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import * as L from 'leaflet';
-import dynamic from 'next/dynamic';
-import './mapa-alertas.css';
-import { Alerta } from '@/types/alertas/Alerta';
-import { useAlertaSeleccionStore } from '@/stores/alertas/alertaSeleccionStore';
+import { useEffect, useRef, useState } from "react";
+import * as L from "leaflet";
+import dynamic from "next/dynamic";
+// import './mapa-alertas.css';
+import { Alerta } from "@/types/alertas/Alerta";
+import { useAlertaSeleccionStore } from "@/stores/alertas/alertaSeleccionStore";
 
 // Importar Leaflet dinámicamente para evitar problemas de SSR
-const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), { ssr: false });
-const TileLayer = dynamic(() => import('react-leaflet').then((mod) => mod.TileLayer), { ssr: false });
-const Marker = dynamic(() => import('react-leaflet').then((mod) => mod.Marker), { ssr: false });
-const Circle = dynamic(() => import('react-leaflet').then((mod) => mod.Circle), { ssr: false });
+const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import("react-leaflet").then((mod) => mod.TileLayer), { ssr: false });
+const Marker = dynamic(() => import("react-leaflet").then((mod) => mod.Marker), { ssr: false });
+const Circle = dynamic(() => import("react-leaflet").then((mod) => mod.Circle), { ssr: false });
 
 interface MapaAlertasActivasProps {
   alertas: Alerta[];
@@ -41,7 +41,7 @@ export function MapaAlertasActivas({ alertas }: MapaAlertasActivasProps) {
           mapRef.current.remove();
           mapRef.current = null;
         } catch (error) {
-          console.log('Error cleaning up map:', error);
+          console.log("Error cleaning up map:", error);
         }
       }
     };
@@ -57,7 +57,7 @@ export function MapaAlertasActivas({ alertas }: MapaAlertasActivasProps) {
             [
               alerta.ubicacion!.geometry.coordinates[1], // latitud
               alerta.ubicacion!.geometry.coordinates[0], // longitud
-            ] as [number, number],
+            ] as [number, number]
         );
 
       if (bounds.length > 0) {
@@ -89,27 +89,27 @@ export function MapaAlertasActivas({ alertas }: MapaAlertasActivasProps) {
   useEffect(() => {
     if (!alertasConUbicacion) return;
     if (alertasConUbicacion.length === 0) {
-      console.log('[MapaAlertasActivas] no hay alertas con ubicación');
+      console.log("[MapaAlertasActivas] no hay alertas con ubicación");
       return;
     }
 
-    console.log('[MapaAlertasActivas] alertasConUbicacion:', alertasConUbicacion.length);
+    console.log("[MapaAlertasActivas] alertasConUbicacion:", alertasConUbicacion.length);
     alertasConUbicacion.forEach((a) => {
       const estado = a.estadoAlerta;
       const destacado = alertaDestacada === a.id;
-      let base = '/markers/pin-';
+      let base = "/markers/pin-";
       switch (estado) {
-        case 'PENDIENTE':
-          base += 'pendiente';
+        case "PENDIENTE":
+          base += "pendiente";
           break;
-        case 'ASIGNADA':
-          base += 'asignada';
+        case "ASIGNADA":
+          base += "asignada";
           break;
-        case 'EN_ATENCION':
-          base += 'enatencion';
+        case "EN_ATENCION":
+          base += "enatencion";
           break;
         default:
-          base += 'pendiente';
+          base += "pendiente";
       }
       const file = destacado ? `${base}-destacado.svg` : `${base}.svg`;
     });
@@ -134,11 +134,11 @@ export function MapaAlertasActivas({ alertas }: MapaAlertasActivasProps) {
         key={`main-map-${mapKey}`} // Clave única para evitar reutilización
         center={defaultCenter}
         zoom={defaultZoom}
-        style={{ height: '100%', width: '100%' }}
+        style={{ height: "100%", width: "100%" }}
         ref={mapRef}
         className="rounded-lg"
         whenReady={() => {
-          console.log('Mapa principal listo');
+          console.log("Mapa principal listo");
         }}
       >
         <TileLayer
@@ -155,22 +155,22 @@ export function MapaAlertasActivas({ alertas }: MapaAlertasActivasProps) {
 
             // Seleccionar iconos estáticos en /public/markers según estado y destacado
             const seleccionarIconoEstatico = (estado: string, destacado = false) => {
-              const key = `${estado}-${destacado ? '1' : '0'}`;
+              const key = `${estado}-${destacado ? "1" : "0"}`;
               if (iconCache[key]) return iconCache[key];
 
-              let base = '/markers/pin-';
+              let base = "/markers/pin-";
               switch (estado) {
-                case 'PENDIENTE':
-                  base += 'pendiente';
+                case "PENDIENTE":
+                  base += "pendiente";
                   break;
-                case 'ASIGNADA':
-                  base += 'asignada';
+                case "ASIGNADA":
+                  base += "asignada";
                   break;
-                case 'EN_ATENCION':
-                  base += 'enatencion';
+                case "EN_ATENCION":
+                  base += "enatencion";
                   break;
                 default:
-                  base += 'pendiente';
+                  base += "pendiente";
               }
 
               const file = destacado ? `${base}-destacado.svg` : `${base}.svg`;
@@ -195,8 +195,8 @@ export function MapaAlertasActivas({ alertas }: MapaAlertasActivasProps) {
                     center={[lat, lng]}
                     radius={200}
                     pathOptions={{
-                      color: '#55632E',
-                      fillColor: '#55632E',
+                      color: "#55632E",
+                      fillColor: "#55632E",
                       fillOpacity: 0.5,
                       weight: 4,
                     }}
