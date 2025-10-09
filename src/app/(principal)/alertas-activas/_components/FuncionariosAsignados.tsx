@@ -1,7 +1,7 @@
-'use client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Shield, User, Radio, Car, Clock } from 'lucide-react';
+"use client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Shield, User, Radio, Car, Clock } from "lucide-react";
 
 interface FuncionarioAsignado {
   id: string;
@@ -10,17 +10,19 @@ interface FuncionarioAsignado {
   ubicacion: string | null;
   turnoInicio: string;
   turnoFin: string;
-  grado: string;
-  nombreCompleto: string;
-  organismo: string;
-  unidad: string;
+  funcionarioExterno: {
+    grado: string;
+    nombreCompleto: string;
+    organismo?: string;
+    unidad: string;
+  };
 }
 
 interface Atencion {
   id: string;
   siglaVehiculo?: string;
   siglaRadio?: string;
-  funcionarios?: FuncionarioAsignado[];
+  atencionFuncionario?: FuncionarioAsignado[];
 }
 
 interface FuncionariosAsignadosProps {
@@ -28,28 +30,28 @@ interface FuncionariosAsignadosProps {
 }
 
 export function FuncionariosAsignados({ atencion }: FuncionariosAsignadosProps) {
-  const funcionarios = atencion?.funcionarios || [];
+  const funcionarios = atencion?.atencionFuncionario || [];
 
   const formatearTurno = (turnoInicio: string, turnoFin: string) => {
     const inicio = new Date(turnoInicio);
     const fin = new Date(turnoFin);
 
     const opcionesFecha: Intl.DateTimeFormatOptions = {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
+      weekday: "long",
+      day: "numeric",
+      month: "long",
     };
 
     const opcionesHora: Intl.DateTimeFormatOptions = {
-      hour: '2-digit',
-      minute: '2-digit',
+      hour: "2-digit",
+      minute: "2-digit",
       hour12: false,
     };
 
-    const diaInicio = inicio.toLocaleDateString('es-ES', opcionesFecha);
-    const diaFin = fin.toLocaleDateString('es-ES', opcionesFecha);
-    const horaInicio = inicio.toLocaleTimeString('es-ES', opcionesHora);
-    const horaFin = fin.toLocaleTimeString('es-ES', opcionesHora);
+    const diaInicio = inicio.toLocaleDateString("es-ES", opcionesFecha);
+    const diaFin = fin.toLocaleDateString("es-ES", opcionesFecha);
+    const horaInicio = inicio.toLocaleTimeString("es-ES", opcionesHora);
+    const horaFin = fin.toLocaleTimeString("es-ES", opcionesHora);
 
     if (inicio.toDateString() === fin.toDateString()) {
       return `${diaInicio}, de ${horaInicio} a ${horaFin}`;
@@ -125,14 +127,15 @@ export function FuncionariosAsignados({ atencion }: FuncionariosAsignadosProps) 
                     </div>
                     <div>
                       <h5 className="font-semibold text-sm">
-                        {funcionario.grado} {funcionario.nombreCompleto}
+                        {funcionario.funcionarioExterno.grado} {funcionario.funcionarioExterno.nombreCompleto}
                       </h5>
                       <p className="text-xs text-muted-foreground">
-                        {funcionario.organismo} - {funcionario.unidad}
+                        {funcionario.funcionarioExterno.organismo ? `${funcionario.funcionarioExterno.organismo} - ` : ""}
+                        {funcionario.funcionarioExterno.unidad}
                       </p>
                     </div>
                   </div>
-                  <Badge variant={funcionario.rolAtencion === 'ENCARGADO' ? 'default' : 'secondary'} className="text-xs">
+                  <Badge variant={funcionario.rolAtencion === "ENCARGADO" ? "default" : "secondary"} className="text-xs">
                     {funcionario.rolAtencion}
                   </Badge>
                 </div>

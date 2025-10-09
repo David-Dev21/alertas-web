@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import * as L from "leaflet";
+import type { Map as LeafletMap } from "leaflet";
 import dynamic from "next/dynamic";
-// import './mapa-alertas.css';
 import { Alerta } from "@/types/alertas/Alerta";
 import { useAlertaSeleccionStore } from "@/stores/alertas/alertaSeleccionStore";
+import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore";
+import { MAPA_CONFIG, obtenerCentroMapa } from "@/lib/mapaConfig";
 
 // Importar Leaflet dinámicamente para evitar problemas de SSR
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false });
@@ -18,201 +20,106 @@ interface MapaAlertasActivasProps {
 }
 
 export function MapaAlertasActivas({ alertas }: MapaAlertasActivasProps) {
-  const mapRef = useRef<any>(null);
+  const mapRef = useRef<LeafletMap | null>(null);
   const { alertaDestacada } = useAlertaSeleccionStore();
-  const [isClient, setIsClient] = useState(false);
-  const [mapKey, setMapKey] = useState(0);
+  const { datosUsuario } = useAutenticacionStore();
 
-  // Configuración por defecto del mapa (La Paz, Bolivia)
-  const defaultCenter: [number, number] = [-16.5, -68.15];
-  const defaultZoom = 12;
-
-  // Asegurar que estamos en el cliente
-  useEffect(() => {
-    setIsClient(true);
-    setMapKey(Date.now()); // Usar timestamp para clave única
-  }, []);
-
-  // Limpiar el mapa cuando el componente se desmonte
-  useEffect(() => {
-    return () => {
-      if (mapRef.current) {
-        try {
-          mapRef.current.remove();
-          mapRef.current = null;
-        } catch (error) {
-          console.log("Error cleaning up map:", error);
-        }
-      }
-    };
-  }, []);
+  // Obtener centro del mapa basado en ubicación del usuario
+  const centroMapa = obtenerCentroMapa(datosUsuario?.ubicacion?.latitud, datosUsuario?.ubicacion?.longitud, datosUsuario?.ubicacion?.idDepartamento);
 
   useEffect(() => {
-    // Ajustar vista del mapa cuando cambien las alertas
     if (mapRef.current && alertas.length > 0) {
-      const bounds = alertas
+      const limites = alertas
         .filter((alerta) => alerta.ubicacion)
-        .map(
-          (alerta) =>
-            [
-              alerta.ubicacion!.geometry.coordinates[1], // latitud
-              alerta.ubicacion!.geometry.coordinates[0], // longitud
-            ] as [number, number]
-        );
+        .map((alerta) => [alerta.ubicacion!.geometry.coordinates[1], alerta.ubicacion!.geometry.coordinates[0]] as [number, number]);
 
-      if (bounds.length > 0) {
-        mapRef.current.fitBounds(bounds, { padding: [20, 20] });
+      if (limites.length > 0) {
+        mapRef.current.fitBounds(limites, { padding: [20, 20] });
       }
     }
   }, [alertas]);
 
-  // Centrar el mapa en la alerta destacada
   useEffect(() => {
     if (mapRef.current && alertaDestacada) {
       const alertaSeleccionada = alertas.find((alerta) => alerta.id === alertaDestacada);
-      if (alertaSeleccionada && alertaSeleccionada.ubicacion) {
+      if (alertaSeleccionada?.ubicacion) {
         const lat = alertaSeleccionada.ubicacion.geometry.coordinates[1];
         const lng = alertaSeleccionada.ubicacion.geometry.coordinates[0];
-
-        // Centrar y hacer zoom en la alerta destacada
-        mapRef.current.setView([lat, lng], 16, { animate: true });
+        mapRef.current.setView([lat, lng], MAPA_CONFIG.zoomDestacado, { animate: true });
       }
     }
   }, [alertaDestacada, alertas]);
 
   const alertasConUbicacion = alertas.filter((alerta) => alerta.ubicacion);
 
-  // Cache simple para iconos por color (evita recrearlos cada render)
-  const iconCache: Record<string, L.Icon | L.DivIcon> = {};
-
-  // Debug: imprimir alertas con ubicación y el icono estático seleccionado
-  useEffect(() => {
-    if (!alertasConUbicacion) return;
-    if (alertasConUbicacion.length === 0) {
-      console.log("[MapaAlertasActivas] no hay alertas con ubicación");
-      return;
-    }
-
-    console.log("[MapaAlertasActivas] alertasConUbicacion:", alertasConUbicacion.length);
-    alertasConUbicacion.forEach((a) => {
-      const estado = a.estadoAlerta;
-      const destacado = alertaDestacada === a.id;
-      let base = "/markers/pin-";
-      switch (estado) {
-        case "PENDIENTE":
-          base += "pendiente";
-          break;
-        case "ASIGNADA":
-          base += "asignada";
-          break;
-        case "EN_ATENCION":
-          base += "enatencion";
-          break;
-        default:
-          base += "pendiente";
-      }
-      const file = destacado ? `${base}-destacado.svg` : `${base}.svg`;
-    });
-  }, [alertasConUbicacion, alertaDestacada]);
-
-  // No renderizar hasta que estemos en el cliente
-  if (!isClient) {
-    return (
-      <div className="relative h-full w-full">
-        <div className="h-full flex items-center justify-center bg-gray-50 rounded-lg animate-pulse">
-          <div className="text-center text-gray-500">
-            <p className="text-lg">Cargando mapa...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const iconCache: Record<string, L.Icon> = {};
 
   return (
     <div className="relative h-full w-full">
-      <MapContainer
-        key={`main-map-${mapKey}`} // Clave única para evitar reutilización
-        center={defaultCenter}
-        zoom={defaultZoom}
-        style={{ height: "100%", width: "100%" }}
-        ref={mapRef}
-        className="rounded-lg"
-        whenReady={() => {
-          console.log("Mapa principal listo");
-        }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+      <MapContainer center={centroMapa} zoom={MAPA_CONFIG.zoomDefecto} style={{ height: "100%", width: "100%" }} ref={mapRef} className="rounded-lg">
+        <TileLayer attribution={MAPA_CONFIG.tileLayer.attribution} url={MAPA_CONFIG.tileLayer.url} maxZoom={MAPA_CONFIG.tileLayer.maxZoom} />
 
-        {/* Marcadores de alertas (solo si hay ubicaciones) */}
-        {alertasConUbicacion.length > 0 &&
-          alertasConUbicacion.map((alerta) => {
-            const esAlertaDestacada = alertaDestacada === alerta.id;
-            const lat = alerta.ubicacion!.geometry.coordinates[1];
-            const lng = alerta.ubicacion!.geometry.coordinates[0];
+        {alertasConUbicacion.map((alerta) => {
+          const esDestacada = alertaDestacada === alerta.id;
+          const lat = alerta.ubicacion!.geometry.coordinates[1];
+          const lng = alerta.ubicacion!.geometry.coordinates[0];
 
-            // Seleccionar iconos estáticos en /public/markers según estado y destacado
-            const seleccionarIconoEstatico = (estado: string, destacado = false) => {
-              const key = `${estado}-${destacado ? "1" : "0"}`;
-              if (iconCache[key]) return iconCache[key];
+          const obtenerIcono = (estado: string) => {
+            const clave = `${estado}`;
+            if (iconCache[clave]) return iconCache[clave];
 
-              let base = "/markers/pin-";
-              switch (estado) {
-                case "PENDIENTE":
-                  base += "pendiente";
-                  break;
-                case "ASIGNADA":
-                  base += "asignada";
-                  break;
-                case "EN_ATENCION":
-                  base += "enatencion";
-                  break;
-                default:
-                  base += "pendiente";
-              }
+            let base = "/markers/pin-";
+            switch (estado) {
+              case "PENDIENTE":
+                base += "pendiente";
+                break;
+              case "ASIGNADA":
+                base += "asignada";
+                break;
+              case "EN_ATENCION":
+                base += "enatencion";
+                break;
+              default:
+                base += "pendiente";
+            }
 
-              const file = destacado ? `${base}-destacado.svg` : `${base}.svg`;
+            const archivo = `${base}.svg`;
+            const icono = L.icon({
+              iconUrl: archivo,
+              iconSize: [44, 56],
+              iconAnchor: [22, 56],
+              popupAnchor: [0, -36],
+            });
 
-              const icon = L.icon({
-                iconUrl: file,
-                iconSize: destacado ? [56, 72] : [44, 56],
-                iconAnchor: destacado ? [28, 72] : [22, 56],
-                popupAnchor: [0, destacado ? -50 : -36],
-              });
+            iconCache[clave] = icono;
+            return icono;
+          };
 
-              iconCache[key] = icon;
-              return icon;
-            };
+          return (
+            <div key={alerta.id}>
+              <Marker position={[lat, lng]} icon={obtenerIcono(alerta.estadoAlerta)} />
 
-            return (
-              <div key={alerta.id}>
-                <Marker position={[lat, lng]} icon={seleccionarIconoEstatico(alerta.estadoAlerta, esAlertaDestacada)} />
-
-                {esAlertaDestacada && (
-                  <Circle
-                    center={[lat, lng]}
-                    radius={200}
-                    pathOptions={{
-                      color: "#55632E",
-                      fillColor: "#55632E",
-                      fillOpacity: 0.5,
-                      weight: 4,
-                    }}
-                  />
-                )}
-              </div>
-            );
-          })}
+              {esDestacada && (
+                <Circle
+                  center={[lat, lng]}
+                  radius={MAPA_CONFIG.circuloDestacado.radio}
+                  pathOptions={{
+                    color: MAPA_CONFIG.circuloDestacado.color,
+                    fillColor: MAPA_CONFIG.circuloDestacado.fillColor,
+                    fillOpacity: MAPA_CONFIG.circuloDestacado.fillOpacity,
+                    weight: MAPA_CONFIG.circuloDestacado.weight,
+                  }}
+                />
+              )}
+            </div>
+          );
+        })}
       </MapContainer>
 
-      {/* Overlay informativo si no hay marcadores */}
       {alertasConUbicacion.length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-999">
           <div className="bg-white/80 backdrop-blur-sm p-3 rounded-lg border text-center text-sm text-gray-600">
             No hay alertas con ubicación disponible
-            <div className="text-xs text-gray-500">Las alertas aparecerán aquí cuando tengan coordenadas GPS</div>
           </div>
         </div>
       )}

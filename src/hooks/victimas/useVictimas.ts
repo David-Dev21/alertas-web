@@ -1,15 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
-import { victimasService } from '@/services/victimas/victimasService';
-import { Victima, RespuestaVictimas, ParametrosConsultaVictimas } from '@/types/victimas/Victima';
+import { useState, useEffect, useCallback } from "react";
+import { victimasService } from "@/services/victimas/victimasService";
+import { ParametrosConsultaVictimas } from "@/types/request/victimas";
+import { Victima, RespuestaVictimas, PaginacionVictimas } from "@/types/response/victimas";
 
 export interface EstadoVictimas {
   victimas: Victima[];
-  paginacion: {
-    paginaActual: number;
-    totalPaginas: number;
-    totalElementos: number;
-    elementosPorPagina: number;
-  };
+  paginacion: PaginacionVictimas;
   cargando: boolean;
   error: string | null;
 }
@@ -40,8 +36,13 @@ export function useVictimas(parametrosIniciales: ParametrosConsultaVictimas = {}
 
         setEstado((previo) => ({
           ...previo,
-          victimas: respuesta.victimas,
-          paginacion: respuesta.paginacion,
+          victimas: respuesta.datos?.victimas || [],
+          paginacion: respuesta.datos?.paginacion || {
+            paginaActual: 1,
+            totalPaginas: 0,
+            totalElementos: 0,
+            elementosPorPagina: 10,
+          },
           cargando: false,
         }));
 
@@ -49,15 +50,15 @@ export function useVictimas(parametrosIniciales: ParametrosConsultaVictimas = {}
           setParametros(parametrosFinales);
         }
       } catch (error) {
-        console.error('Error al cargar víctimas:', error);
+        console.error("Error al cargar víctimas:", error);
         setEstado((previo) => ({
           ...previo,
           cargando: false,
-          error: error instanceof Error ? error.message : 'Error desconocido',
+          error: error instanceof Error ? error.message : "Error desconocido",
         }));
       }
     },
-    [parametros],
+    [parametros]
   );
 
   // Cargar víctimas inicialmente
@@ -75,7 +76,7 @@ export function useVictimas(parametrosIniciales: ParametrosConsultaVictimas = {}
     (nuevaPagina: number) => {
       cargarVictimas({ pagina: nuevaPagina });
     },
-    [cargarVictimas],
+    [cargarVictimas]
   );
 
   // Función para cambiar el límite de elementos por página
@@ -83,7 +84,7 @@ export function useVictimas(parametrosIniciales: ParametrosConsultaVictimas = {}
     (nuevoLimite: number) => {
       cargarVictimas({ limite: nuevoLimite, pagina: 1 });
     },
-    [cargarVictimas],
+    [cargarVictimas]
   );
 
   // Función para buscar
@@ -91,15 +92,15 @@ export function useVictimas(parametrosIniciales: ParametrosConsultaVictimas = {}
     (termino: string) => {
       cargarVictimas({ busqueda: termino, pagina: 1 });
     },
-    [cargarVictimas],
+    [cargarVictimas]
   );
 
   // Función para aplicar filtros
   const aplicarFiltros = useCallback(
-    (filtros: Omit<ParametrosConsultaVictimas, 'pagina' | 'limite'>) => {
+    (filtros: Omit<ParametrosConsultaVictimas, "pagina" | "limite">) => {
       cargarVictimas({ ...filtros, pagina: 1 });
     },
-    [cargarVictimas],
+    [cargarVictimas]
   );
 
   // Función para limpiar filtros

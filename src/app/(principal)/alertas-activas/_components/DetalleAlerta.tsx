@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useAlertaDetalle } from '@/hooks/alertas/useAlertasActivas';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-import { MapaAlertaDetalle } from './MapaAlertaDetalle';
-import { AlertaBadge } from '@/components/AlertaBadge';
-import { DatosVictimas } from './DatosVictimas';
-import { FuncionariosAsignados } from './FuncionariosAsignados';
-import { BitacoraEventos } from './BitacoraEventos';
-import { CierreAlerta } from './CierreAlerta';
-import { ModalCerrarAlerta } from './ModalCerrarAlerta';
-import { ModalAsignarFuncionarioExterno } from './ModalAsignarFuncionarioExterno';
-import { ErrorEstado } from '@/components/ErrorEstado';
-import { Loading } from '@/components/EstadoCarga';
+import { useState } from "react";
+import { useAlertaDetalle } from "@/hooks/alertas/useAlertasActivas";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { MapaAlertaDetalle } from "./MapaAlertaDetalle";
+import { AlertaBadge } from "@/components/AlertaBadge";
+import { DatosVictimas } from "./DatosVictimas";
+import { FuncionariosAsignados } from "./FuncionariosAsignados";
+import { BitacoraEventos } from "./BitacoraEventos";
+import { CierreAlerta } from "./CierreAlerta";
+import { ModalCerrarAlerta } from "./ModalCerrarAlerta";
+import { ModalAsignarFuncionarioExterno } from "./ModalAsignarFuncionarioExterno";
+import { ErrorEstado } from "@/components/ErrorEstado";
+import { Loading } from "@/components/EstadoCarga";
 
 interface Props {
   idAlerta: string;
@@ -78,20 +78,20 @@ export function DetalleAlerta({ idAlerta }: Props) {
               <div className="flex flex-row items-start">
                 <span className="text-xs text-muted-foreground mr-2">Activada:</span>
                 <span className="font-medium">
-                  {new Date(alerta.fechaHora).toLocaleDateString('es-BO', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
+                  {new Date(alerta.fechaHora).toLocaleDateString("es-BO", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
                   })}
-                  {' • '}
-                  {new Date(alerta.fechaHora).toLocaleTimeString('es-BO', {
-                    hour: '2-digit',
-                    minute: '2-digit',
+                  {" • "}
+                  {new Date(alerta.fechaHora).toLocaleTimeString("es-BO", {
+                    hour: "2-digit",
+                    minute: "2-digit",
                   })}
                 </span>
               </div>
             </Badge>
-            <Badge variant={alerta.origen === 'FELCV' ? 'default' : 'outline'} className="text-xs">
+            <Badge variant={alerta.origen === "FELCV" ? "default" : "outline"} className="text-xs">
               Origen: {alerta.origen}
             </Badge>
           </div>

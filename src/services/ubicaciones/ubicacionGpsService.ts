@@ -1,60 +1,34 @@
-import baseApi from '../baseApi';
+import api from "../baseApi";
+import { Coordenadas } from "@/types/request/ubicaciones";
+import { RespuestaDepartamento } from "@/types/response/ubicaciones";
 
-interface Coordenadas {
-  latitud: number;
-  longitud: number;
-}
+export const ubicacionGpsService = {
+  obtenerUbicacionActual: (): Promise<Coordenadas> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("Geolocalización no disponible"));
+        return;
+      }
 
-export interface DatosDepartamento {
-  departamento: {
-    id: number;
-    departamento: string;
-  };
-}
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            latitud: position.coords.latitude,
+            longitud: position.coords.longitude,
+          });
+        },
+        (error) => {
+          reject(new Error("Error al obtener ubicación"));
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+  },
 
-// Obtener ubicación del navegador
-export async function obtenerUbicacionActual(): Promise<Coordenadas> {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error('Geolocalización no disponible'));
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          latitud: position.coords.latitude,
-          longitud: position.coords.longitude,
-        });
-      },
-      (error) => {
-        let mensaje = 'Error al obtener ubicación';
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            mensaje = 'Permiso de geolocalización denegado';
-            break;
-          case error.POSITION_UNAVAILABLE:
-            mensaje = 'Ubicación no disponible';
-            break;
-          case error.TIMEOUT:
-            mensaje = 'Tiempo de espera agotado para obtener ubicación';
-            break;
-        }
-        reject(new Error(mensaje));
-      },
-      { enableHighAccuracy: true, timeout: 10000 },
-    );
-  });
-}
-
-// Obtener departamento por coordenadas
-export async function obtenerDepartamento(coordenadas: Coordenadas): Promise<DatosDepartamento> {
-  const response = await baseApi.get('/departamentos/encontrar', {
-    params: {
-      latitud: coordenadas.latitud,
-      longitud: coordenadas.longitud,
-    },
-  });
-
-  return response.data.datos;
-}
+  obtenerDepartamento: async (coordenadas: Coordenadas): Promise<RespuestaDepartamento> => {
+    const response = await api.get("/departamentos/encontrar", {
+      params: coordenadas,
+    });
+    return response.data;
+  },
+};

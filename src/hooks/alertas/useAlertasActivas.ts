@@ -1,12 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { alertasService } from '@/services/alertas/alertasService';
-import { Alerta } from '@/types/alertas/Alerta';
-
-interface FiltrosUbicacion {
-  idDepartamento?: number;
-  idProvincia?: number;
-  idMunicipio?: number;
-}
+import { useState, useEffect, useCallback } from "react";
+import { alertasService } from "@/services/alertas/alertasService";
+import { Alerta } from "@/types/alertas/Alerta";
+import { FiltrosUbicacion } from "@/types/alertas/Ubicacion";
 
 interface UseAlertasActivasResult {
   alertas: Alerta[];
@@ -46,8 +41,8 @@ export function useAlertasActivas(filtros: FiltrosUbicacion = {}): UseAlertasAct
       const alertasActivas = await alertasService.obtenerActivas(filtros);
       setAlertas(alertasActivas);
     } catch (err) {
-      console.error('Error al obtener alertas activas:', err);
-      setError('Error al cargar las alertas activas');
+      console.error("Error al obtener alertas activas:", err);
+      setError("Error al cargar las alertas activas");
       setAlertas([]);
     } finally {
       setLoading(false);
@@ -79,7 +74,7 @@ export function useAlertaDetalle(idAlerta: string): UseAlertaDetalleResult {
   const [error, setError] = useState<string | null>(null);
 
   const obtenerAlertaDetalle = useCallback(async () => {
-    if (!idAlerta || idAlerta === 'undefined') return;
+    if (!idAlerta || idAlerta === "undefined") return;
 
     try {
       setLoading(true);
@@ -88,8 +83,8 @@ export function useAlertaDetalle(idAlerta: string): UseAlertaDetalleResult {
       const alertaDetalle = await alertasService.obtenerPorId(idAlerta);
       setAlerta(alertaDetalle);
     } catch (err) {
-      console.error('Error al obtener detalle de alerta:', err);
-      setError('Error al cargar el detalle de la alerta');
+      console.error("Error al obtener detalle de alerta:", err);
+      setError("Error al cargar el detalle de la alerta");
       setAlerta(null);
     } finally {
       setLoading(false);
@@ -127,10 +122,10 @@ export function useAlertas(): UseAlertasResult {
 
       // Obtener todas las alertas usando el historial con un límite alto
       const datos = await alertasService.obtenerHistorial({ limite: 100 });
-      setAlertas(datos.alertas || []);
+      setAlertas(datos.datos?.alertas || []);
     } catch (err) {
-      console.error('Error al obtener todas las alertas:', err);
-      setError('Error al cargar las alertas');
+      console.error("Error al obtener todas las alertas:", err);
+      setError("Error al cargar las alertas");
       setAlertas([]);
     } finally {
       setLoading(false);

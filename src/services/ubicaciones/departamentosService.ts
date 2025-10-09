@@ -1,34 +1,19 @@
-import baseApi from '../baseApi';
-import { RespuestaDepartamentos } from '@/types/ubicaciones/Departamento';
-import { RespuestaProvincias } from '@/types/ubicaciones/Provincia';
-import { RespuestaMunicipios } from '@/types/ubicaciones/Municipio';
+import api from "../baseApi";
+import { RespuestaDepartamentos, RespuestaProvincias, RespuestaMunicipios } from "@/types/response/ubicaciones";
 
-class UbicacionesService {
-  private readonly rutaBase = '/departamentos';
+export const ubicacionesService = {
+  obtenerDepartamentos: async (): Promise<RespuestaDepartamentos> => {
+    const response = await api.get("/departamentos");
+    return response.data;
+  },
 
-  /**
-   * Obtiene todos los departamentos
-   */
-  async obtenerDepartamentos(): Promise<RespuestaDepartamentos> {
-    const respuesta = await baseApi.get<RespuestaDepartamentos>(this.rutaBase);
-    return respuesta.data;
-  }
+  obtenerProvinciasPorDepartamento: async (idDepartamento: number): Promise<RespuestaProvincias> => {
+    const response = await api.get(`/departamentos/${idDepartamento}/provincias`);
+    return response.data;
+  },
 
-  /**
-   * Obtiene las provincias de un departamento específico
-   */
-  async obtenerProvinciasPorDepartamento(idDepartamento: number): Promise<RespuestaProvincias> {
-    const respuesta = await baseApi.get<RespuestaProvincias>(`${this.rutaBase}/${idDepartamento}/provincias`);
-    return respuesta.data;
-  }
-
-  /**
-   * Obtiene los municipios de una provincia específica
-   */
-  async obtenerMunicipiosPorProvincia(idProvincia: number): Promise<RespuestaMunicipios> {
-    const respuesta = await baseApi.get<RespuestaMunicipios>(`${this.rutaBase}/provincias/${idProvincia}/municipios`);
-    return respuesta.data;
-  }
-}
-
-export const ubicacionesService = new UbicacionesService();
+  obtenerMunicipiosPorProvincia: async (idProvincia: number): Promise<RespuestaMunicipios> => {
+    const response = await api.get(`/departamentos/provincias/${idProvincia}/municipios`);
+    return response.data;
+  },
+};

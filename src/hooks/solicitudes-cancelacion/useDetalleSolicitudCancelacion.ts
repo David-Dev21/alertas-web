@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react';
-import { solicitudesCancelacionService, DetalleSolicitudCancelacion } from '@/services/solicitudes-cancelacion/solicitudesCancelacionService';
+import { useState, useCallback } from "react";
+import { solicitudesCancelacionService } from "@/services/alertas/solicitudesCancelacionService";
+import { RespuestaDetalleSolicitudCancelacion } from "@/types/response/solicitudes-cancelacion";
 
 export interface EstadoDetalleSolicitud {
-  detalle: DetalleSolicitudCancelacion | null;
+  detalle: RespuestaDetalleSolicitudCancelacion["datos"] | null;
   cargando: boolean;
   error: string | null;
   modalAbierto: boolean;
@@ -37,18 +38,18 @@ export function useDetalleSolicitudCancelacion() {
         error: null,
       }));
 
-      const detalle = await solicitudesCancelacionService.obtenerDetalle(id);
+      const respuesta = await solicitudesCancelacionService.obtenerDetalle(id);
 
       setEstado((previo) => ({
         ...previo,
-        detalle,
+        detalle: respuesta.datos || null,
         cargando: false,
       }));
     } catch (error) {
-      console.error('Error al cargar detalle de solicitud:', error);
+      console.error("Error al cargar detalle de solicitud:", error);
       setEstado((previo) => ({
         ...previo,
-        error: error instanceof Error ? error.message : 'Error desconocido',
+        error: error instanceof Error ? error.message : "Error desconocido",
         cargando: false,
       }));
     }
@@ -59,7 +60,7 @@ export function useDetalleSolicitudCancelacion() {
       abrirModal();
       await cargarDetalle(id);
     },
-    [abrirModal, cargarDetalle],
+    [abrirModal, cargarDetalle]
   );
 
   return {

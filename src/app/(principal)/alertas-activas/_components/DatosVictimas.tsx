@@ -1,7 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { User, Calendar, Phone, Mail, CheckCircle, Home, Info } from 'lucide-react';
-import { Victima } from '@/types/alertas/Alerta';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { User, Calendar, Phone, Mail, CheckCircle, Home, Info } from "lucide-react";
+import { Victima } from "@/types/response/victimas";
+import { calcularEdad } from "@/lib/utils";
 
 interface Props {
   victima?: Victima;
@@ -28,18 +29,6 @@ export function DatosVictimas({ victima }: Props) {
   }
 
   // Calcular edad desde fechaNacimiento
-  const calcularEdad = (fechaNacimiento?: string): number | null => {
-    if (!fechaNacimiento) return null;
-    const hoy = new Date();
-    const nacimiento = new Date(fechaNacimiento);
-    let edad = hoy.getFullYear() - nacimiento.getFullYear();
-    const mes = hoy.getMonth() - nacimiento.getMonth();
-    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-      edad--;
-    }
-    return edad;
-  };
-
   const edad = calcularEdad(victima.fechaNacimiento);
 
   return (
@@ -48,12 +37,6 @@ export function DatosVictimas({ victima }: Props) {
         <CardTitle className="text-base flex items-center">
           <Info className="size-6" />
           <span className="font-semibold ml-1">Información de la Víctima</span>
-          {victima.telefonoValidado && (
-            <Badge variant="outline" className="ml-auto flex items-center gap-1.5">
-              <CheckCircle className="size-3" />
-              Verificado
-            </Badge>
-          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
@@ -61,7 +44,9 @@ export function DatosVictimas({ victima }: Props) {
         <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
           <User className="size-7" />
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-base text-foreground mb-0.5">{victima.nombreCompleto}</h3>
+            <h3 className="font-semibold text-base text-foreground mb-0.5">
+              {victima.nombres} {victima.apellidos}
+            </h3>
 
             <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">

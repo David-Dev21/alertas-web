@@ -1,9 +1,8 @@
-'use client';
+"use client";
 
-import { TablaVictimas } from './tabla-victimas';
-import { columnasVictimas } from './columnas-victimas';
-import { BotonNuevaVictima } from './_components/nueva-victima';
-import { useVictimas } from '@/hooks/victimas/useVictimas';
+import { TablaVictimas } from "./tabla-victimas";
+import { columnasVictimas } from "./columnas-victimas";
+import { useVictimas } from "@/hooks/victimas/useVictimas";
 
 export default function PaginaVictimas() {
   const { victimas, paginacion, cargando, error, refrescar, irAPagina, cambiarLimite, buscar } = useVictimas();
@@ -27,7 +26,6 @@ export default function PaginaVictimas() {
           <h2 className="text-2xl font-bold tracking-tight">Víctimas con Botón de Pánico</h2>
           <p className="text-muted-foreground">Gestiona la información de las víctimas registradas en el sistema</p>
         </div>
-        <BotonNuevaVictima onVictimaCreada={refrescar} />
       </div>
 
       {error && <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">Error: {error}</div>}

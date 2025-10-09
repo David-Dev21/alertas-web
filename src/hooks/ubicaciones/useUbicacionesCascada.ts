@@ -1,8 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { ubicacionesService } from '@/services/ubicaciones/departamentosService';
-import { Departamento } from '@/types/ubicaciones/Departamento';
-import { Provincia } from '@/types/ubicaciones/Provincia';
-import { Municipio } from '@/types/ubicaciones/Municipio';
+import { useState, useEffect, useCallback } from "react";
+import { ubicacionesService } from "@/services/ubicaciones/departamentosService";
+import { Departamento, Provincia, Municipio } from "@/types/response/ubicaciones";
 
 export interface EstadoUbicaciones {
   departamentos: Departamento[];
@@ -42,15 +40,15 @@ export function useUbicacionesCascada() {
       const respuesta = await ubicacionesService.obtenerDepartamentos();
       setEstado((prev) => ({
         ...prev,
-        departamentos: respuesta.datos,
+        departamentos: respuesta.datos || [],
         cargandoDepartamentos: false,
       }));
     } catch (error) {
-      console.error('Error cargando departamentos:', error);
+      console.error("Error cargando departamentos:", error);
       setEstado((prev) => ({
         ...prev,
         cargandoDepartamentos: false,
-        errorDepartamentos: error instanceof Error ? error.message : 'Error al cargar departamentos',
+        errorDepartamentos: error instanceof Error ? error.message : "Error al cargar departamentos",
       }));
     }
   }, []);
@@ -71,15 +69,15 @@ export function useUbicacionesCascada() {
       const respuesta = await ubicacionesService.obtenerProvinciasPorDepartamento(idDepartamento);
       setEstado((prev) => ({
         ...prev,
-        provincias: respuesta.datos,
+        provincias: respuesta.datos || [],
         cargandoProvincias: false,
       }));
     } catch (error) {
-      console.error('Error cargando provincias:', error);
+      console.error("Error cargando provincias:", error);
       setEstado((prev) => ({
         ...prev,
         cargandoProvincias: false,
-        errorProvincias: error instanceof Error ? error.message : 'Error al cargar provincias',
+        errorProvincias: error instanceof Error ? error.message : "Error al cargar provincias",
       }));
     }
   }, []);
@@ -98,15 +96,15 @@ export function useUbicacionesCascada() {
       const respuesta = await ubicacionesService.obtenerMunicipiosPorProvincia(idProvincia);
       setEstado((prev) => ({
         ...prev,
-        municipios: respuesta.datos,
+        municipios: respuesta.datos || [],
         cargandoMunicipios: false,
       }));
     } catch (error) {
-      console.error('Error cargando municipios:', error);
+      console.error("Error cargando municipios:", error);
       setEstado((prev) => ({
         ...prev,
         cargandoMunicipios: false,
-        errorMunicipios: error instanceof Error ? error.message : 'Error al cargar municipios',
+        errorMunicipios: error instanceof Error ? error.message : "Error al cargar municipios",
       }));
     }
   }, []);
@@ -127,7 +125,7 @@ export function useUbicacionesCascada() {
         cargarProvincias(idDepartamento);
       }
     },
-    [cargarProvincias],
+    [cargarProvincias]
   );
 
   // Seleccionar provincia
@@ -144,7 +142,7 @@ export function useUbicacionesCascada() {
         cargarMunicipios(idProvincia);
       }
     },
-    [cargarMunicipios],
+    [cargarMunicipios]
   );
 
   // Seleccionar municipio

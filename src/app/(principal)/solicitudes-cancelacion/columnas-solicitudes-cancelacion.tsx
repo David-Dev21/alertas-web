@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal, Eye, CheckCircle, Clock } from 'lucide-react';
+import { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown, MoreHorizontal, Eye, CheckCircle, Clock } from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,11 +13,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { SolicitudCancelacion } from '@/types/solicitudes-cancelacion/SolicitudCancelacion';
-import { useDetalleSolicitudCancelacion } from '@/hooks/solicitudes-cancelacion/useDetalleSolicitudCancelacion';
-import { ModalDetallesSolicitud } from './ModalDetallesSolicitud';
-import { formatearFechaHora } from '@/lib/utils';
+} from "@/components/ui/dropdown-menu";
+import { SolicitudCancelacion } from "@/types/alertas/SolicitudCancelacion";
+import { useDetalleSolicitudCancelacion } from "@/hooks/solicitudes-cancelacion/useDetalleSolicitudCancelacion";
+import { ModalDetallesSolicitud } from "./ModalDetallesSolicitud";
+import { formatearFechaHora } from "@/lib/utils";
 
 function AccionesSolicitudCancelacion({
   solicitud,
@@ -47,7 +47,7 @@ function AccionesSolicitudCancelacion({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-          {solicitud.estadoSolicitud === 'PENDIENTE' && onAccionSolicitud && (
+          {solicitud.estadoSolicitud === "PENDIENTE" && onAccionSolicitud && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={manejarAccion}>
@@ -56,12 +56,12 @@ function AccionesSolicitudCancelacion({
               </DropdownMenuItem>
             </>
           )}
-          {solicitud.estadoSolicitud !== 'PENDIENTE' && (
+          {solicitud.estadoSolicitud !== "PENDIENTE" && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={manejarVerDetalles} disabled={cargando}>
                 <Eye className="mr-2 h-4 w-4" />
-                {cargando ? 'Cargando...' : 'Ver Detalles'}
+                {cargando ? "Cargando..." : "Ver Detalles"}
               </DropdownMenuItem>
             </>
           )}
@@ -73,11 +73,11 @@ function AccionesSolicitudCancelacion({
   );
 }
 
-function EstadoBadge({ estado }: { estado: SolicitudCancelacion['estadoSolicitud'] }) {
+function EstadoBadge({ estado }: { estado: SolicitudCancelacion["estadoSolicitud"] }) {
   const colores = {
-    PENDIENTE: 'bg-red-900 text-white',
-    APROBADA: 'bg-green-900 text-white',
-    RECHAZADA: 'bg-orange-900 text-white',
+    PENDIENTE: "bg-red-900 text-white",
+    APROBADA: "bg-green-900 text-white",
+    RECHAZADA: "bg-orange-900 text-white",
   };
 
   return <Badge className={colores[estado]}>{estado}</Badge>;
@@ -85,10 +85,10 @@ function EstadoBadge({ estado }: { estado: SolicitudCancelacion['estadoSolicitud
 
 export const columnasSolicitudesCancelacion: ColumnDef<SolicitudCancelacion>[] = [
   {
-    id: 'select',
+    id: "select",
     header: ({ table }) => (
       <Checkbox
-        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Seleccionar todos"
       />
@@ -101,8 +101,8 @@ export const columnasSolicitudesCancelacion: ColumnDef<SolicitudCancelacion>[] =
   },
   {
     accessorFn: (row) => row.victima.cedulaIdentidad,
-    id: 'cedulaIdentidad',
-    header: 'Cédula de Identidad',
+    id: "cedulaIdentidad",
+    header: "Cédula de Identidad",
     cell: ({ getValue }) => <div className="text-sm text-muted-foreground">{getValue() as string}</div>,
     filterFn: (row, value) => {
       const cedula = row.original.victima.cedulaIdentidad;
@@ -111,8 +111,8 @@ export const columnasSolicitudesCancelacion: ColumnDef<SolicitudCancelacion>[] =
   },
   {
     accessorFn: (row) => row.victima.nombres,
-    id: 'nombres',
-    header: 'Nombres',
+    id: "nombres",
+    header: "Nombres",
     cell: ({ getValue }) => <div className="font-medium">{getValue() as string}</div>,
     filterFn: (row, value) => {
       const nombre = row.original.victima.nombres;
@@ -121,8 +121,8 @@ export const columnasSolicitudesCancelacion: ColumnDef<SolicitudCancelacion>[] =
   },
   {
     accessorFn: (row) => row.victima.apellidos,
-    id: 'apellidos',
-    header: 'Apellidos',
+    id: "apellidos",
+    header: "Apellidos",
     cell: ({ getValue }) => <div className="font-medium">{getValue() as string}</div>,
     filterFn: (row, value) => {
       const apellido = row.original.victima.apellidos;
@@ -132,8 +132,8 @@ export const columnasSolicitudesCancelacion: ColumnDef<SolicitudCancelacion>[] =
 
   {
     accessorFn: (row) => row.victima.celular,
-    id: 'numeroCelular',
-    header: 'Número Celular',
+    id: "numeroCelular",
+    header: "Número Celular",
     cell: ({ getValue }) => <div className="text-sm text-muted-foreground">{getValue() as string}</div>,
     filterFn: (row, value) => {
       const numero = row.original.victima.celular;
@@ -141,25 +141,25 @@ export const columnasSolicitudesCancelacion: ColumnDef<SolicitudCancelacion>[] =
     },
   },
   {
-    accessorKey: 'estadoSolicitud',
-    header: 'Estado',
+    accessorKey: "estadoSolicitud",
+    header: "Estado",
     cell: ({ row }) => {
-      const estado = row.getValue('estadoSolicitud') as SolicitudCancelacion['estadoSolicitud'];
+      const estado = row.getValue("estadoSolicitud") as SolicitudCancelacion["estadoSolicitud"];
       return <EstadoBadge estado={estado} />;
     },
   },
   {
-    accessorKey: 'fechaSolicitud',
+    accessorKey: "fechaSolicitud",
     header: ({ column }) => {
       return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
           Fecha Solicitud
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
     cell: ({ row }) => {
-      const fecha = new Date(row.getValue('fechaSolicitud'));
+      const fecha = new Date(row.getValue("fechaSolicitud"));
       const { hora, fecha: fechaFormateada } = formatearFechaHora(fecha);
       return (
         <div className="text-sm">
@@ -173,7 +173,7 @@ export const columnasSolicitudesCancelacion: ColumnDef<SolicitudCancelacion>[] =
     },
   },
   {
-    id: 'acciones',
+    id: "acciones",
     cell: ({ row }) => {
       const solicitud = row.original;
       return <AccionesSolicitudCancelacion solicitud={solicitud} />;
@@ -184,7 +184,7 @@ export const columnasSolicitudesCancelacion: ColumnDef<SolicitudCancelacion>[] =
 // Función para crear columnas con callback dinámico
 export const crearColumnasSolicitudesCancelacion = (onAccionSolicitud?: (solicitud: SolicitudCancelacion) => void) => {
   return columnasSolicitudesCancelacion.map((columna) => {
-    if (columna.id === 'acciones') {
+    if (columna.id === "acciones") {
       return {
         ...columna,
         cell: ({ row }: any) => {

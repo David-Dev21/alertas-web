@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test FCM</title>
+</head>
+<body>
+    <h1>Test Firebase Cloud Messaging</h1>
+    <button onclick="testFCM()">Probar FCM</button>
+    <pre id="output"></pre>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getMessaging, getToken } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js';
+
+        const config = {
+            apiKey: "AIzaSyA1fsYZAsKZsjUglczB9GL_T97C2u4BgEo",
+            authDomain: "sistema-alertas-felcv.firebaseapp.com",
+            projectId: "sistema-alertas-felcv",
+            storageBucket: "sistema-alertas-felcv.firebasestorage.app",
+            messagingSenderId: "403229043292",
+            appId: "1:403229043292:web:2c9e68df0742c2d7541499"
+        };
+
+        const app = initializeApp(config);
+        const messaging = getMessaging(app);
+
+        window.testFCM = async function() {
+            const output = document.getElementById('output');
+            try {
+                output.textContent = 'Solicitando permisos...\n';
+                const permission = await Notification.requestPermission();
+                output.textContent += `Permiso: ${permission}\n`;
+
+                if (permission === 'granted') {
+                    output.textContent += 'Registrando SW...\n';
+                    const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                    await navigator.serviceWorker.ready;
+                    output.textContent += 'SW registrado\n';
+
+                    output.textContent += 'Obteniendo token...\n';
+                    const token = await getToken(messaging, {
+                        vapidKey: 'BPE0tjJ6vOz8_nA-mD8Ob2FSAn79yrL4-vFGYuOsDALajkndmyIf2ZGgWXlUsIH-fN9EooAsFZt8KHMXuXgazdw',
+                        serviceWorkerRegistration: reg
+                    });
+
+                    output.textContent += `✅ SUCCESS!\nToken: ${token}`;
+                } else {
+                    output.textContent += 'Permiso denegado';
+                }
+            } catch (err) {
+                output.textContent += `❌ ERROR:\n${err.name}: ${err.message}\n${err.stack}`;
+            }
+        };
+    </script>
+</body>
+</html>

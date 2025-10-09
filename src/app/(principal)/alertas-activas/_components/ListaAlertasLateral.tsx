@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Alerta } from '@/types/alertas/Alerta';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Clock, MapPin, UserRound } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { useAlertaSeleccionStore } from '@/stores/alertas/alertaSeleccionStore';
-import { AlertaBadge } from '@/components/AlertaBadge';
-import { useAlertaStore } from '@/stores/alertas/alertaStore';
+import React from "react";
+import { Alerta } from "@/types/alertas/Alerta";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Clock, MapPin, UserRound } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { useAlertaSeleccionStore } from "@/stores/alertas/alertaSeleccionStore";
+import { AlertaBadge } from "@/components/AlertaBadge";
+import { useAlertaStore } from "@/stores/alertas/alertaStore";
 
 interface ListaAlertasLateralProps {
   alertas: Alerta[];
@@ -38,12 +38,12 @@ function obtenerDatosUbicacion(alerta: Alerta) {
 
 function obtenerColorBarraLateral(estado: string): string {
   const colores = {
-    PENDIENTE: 'bg-red-500',
-    ASIGNADA: 'bg-orange-500',
-    EN_ATENCION: 'bg-yellow-500',
+    PENDIENTE: "bg-red-500",
+    ASIGNADA: "bg-orange-500",
+    EN_ATENCION: "bg-yellow-500",
   } as const;
 
-  return colores[estado as keyof typeof colores] || 'bg-gray-500';
+  return colores[estado as keyof typeof colores] || "bg-gray-500";
 }
 
 export function ListaAlertasLateral({ alertas }: ListaAlertasLateralProps) {
@@ -59,14 +59,14 @@ export function ListaAlertasLateral({ alertas }: ListaAlertasLateralProps) {
   };
 
   return (
-    <div className="h-full bg-card rounded-lg">
-      <div className="p-2">
-        <ScrollArea className="h-[calc(100vh-120px)]">
-          {alertasArray.length === 0 ? (
-            <div className="p-2 text-center text-muted-foreground">
-              <p className="text-xs">No hay alertas activas</p>
-            </div>
-          ) : (
+    <div className="h-full bg-card rounded-lg border flex flex-col">
+      {alertasArray.length === 0 ? (
+        <div className="h-full flex items-center justify-center p-8">
+          <p className="text-sm text-muted-foreground">No hay alertas activas</p>
+        </div>
+      ) : (
+        <ScrollArea className="h-full">
+          <div className="p-2">
             <ul className="flex flex-col gap-3">
               {alertasArray.map((alerta) => {
                 const estaDestacada = alertaDestacada === alerta.id;
@@ -76,8 +76,8 @@ export function ListaAlertasLateral({ alertas }: ListaAlertasLateralProps) {
                     key={alerta.id}
                     className={`group relative overflow-hidden border border-border/40 rounded-lg transition-all duration-200 cursor-pointer ${
                       estaDestacada
-                        ? 'border-primary/60 bg-primary/5 shadow-md ring-1 ring-primary/20'
-                        : 'hover:border-border hover:shadow-sm hover:bg-muted/30'
+                        ? "border-primary/60 bg-primary/5 shadow-md ring-1 ring-primary/20"
+                        : "hover:border-border hover:shadow-sm hover:bg-muted/30"
                     }`}
                     onClick={(e) => manejarClickCard(alerta.id, e)}
                     aria-pressed={estaDestacada}
@@ -92,7 +92,7 @@ export function ListaAlertasLateral({ alertas }: ListaAlertasLateralProps) {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <AlertaBadge estado={alerta.estadoAlerta} tamaño="sm" />
-                          <span className="text-xs font-medium text-muted-foreground">{alerta.origen || 'Sin origen'}</span>
+                          <span className="text-xs font-medium text-muted-foreground">{alerta.origen || "Sin origen"}</span>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
                           <Clock className="w-3 h-3" />
@@ -107,7 +107,9 @@ export function ListaAlertasLateral({ alertas }: ListaAlertasLateralProps) {
                           <div className="flex items-center ">
                             <UserRound />
                             <span className="font-semibold text-foreground leading-tight ml-2">
-                              {alerta.victima?.nombreCompleto || 'Sin víctima'}
+                              {alerta.victima?.nombres && alerta.victima?.apellidos
+                                ? `${alerta.victima.nombres} ${alerta.victima.apellidos}`
+                                : "Víctima desconocida"}
                             </span>
                           </div>
                           {/* Ubicación */}
@@ -132,13 +134,13 @@ export function ListaAlertasLateral({ alertas }: ListaAlertasLateralProps) {
                           asChild
                           size="sm"
                           variant="outline"
-                          className={`ml-2 transition-opacity duration-200 ${estaDestacada ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                          className={`ml-2 transition-opacity duration-200 ${estaDestacada ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
                         >
                           <Link
                             href={`/alertas-activas/${alerta.id}`}
                             onClick={() => {
                               // Solo remover del store local si es alerta PENDIENTE
-                              if (alerta.estadoAlerta === 'PENDIENTE') {
+                              if (alerta.estadoAlerta === "PENDIENTE") {
                                 const existeEnPendientes = alertasPendientes.some((a) => a.idAlerta === alerta.id);
                                 if (existeEnPendientes) {
                                   removerAlertaPendiente(alerta.id);
@@ -155,9 +157,9 @@ export function ListaAlertasLateral({ alertas }: ListaAlertasLateralProps) {
                 );
               })}
             </ul>
-          )}
+          </div>
         </ScrollArea>
-      </div>
+      )}
     </div>
   );
 }

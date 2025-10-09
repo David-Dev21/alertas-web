@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { UserPlus, Loader2, AlertCircle, MapPin } from "lucide-react";
-import { RolAtencion, CrearAtencionExternaRequest } from "@/types/atenciones/Atencion";
+import { UserPlus, Loader2, MapPin } from "lucide-react";
+import { RolAtencion, CrearAtencionExternaRequest } from "@/types/request/atenciones";
 import { useAtencionesExternas } from "@/hooks/atenciones/useAtencionesExternas";
 import { useAuth } from "@/hooks/autenticacion/useAutenticacion";
 
@@ -74,7 +74,6 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
   const [turnoId, setTurnoId] = useState("1");
   const [grado, setGrado] = useState("");
   const [nombreCompleto, setNombreCompleto] = useState("");
-  const [organismo, setOrganismo] = useState("");
   const [unidad, setUnidad] = useState("");
   const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<[number, number] | null>(null);
   const [mapaAbierto, setMapaAbierto] = useState(false);
@@ -110,7 +109,6 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
       funcionarioExterno: {
         grado: grado.trim(),
         nombreCompleto: nombreCompleto.trim(),
-        organismo: organismo.trim(),
         unidad: unidad.trim(),
       },
     };
@@ -124,7 +122,7 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
       // Crear nueva atención
       const datosAtencion: CrearAtencionExternaRequest = {
         idAlerta,
-        idUsuarioAdmin: usuario.idUsuario,
+        idUsuarioPanel: usuario.idUsuario,
         siglaVehiculo: siglaVehiculo.trim(),
         siglaRadio: siglaRadio.trim(),
         funcionarios: [datosFuncionario],
@@ -140,7 +138,6 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
       setTurnoId("1");
       setGrado("");
       setNombreCompleto("");
-      setOrganismo("");
       setUnidad("");
       setUbicacionSeleccionada(null);
       onAsignacionExitosa?.();
@@ -282,16 +279,6 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
                     placeholder="ej: Juan Pérez García"
                     value={nombreCompleto}
                     onChange={(e) => setNombreCompleto(e.target.value)}
-                    disabled={cargando}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="organismo">Organismo</Label>
-                  <Input
-                    id="organismo"
-                    placeholder="ej: Policía Nacional"
-                    value={organismo}
-                    onChange={(e) => setOrganismo(e.target.value)}
                     disabled={cargando}
                   />
                 </div>

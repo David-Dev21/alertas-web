@@ -21,7 +21,7 @@ interface ModalCerrarAlertaProps {
 }
 
 interface DatosCierre {
-  idUsuarioAdmin: string;
+  idUsuarioPanel: string;
   motivoCierre: "RESUELTA" | "FALSA_ALERTA";
   estadoVictima?: string;
   idAgresor?: string;
@@ -50,7 +50,7 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
   const [pestañaActiva, setPestañaActiva] = useState("relevante");
 
   const [datos, setDatos] = useState<DatosCierre>({
-    idUsuarioAdmin: usuario.idUsuario || "",
+    idUsuarioPanel: usuario.idUsuario || "",
     motivoCierre: "RESUELTA",
     estadoVictima: "",
     idAgresor: "",
@@ -160,7 +160,7 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
     setCargando(true);
     try {
       const datosEnvio: DatosCierre = {
-        idUsuarioAdmin: datos.idUsuarioAdmin,
+        idUsuarioPanel: datos.idUsuarioPanel,
         motivoCierre: datos.motivoCierre,
         observaciones: datos.observaciones,
         fechaHora: datos.fechaHora,

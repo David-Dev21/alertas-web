@@ -1,18 +1,15 @@
-import api from '../baseApi';
-import { CrearAtencionRequest, AtencionResponse } from '@/types/atenciones/Atencion';
+import api from "../baseApi";
+import { CrearAtencionRequest } from "@/types/request/atenciones";
+import { AtencionResponse, AtencionFuncionariosResponse } from "@/types/response/atenciones";
 
-class AtencionesService {
-  private readonly basePath = '/atenciones';
+export const atencionesService = {
+  crearAtencion: async (data: CrearAtencionRequest): Promise<AtencionResponse> => {
+    const response = await api.post("/atenciones", data);
+    return response.data;
+  },
 
-  async crearAtencion(data: CrearAtencionRequest): Promise<AtencionResponse> {
-    try {
-      const response = await api.post<AtencionResponse>(this.basePath, data);
-      return response.data;
-    } catch (error) {
-      console.error('Error al crear atención:', error);
-      throw error;
-    }
-  }
-}
-
-export const atencionesService = new AtencionesService();
+  obtenerFuncionariosAsignados: async (idAlerta: string): Promise<AtencionFuncionariosResponse["datos"]> => {
+    const response = await api.get(`/atenciones/${idAlerta}/funcionarios`);
+    return response.data.datos;
+  },
+};

@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { TablaSolicitudesCancelacion } from './tabla-solicitudes-cancelacion';
-import { crearColumnasSolicitudesCancelacion } from './columnas-solicitudes-cancelacion';
-import { ModalProcesarSolicitud } from './ModalProcesarSolicitud';
-import { useSolicitudesCancelacion } from '@/hooks/solicitudes-cancelacion/useSolicitudesCancelacion';
-import { useState } from 'react';
-import { SolicitudCancelacion } from '@/types/solicitudes-cancelacion/SolicitudCancelacion';
+import { TablaSolicitudesCancelacion } from "./tabla-solicitudes-cancelacion";
+import { crearColumnasSolicitudesCancelacion } from "./columnas-solicitudes-cancelacion";
+import { ModalProcesarSolicitud } from "./ModalProcesarSolicitud";
+import { useSolicitudesCancelacion } from "@/hooks/solicitudes-cancelacion/useSolicitudesCancelacion";
+import { useState } from "react";
+import { SolicitudCancelacion } from "@/types/alertas/SolicitudCancelacion";
 
 export default function PaginaSolicitudesCancelacion() {
-  const [estadoFiltro, setEstadoFiltro] = useState<string>('TODOS');
+  const [estadoFiltro, setEstadoFiltro] = useState<string>("TODOS");
   const [solicitudSeleccionada, setSolicitudSeleccionada] = useState<SolicitudCancelacion | null>(null);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [cargandoAccion, setCargandoAccion] = useState(false);
@@ -30,7 +30,7 @@ export default function PaginaSolicitudesCancelacion() {
 
   const manejarFiltrarEstado = (estado: string) => {
     setEstadoFiltro(estado);
-    filtrarPorEstado(estado === 'TODOS' ? '' : estado);
+    filtrarPorEstado(estado === "TODOS" ? "" : estado);
   };
 
   const manejarAccionSolicitud = (solicitud: SolicitudCancelacion) => {
@@ -42,15 +42,15 @@ export default function PaginaSolicitudesCancelacion() {
     id: string,
     datos: {
       usuarioAdmin: string;
-      estadoSolicitud: 'APROBADA' | 'RECHAZADA';
+      estadoSolicitud: "APROBADA" | "RECHAZADA";
       motivoCancelacion: string;
-    },
+    }
   ) => {
     setCargandoAccion(true);
     try {
       await actualizarEstadoSolicitud(id, datos);
     } catch (error) {
-      console.error('Error al procesar solicitud:', error);
+      console.error("Error al procesar solicitud:", error);
       throw error;
     } finally {
       setCargandoAccion(false);

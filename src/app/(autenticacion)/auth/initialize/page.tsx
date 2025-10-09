@@ -9,7 +9,7 @@ export default function InicializaPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mensajeError, setMensajeError] = useState<string | null>(null);
-  const { establecerToken, establecerDatosUsuario, establecerDatosSistema } = useAuth();
+  const { setToken, setDatosUsuario, setDatosSistema } = useAuth();
 
   useEffect(() => {
     const inicializarAutenticacion = async () => {
@@ -84,9 +84,9 @@ export default function InicializaPage() {
         }
 
         // Actualizar el store de Zustand (esto automáticamente guarda en localStorage)
-        establecerToken(respuestaBackend.access_token);
-        establecerDatosUsuario(datosUsuario);
-        establecerDatosSistema(datosSistema);
+        setToken(respuestaBackend.access_token);
+        setDatosUsuario(datosUsuario);
+        setDatosSistema(datosSistema);
 
         console.log("Token:", respuestaBackend.access_token);
         console.log("Usuario:", datosUsuario);
@@ -100,7 +100,7 @@ export default function InicializaPage() {
     };
 
     inicializarAutenticacion();
-  }, [searchParams, router, establecerToken, establecerDatosUsuario, establecerDatosSistema]);
+  }, [searchParams, router, setToken, setDatosUsuario, setDatosSistema]);
 
   // Mostrar error si ocurrió algún problema
   if (mensajeError) {

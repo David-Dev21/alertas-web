@@ -1,19 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
-import { solicitudesCancelacionService } from '@/services/solicitudes-cancelacion/solicitudesCancelacionService';
-import {
-  SolicitudCancelacion,
-  RespuestaSolicitudesCancelacion,
-  ParametrosConsultaSolicitudesCancelacion,
-} from '@/types/solicitudes-cancelacion/SolicitudCancelacion';
+import { useState, useEffect, useCallback } from "react";
+import { solicitudesCancelacionService } from "@/services/alertas/solicitudesCancelacionService";
+import { ParametrosConsultaSolicitudesCancelacion, DatosActualizarEstadoSolicitud } from "@/types/request/solicitudes-cancelacion";
+import { SolicitudCancelacion, RespuestaSolicitudesCancelacion, PaginacionSolicitudesCancelacion } from "@/types/response/solicitudes-cancelacion";
 
 export interface EstadoSolicitudesCancelacion {
   solicitudes: SolicitudCancelacion[];
-  paginacion: {
-    paginaActual: number;
-    totalPaginas: number;
-    totalElementos: number;
-    elementosPorPagina: number;
-  };
+  paginacion: PaginacionSolicitudesCancelacion;
   cargando: boolean;
   error: string | null;
 }
@@ -44,8 +36,13 @@ export function useSolicitudesCancelacion(parametrosIniciales: ParametrosConsult
 
         setEstado((previo) => ({
           ...previo,
-          solicitudes: respuesta.solicitudes,
-          paginacion: respuesta.paginacion,
+          solicitudes: respuesta.datos?.solicitudes || [],
+          paginacion: respuesta.datos?.paginacion || {
+            paginaActual: 1,
+            totalPaginas: 0,
+            totalElementos: 0,
+            elementosPorPagina: 10,
+          },
           cargando: false,
         }));
 
@@ -55,15 +52,15 @@ export function useSolicitudesCancelacion(parametrosIniciales: ParametrosConsult
           setParametros(parametrosFinales);
         }
       } catch (error) {
-        console.error('Error al cargar solicitudes de cancelación:', error);
+        console.error("Error al cargar solicitudes de cancelación:", error);
         setEstado((previo) => ({
           ...previo,
-          error: error instanceof Error ? error.message : 'Error desconocido',
+          error: error instanceof Error ? error.message : "Error desconocido",
           cargando: false,
         }));
       }
     },
-    [parametros],
+    [parametros]
   );
 
   // Función para ir a una página específica
@@ -71,7 +68,7 @@ export function useSolicitudesCancelacion(parametrosIniciales: ParametrosConsult
     (pagina: number) => {
       cargarSolicitudes({ pagina });
     },
-    [cargarSolicitudes],
+    [cargarSolicitudes]
   );
 
   // Función para cambiar el límite de elementos por página
@@ -79,7 +76,7 @@ export function useSolicitudesCancelacion(parametrosIniciales: ParametrosConsult
     (limite: number) => {
       cargarSolicitudes({ limite, pagina: 1 });
     },
-    [cargarSolicitudes],
+    [cargarSolicitudes]
   );
 
   // Función para buscar
@@ -87,48 +84,41 @@ export function useSolicitudesCancelacion(parametrosIniciales: ParametrosConsult
     (busqueda: string) => {
       cargarSolicitudes({ busqueda, pagina: 1 });
     },
-    [cargarSolicitudes],
+    [cargarSolicitudes]
   );
 
   // Función para filtrar por estado
   const filtrarPorEstado = useCallback(
     (estado: string) => {
-      if (estado === 'TODOS' || !estado) {
+      if (estado === "TODOS" || !estado) {
         // Limpiar todos los filtros y recargar desde cero
         setParametros({});
         cargarSolicitudes({ pagina: 1 }, true);
       } else {
         const nuevosParametros: ParametrosConsultaSolicitudesCancelacion = {
           ...parametros,
-          estado: estado as 'PENDIENTE' | 'APROBADA' | 'RECHAZADA',
+          estado: estado as "PENDIENTE" | "APROBADA" | "RECHAZADA",
           pagina: 1,
         };
         cargarSolicitudes(nuevosParametros);
       }
     },
-    [cargarSolicitudes, parametros],
+    [cargarSolicitudes, parametros]
   );
 
   // Función para actualizar estado de solicitud
   const actualizarEstadoSolicitud = useCallback(
-    async (
-      id: string,
-      datos: {
-        usuarioAdmin: string;
-        estadoSolicitud: 'APROBADA' | 'RECHAZADA';
-        motivoCancelacion: string;
-      },
-    ) => {
+    async (id: string, datos: DatosActualizarEstadoSolicitud) => {
       try {
         await solicitudesCancelacionService.actualizarEstado(id, datos);
         // Recargar las solicitudes después de actualizar
         await cargarSolicitudes();
       } catch (error) {
-        console.error('Error al actualizar estado de solicitud:', error);
+        console.error("Error al actualizar estado de solicitud:", error);
         throw error;
       }
     },
-    [cargarSolicitudes],
+    [cargarSolicitudes]
   );
 
   // Función para refrescar los datos

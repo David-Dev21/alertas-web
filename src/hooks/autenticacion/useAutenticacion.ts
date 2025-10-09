@@ -9,11 +9,10 @@ export function useAuth() {
 
   return {
     // Estado
-    token: almacenamiento.token,
+    accessToken: almacenamiento.accessToken,
     datosUsuario: almacenamiento.datosUsuario,
     datosSistema: almacenamiento.datosSistema,
     estaAutenticado: almacenamiento.estaAutenticado,
-    estaHidratado: almacenamiento.estaHidratado,
 
     // Datos específicos del usuario
     usuario: {
@@ -41,12 +40,14 @@ export function useAuth() {
     },
 
     // Acciones
-    establecerToken: almacenamiento.establecerToken,
-    establecerDatosUsuario: almacenamiento.establecerDatosUsuario,
-    establecerDatosSistema: almacenamiento.establecerDatosSistema,
-    establecerRoles: almacenamiento.establecerRoles,
-    establecerModulos: almacenamiento.establecerModulos,
-    establecerPermisos: almacenamiento.establecerPermisos,
+    inicializar: almacenamiento.inicializar,
+    setToken: almacenamiento.setToken,
+    setDatosUsuario: almacenamiento.setDatosUsuario,
+    setDatosSistema: almacenamiento.setDatosSistema,
+    setRoles: almacenamiento.setRoles,
+    setModulos: almacenamiento.setModulos,
+    setPermisos: almacenamiento.setPermisos,
+    setUbicacionUsuario: almacenamiento.setUbicacionUsuario,
     cerrarSesion: almacenamiento.cerrarSesion,
 
     // Helpers

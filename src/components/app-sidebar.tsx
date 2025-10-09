@@ -19,38 +19,10 @@ import {
 import { NavSections } from "@/components/nav-sections";
 import { HeaderSystem } from "@/components/HeaderSystem";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/autenticacion/useAutenticacion";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { sistema, estaHidratado } = useAuth();
-
-  // Mostrar loading mientras se hidrata
-  if (!estaHidratado) {
-    return (
-      <Sidebar collapsible="icon" {...props}>
-        <SidebarHeader>
-          <div className="p-4">
-            <Skeleton className="h-8 w-full" />
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <div className="p-4 space-y-2">
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-2/3" />
-            <Skeleton className="h-4 w-1/3" />
-          </div>
-        </SidebarContent>
-        <SidebarFooter>
-          <div className="p-4">
-            <Skeleton className="h-10 w-full" />
-          </div>
-        </SidebarFooter>
-        <SidebarRail />
-      </Sidebar>
-    );
-  }
+  const { sistema } = useAuth();
 
   // Función para obtener el icono por nombre
   const getIcon = (iconName?: string): LucideIcon => {

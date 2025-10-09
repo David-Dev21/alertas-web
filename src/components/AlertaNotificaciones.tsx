@@ -1,10 +1,9 @@
-'use client';
+"use client";
 
-import { useAlertaStore } from '../stores/alertas/alertaStore';
-import { calcularTiempoTranscurrido } from '@/types/alertas/Alerta';
-import { Clock } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from './ui/button';
+import { useAlertaStore } from "../stores/alertas/alertaStore";
+import { Clock } from "lucide-react";
+import Link from "next/link";
+import { Button } from "./ui/button";
 
 /**
  * Componente que muestra notificaciones de alertas pendientes con la misma
@@ -33,7 +32,7 @@ export function AlertaNotificaciones() {
               <div className="text-sm">Origen: {alerta.origen}</div>
               <div className="text-xs mt-1 opacity-90 flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                Hace {calcularTiempoTranscurrido(alerta.fechaHora)}
+                {alerta.fechaHora}
               </div>
             </div>
             <Button asChild size="sm" variant="default">

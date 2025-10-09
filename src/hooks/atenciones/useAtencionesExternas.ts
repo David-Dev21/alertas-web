@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { atencionesExternasService } from '@/services/atenciones/atencionesExternasService';
-import { CrearAtencionExternaRequest, AtencionExternaResponse, FuncionarioExternoAtencion } from '@/types/atenciones/Atencion';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { atencionesExternasService } from "@/services/atenciones/atencionesExternasService";
+import { CrearAtencionExternaRequest, FuncionarioExternoAtencion } from "@/types/request/atenciones";
+import { AtencionExternaResponse } from "@/types/response/atenciones";
+import { toast } from "sonner";
 
 export function useAtencionesExternas() {
   const [cargando, setCargando] = useState(false);
@@ -13,10 +14,10 @@ export function useAtencionesExternas() {
 
     try {
       const respuesta = await atencionesExternasService.crearAtencionExterna(data);
-      toast.success(respuesta.mensaje);
+      toast.success(respuesta.mensaje || "Operación realizada exitosamente");
       return respuesta;
     } catch (err: any) {
-      const mensajeError = err?.response?.data?.mensaje || err?.message || 'Error al asignar funcionario externo';
+      const mensajeError = err?.response?.data?.mensaje || err?.message || "Error al asignar funcionario externo";
       setError(mensajeError);
       toast.error(mensajeError);
       return null;
@@ -27,17 +28,17 @@ export function useAtencionesExternas() {
 
   const agregarFuncionarioExterno = async (
     idAtencion: string,
-    data: Omit<FuncionarioExternoAtencion, 'id'>,
+    data: Omit<FuncionarioExternoAtencion, "id">
   ): Promise<AtencionExternaResponse | null> => {
     setCargando(true);
     setError(null);
 
     try {
       const respuesta = await atencionesExternasService.agregarFuncionarioExterno(idAtencion, data);
-      toast.success(respuesta.mensaje);
+      toast.success(respuesta.mensaje || "Funcionario agregado exitosamente");
       return respuesta;
     } catch (err: any) {
-      const mensajeError = err?.response?.data?.mensaje || err?.message || 'Error al agregar funcionario externo';
+      const mensajeError = err?.response?.data?.mensaje || err?.message || "Error al agregar funcionario externo";
       setError(mensajeError);
       toast.error(mensajeError);
       return null;

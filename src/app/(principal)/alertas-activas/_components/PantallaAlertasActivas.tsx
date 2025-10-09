@@ -1,32 +1,32 @@
-'use client';
+"use client";
 
-import { useMemo, useState, useEffect } from 'react';
-import { useAlertasActivas } from '@/hooks/alertas/useAlertasActivas';
-import { Button } from '@/components/ui/button';
-import { MapaAlertasActivas } from './MapaAlertasActivas';
-import { ListaAlertasLateral } from './ListaAlertasLateral';
-import { Loading } from '@/components/EstadoCarga';
-import { ErrorEstado } from '@/components/ErrorEstado';
-import { EstadoAlerta } from '@/types/alertas/Alerta';
-import { obtenerTextoEstado } from '@/types/alertas/Alerta';
-import { useAlertaStore } from '@/stores/alertas/alertaStore';
-import { FiltrosUbicacion } from '@/components/FiltrosUbicacion';
+import { useMemo, useState, useEffect } from "react";
+import { useAlertasActivas } from "@/hooks/alertas/useAlertasActivas";
+import { Button } from "@/components/ui/button";
+import { MapaAlertasActivas } from "./MapaAlertasActivas";
+import { ListaAlertasLateral } from "./ListaAlertasLateral";
+import { Loading } from "@/components/EstadoCarga";
+import { ErrorEstado } from "@/components/ErrorEstado";
+import { EstadoAlerta } from "@/types/alertas/Alerta";
+import { obtenerTextoEstado } from "@/types/alertas/Alerta";
+import { useAlertaStore } from "@/stores/alertas/alertaStore";
+import { FiltrosUbicacion } from "@/components/FiltrosUbicacion";
 
 function obtenerClasesBotonEstado(estado: EstadoAlerta, activo: boolean): string {
   if (!activo) {
     // Cuando no está seleccionado, usar estilos neutros
-    return 'bg-gray-100 border-gray-300 hover:bg-opacity-50';
+    return "bg-gray-100 border-gray-300 hover:bg-opacity-50";
   }
 
   // Solo cuando está activo, aplicar colores específicos del estado
   const estadoStr = String(estado);
   const coloresBase = {
-    PENDIENTE: 'bg-red-500 text-white border-red-500 shadow-sm hover:bg-red-700',
-    ASIGNADA: 'bg-orange-500 text-white border-orange-500 shadow-sm hover:bg-orange-700',
-    EN_ATENCION: 'bg-yellow-500 text-white border-yellow-500 shadow-sm hover:bg-yellow-700',
+    PENDIENTE: "bg-red-500 text-white border-red-500 shadow-sm hover:bg-red-700",
+    ASIGNADA: "bg-orange-500 text-white border-orange-500 shadow-sm hover:bg-orange-700",
+    EN_ATENCION: "bg-yellow-500 text-white border-yellow-500 shadow-sm hover:bg-yellow-700",
   } as const;
 
-  return coloresBase[estadoStr as keyof typeof coloresBase] || 'bg-gray-500 text-white border-gray-500';
+  return coloresBase[estadoStr as keyof typeof coloresBase] || "bg-gray-500 text-white border-gray-500";
 }
 
 export function PantallaAlertasActivas() {
@@ -108,8 +108,8 @@ export function PantallaAlertasActivas() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-start gap-6 p-2 bg-muted/30 rounded-lg border">
+    <div className="flex flex-col h-full gap-4">
+      <div className="flex flex-wrap items-start gap-6 p-2 bg-muted/30 rounded-lg border flex-shrink-0">
         {/* Filtros por estado */}
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-muted-foreground">Estado:</label>
@@ -120,7 +120,7 @@ export function PantallaAlertasActivas() {
                 <Button
                   key={estado}
                   size="sm"
-                  variant={seleccionado ? 'secondary' : 'outline'}
+                  variant={seleccionado ? "secondary" : "outline"}
                   onClick={() => toggleEstadoFiltro(estado)}
                   className={`transition-all duration-200 h-9 ${obtenerClasesBotonEstado(estado, seleccionado)}`}
                 >
@@ -156,18 +156,15 @@ export function PantallaAlertasActivas() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 min-h-0">
         {/* Panel izquierdo - Solo el mapa */}
-        <div className="lg:col-span-2 h-full">
-          {/* Mapa */}
-          <div className="h-full">
-            {/* El mapa muestra las alertas filtradas */}
-            <MapaAlertasActivas alertas={alertasFiltradas} />
-          </div>
+        <div className="lg:col-span-2 h-full min-h-0">
+          {/* El mapa muestra las alertas filtradas */}
+          <MapaAlertasActivas alertas={alertasFiltradas} />
         </div>
 
         {/* Panel derecho - Lista de alertas */}
-        <div className="space-y-4">
+        <div className="h-full min-h-0">
           <ListaAlertasLateral alertas={alertasFiltradas} />
         </div>
       </div>

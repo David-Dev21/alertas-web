@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { DetalleSolicitudCancelacion } from '@/services/solicitudes-cancelacion/solicitudesCancelacionService';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { DetalleSolicitudCancelacion } from "@/services/alertas/solicitudesCancelacionService";
 
-function EstadoBadge({ estado }: { estado: DetalleSolicitudCancelacion['estadoSolicitud'] }) {
+function EstadoBadge({ estado }: { estado: DetalleSolicitudCancelacion["estadoSolicitud"] }) {
   // Badge simple y legible
-  const variante = estado === 'APROBADA' ? 'default' : estado === 'RECHAZADA' ? 'destructive' : 'secondary';
+  const variante = estado === "APROBADA" ? "default" : estado === "RECHAZADA" ? "destructive" : "secondary";
   return (
     <Badge variant={variante} className="uppercase text-xs">
       {estado}
@@ -44,7 +44,7 @@ export function ModalDetallesSolicitud({ abierto, onCerrar, detalle, cargando, e
           <div className="space-y-5 text-base">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Fecha</span>
-              <span className="font-medium">{new Date(detalle.fechaSolicitud).toLocaleDateString('es-ES')}</span>
+              <span className="font-medium">{new Date(detalle.fechaSolicitud).toLocaleDateString("es-ES")}</span>
             </div>
 
             <div className="flex justify-between items-center">
@@ -56,12 +56,12 @@ export function ModalDetallesSolicitud({ abierto, onCerrar, detalle, cargando, e
 
             <div>
               <div className="text-sm text-muted-foreground">Usuario que aprobó</div>
-              <div className="font-medium mt-1 text-base">{detalle.usuarioAprobador || '—'}</div>
+              <div className="font-medium mt-1 text-base">{detalle.usuarioAprobador || "—"}</div>
             </div>
 
             <div>
               <div className="text-sm text-muted-foreground">Motivo</div>
-              <div className="mt-1 text-base leading-relaxed">{detalle.motivoCancelacion || '—'}</div>
+              <div className="mt-1 text-base leading-relaxed">{detalle.motivoCancelacion || "—"}</div>
             </div>
 
             <Separator />

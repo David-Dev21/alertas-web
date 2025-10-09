@@ -1,29 +1,27 @@
-'use client';
+"use client";
 
-import { AppSidebar } from '@/components/app-sidebar';
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { AlertaPantalla } from '@/components/AlertaPantalla';
-import { Separator } from '@/components/ui/separator';
-import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Bell } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { useAlertaStore } from '@/stores/alertas/alertaStore';
-import { AlertaNotificaciones } from '@/components/AlertaNotificaciones';
-import { Toaster } from '@/components/ui/sonner';
-import { InicializadorAutenticacion } from '@/components/InicializadorAutenticacion';
-import { InicializadorCompleto } from '@/components/InicializadorCompleto';
-import { HeaderUser } from '@/components/HeaderUser';
-import { ModeToggle } from '@/components/mode-toggle';
-import { EstadoConexion } from '@/components/EstadoConexion';
-import { Button } from '@/components/ui/button';
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AlertaPantalla } from "@/components/AlertaPantalla";
+import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Bell } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useAlertaStore } from "@/stores/alertas/alertaStore";
+import { AlertaNotificaciones } from "@/components/AlertaNotificaciones";
+import { Toaster } from "@/components/ui/sonner";
+import { InicializadorCompleto } from "@/components/InicializadorCompleto";
+import { HeaderUser } from "@/components/HeaderUser";
+import { ModeToggle } from "@/components/mode-toggle";
+import { EstadoConexion } from "@/components/EstadoConexion";
+import { Button } from "@/components/ui/button";
 
 export default function LayoutPrincipal({ children }: { children: React.ReactNode }) {
   const { alertasPendientes } = useAlertaStore();
   const cantidadPendientes = alertasPendientes.length;
 
   return (
-    <InicializadorAutenticacion>
-      <InicializadorCompleto />
+    <InicializadorCompleto>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
@@ -45,7 +43,7 @@ export default function LayoutPrincipal({ children }: { children: React.ReactNod
                       <Bell className="size-5" />
                       {cantidadPendientes > 0 && (
                         <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                          {cantidadPendientes > 99 ? '99+' : cantidadPendientes}
+                          {cantidadPendientes > 99 ? "99+" : cantidadPendientes}
                         </Badge>
                       )}
                     </Button>
@@ -68,12 +66,12 @@ export default function LayoutPrincipal({ children }: { children: React.ReactNod
                 <HeaderUser />
               </div>
             </header>
-            <div className="flex-1 overflow-auto p-4">{children}</div>
+            <div className="flex-1 min-h-0 p-4 overflow-auto">{children}</div>
           </main>
         </SidebarInset>
       </SidebarProvider>
       <AlertaPantalla />
       <Toaster />
-    </InicializadorAutenticacion>
+    </InicializadorCompleto>
   );
 }
