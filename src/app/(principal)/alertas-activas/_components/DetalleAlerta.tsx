@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAlertaDetalle } from "@/hooks/alertas/useAlertasActivas";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,12 +10,15 @@ import { MapaAlertaDetalle } from "./MapaAlertaDetalle";
 import { AlertaBadge } from "@/components/AlertaBadge";
 import { DatosVictimas } from "./DatosVictimas";
 import { FuncionariosAsignados } from "./FuncionariosAsignados";
+import type { FuncionarioAsignado } from "./FuncionariosAsignados";
 import { BitacoraEventos } from "./BitacoraEventos";
 import { CierreAlerta } from "./CierreAlerta";
 import { ModalCerrarAlerta } from "./ModalCerrarAlerta";
 import { ModalAsignarFuncionarioExterno } from "./ModalAsignarFuncionarioExterno";
 import { ErrorEstado } from "@/components/ErrorEstado";
 import { Loading } from "@/components/EstadoCarga";
+import { useAlertaStore } from "@/stores/alertas/alertaStore";
+import { EstadoAlerta } from "@/types/alertas/Alerta";
 
 interface Props {
   idAlerta: string;
@@ -25,6 +28,14 @@ export function DetalleAlerta({ idAlerta }: Props) {
   const { alerta, loading, error, refetch } = useAlertaDetalle(idAlerta);
   // Estado para controlar el modal de cerrar alerta
   const [modalCerrarAbierto, setModalCerrarAbierto] = useState(false);
+  const { removerAlertaPendiente, alertasPendientes } = useAlertaStore();
+
+  // Remover la alerta del store cuando se carga la página de detalle
+  useEffect(() => {
+    if (idAlerta && alertasPendientes.some((a) => a.idAlerta === idAlerta)) {
+      removerAlertaPendiente(idAlerta);
+    }
+  }, [idAlerta, removerAlertaPendiente, alertasPendientes]);
 
   if (loading) {
     return <Loading mensaje="Cargando detalle de alerta..." />;
@@ -44,20 +55,25 @@ export function DetalleAlerta({ idAlerta }: Props) {
       <div className="mb-4 space-y-4">
         {/* Barra de navegación superior */}
         <div className="flex items-center justify-between">
+          {/* Acciones principales */}
+          <div className="flex items-center gap-3">
+            {alerta.estadoAlerta !== EstadoAlerta.RESUELTA &&
+              alerta.estadoAlerta !== EstadoAlerta.CANCELADA &&
+              alerta.estadoAlerta !== EstadoAlerta.FALSA_ALERTA && (
+                <>
+                  <ModalAsignarFuncionarioExterno idAlerta={idAlerta} idAtencion={alerta.atencion?.id} onAsignacionExitosa={() => refetch()} />
+                  <Button variant="destructive" size="sm" onClick={() => setModalCerrarAbierto(true)}>
+                    Cerrar Alerta
+                  </Button>
+                </>
+              )}
+          </div>
           <Button asChild variant="ghost" size="sm" className="hover:bg-muted/50">
             <Link href="/alertas-activas">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver a Alertas Activas
             </Link>
           </Button>
-
-          {/* Acciones principales */}
-          <div className="flex items-center gap-3">
-            <ModalAsignarFuncionarioExterno idAlerta={idAlerta} idAtencion={alerta.atencion?.id} onAsignacionExitosa={() => refetch()} />
-            <Button variant="secondary" size="sm" onClick={() => setModalCerrarAbierto(true)}>
-              Cerrar Alerta
-            </Button>
-          </div>
         </div>
 
         {/* Información principal de la alerta */}
@@ -104,7 +120,13 @@ export function DetalleAlerta({ idAlerta }: Props) {
           <MapaAlertaDetalle alerta={alerta} />
 
           {/* Funcionarios Asignados */}
-          <FuncionariosAsignados atencion={alerta.atencion} />
+          <FuncionariosAsignados
+            atencion={
+              alerta.atencion
+                ? { ...alerta.atencion, atencionFuncionario: alerta.atencion.atencionFuncionario as unknown as FuncionarioAsignado[] }
+                : undefined
+            }
+          />
 
           {/* Bitácora de Eventos */}
           <BitacoraEventos eventos={alerta.eventos || []} />

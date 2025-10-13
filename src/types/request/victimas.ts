@@ -7,4 +7,5 @@ export interface ParametrosConsultaVictimas {
   cedulaIdentidad?: string;
   nombreCompleto?: string;
   telefonoValidado?: boolean;
+  estadoCuenta?: string;
 }

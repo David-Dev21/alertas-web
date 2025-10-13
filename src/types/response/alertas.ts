@@ -23,7 +23,7 @@ export interface RespuestaCrearAgresor
 
 export interface RespuestaHistorialAlertas
   extends RespuestaBase<{
-    alertas: Alerta[];
+    historial: Alerta[];
     paginacion: {
       paginaActual: number;
       totalPaginas: number;

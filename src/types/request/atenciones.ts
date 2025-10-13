@@ -47,6 +47,19 @@ export interface FuncionarioExternoAtencion {
   };
 }
 
+export interface AgregarFuncionarioExternoRequest {
+  rolAtencion: RolAtencion;
+  ubicacion?: {
+    longitud: number;
+    latitud: number;
+    precision: number;
+    marcaTiempo: string;
+  };
+  turnoInicio: string;
+  turnoFin: string;
+  idPersonal: string;
+}
+
 export interface CrearAtencionExternaRequest {
   idAlerta: string;
   idUsuarioPanel: string;

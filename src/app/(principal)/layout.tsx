@@ -10,18 +10,29 @@ import { Badge } from "@/components/ui/badge";
 import { useAlertaStore } from "@/stores/alertas/alertaStore";
 import { AlertaNotificaciones } from "@/components/AlertaNotificaciones";
 import { Toaster } from "@/components/ui/sonner";
-import { InicializadorCompleto } from "@/components/InicializadorCompleto";
+import { useInicializacionPrincipal } from "@/hooks/autenticacion/useInicializacionPrincipal";
 import { HeaderUser } from "@/components/HeaderUser";
 import { ModeToggle } from "@/components/mode-toggle";
 import { EstadoConexion } from "@/components/EstadoConexion";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
+import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore";
 
 export default function LayoutPrincipal({ children }: { children: React.ReactNode }) {
   const { alertasPendientes } = useAlertaStore();
   const cantidadPendientes = alertasPendientes.length;
 
+  // Inicializar permisos, ubicación y WebSocket cuando esté en la app principal
+  useInicializacionPrincipal();
+
+  // Inicializar store de autenticación
+  const inicializar = useAutenticacionStore((state) => state.inicializar);
+  useEffect(() => {
+    inicializar();
+  }, [inicializar]);
+
   return (
-    <InicializadorCompleto>
+    <>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
@@ -72,6 +83,6 @@ export default function LayoutPrincipal({ children }: { children: React.ReactNod
       </SidebarProvider>
       <AlertaPantalla />
       <Toaster />
-    </InicializadorCompleto>
+    </>
   );
 }

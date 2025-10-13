@@ -1,7 +1,7 @@
 // Hook para suscribirse a eventos del WebSocket de alertas
-import { useEffect } from 'react';
-import { alertasSocketService } from '@/services/alertas/alertasSocketService';
-import { useConexionSocketAutenticada } from './useConexionSocketAutenticada';
+import { useEffect } from "react";
+import { alertasSocketService } from "@/services/alertas/alertasSocketService";
+import { useConexionSocketAutenticada } from "./useConexionSocketAutenticada";
 
 interface DatosNuevaAlerta {
   idAlerta: string;
@@ -30,7 +30,6 @@ export function useAlertasSocket(opciones: OpcionesSuscripcion) {
   useEffect(() => {
     // Solo suscribirse a eventos si está autenticado
     if (!estaAutenticado) {
-      console.warn('No se puede suscribir a eventos: usuario no autenticado');
       return;
     }
 

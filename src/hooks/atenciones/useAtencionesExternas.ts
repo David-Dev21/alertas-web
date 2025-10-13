@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { atencionesExternasService } from "@/services/atenciones/atencionesExternasService";
-import { CrearAtencionExternaRequest, FuncionarioExternoAtencion } from "@/types/request/atenciones";
+import { CrearAtencionExternaRequest, FuncionarioExternoAtencion, AgregarFuncionarioExternoRequest } from "@/types/request/atenciones";
 import { AtencionExternaResponse } from "@/types/response/atenciones";
 import { toast } from "sonner";
 
@@ -26,10 +26,7 @@ export function useAtencionesExternas() {
     }
   };
 
-  const agregarFuncionarioExterno = async (
-    idAtencion: string,
-    data: Omit<FuncionarioExternoAtencion, "id">
-  ): Promise<AtencionExternaResponse | null> => {
+  const agregarFuncionarioExterno = async (idAtencion: string, data: AgregarFuncionarioExternoRequest): Promise<AtencionExternaResponse | null> => {
     setCargando(true);
     setError(null);
 

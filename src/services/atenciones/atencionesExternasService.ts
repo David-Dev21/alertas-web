@@ -1,5 +1,5 @@
 import api from "../baseApi";
-import { CrearAtencionExternaRequest, FuncionarioExternoAtencion } from "@/types/request/atenciones";
+import { CrearAtencionExternaRequest, AgregarFuncionarioExternoRequest } from "@/types/request/atenciones";
 import { AtencionExternaResponse } from "@/types/response/atenciones";
 
 export const atencionesExternasService = {
@@ -8,7 +8,7 @@ export const atencionesExternasService = {
     return response.data;
   },
 
-  agregarFuncionarioExterno: async (idAtencion: string, data: Omit<FuncionarioExternoAtencion, "id">): Promise<AtencionExternaResponse> => {
+  agregarFuncionarioExterno: async (idAtencion: string, data: AgregarFuncionarioExternoRequest): Promise<AtencionExternaResponse> => {
     const response = await api.post(`/atenciones-externos/${idAtencion}/funcionarios-externos`, data);
     return response.data;
   },

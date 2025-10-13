@@ -14,8 +14,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Victima } from "@/types/victimas/Victima";
-import { formatearFechaHora } from "@/lib/utils";
+import { Victima } from "@/types/response/victimas";
+import { formatearFechaUTC } from "@/lib/utils";
+import Link from "next/link";
 
 function AccionesVictima({ victima }: { victima: Victima }) {
   return (
@@ -33,9 +34,11 @@ function AccionesVictima({ victima }: { victima: Victima }) {
           Copiar ID
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Eye className="mr-2 h-4 w-4" />
-          Ver detalles
+        <DropdownMenuItem asChild>
+          <Link href={`/victimas/${victima.id}`}>
+            <Eye className="mr-2 h-4 w-4" />
+            Ver Historial de Alertas
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
       </DropdownMenuContent>
@@ -97,15 +100,45 @@ export const columnasVictimas: ColumnDef<Victima>[] = [
     cell: ({ row }) => <div className="lowercase">{row.getValue("correo")}</div>,
   },
   {
-    accessorKey: "telefonoValidado",
+    accessorKey: "estadoCuenta",
     header: "Estado",
     cell: ({ row }) => {
-      const validado = row.getValue("telefonoValidado") as boolean;
-      return <Badge variant={validado ? "default" : "secondary"}>{validado ? "Validado" : "Sin Validar"}</Badge>;
+      const estado = row.getValue("estadoCuenta") as string;
+      const obtenerTextoEstado = (estado: string) => {
+        switch (estado) {
+          case "ACTIVA":
+            return "Activa";
+          case "INACTIVA":
+            return "Inactiva";
+          case "SUSPENDIDA":
+            return "Suspendida";
+          case "PENDIENTE_VERIFICACION":
+            return "Pendiente Verificación";
+          default:
+            return estado;
+        }
+      };
+
+      const obtenerVariantEstado = (estado: string) => {
+        switch (estado) {
+          case "ACTIVA":
+            return "default";
+          case "INACTIVA":
+            return "secondary";
+          case "SUSPENDIDA":
+            return "destructive";
+          case "PENDIENTE_VERIFICACION":
+            return "outline";
+          default:
+            return "outline";
+        }
+      };
+
+      return <Badge variant={obtenerVariantEstado(estado)}>{obtenerTextoEstado(estado)}</Badge>;
     },
   },
   {
-    accessorKey: "fechaRegistro",
+    accessorKey: "creadoEn",
     header: ({ column }) => {
       return (
         <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
@@ -115,8 +148,8 @@ export const columnasVictimas: ColumnDef<Victima>[] = [
       );
     },
     cell: ({ row }) => {
-      const fecha = row.getValue("fechaRegistro") as string;
-      const { hora, fecha: fechaFormateada } = formatearFechaHora(fecha);
+      const fecha = row.getValue("creadoEn") as string;
+      const { hora, fecha: fechaFormateada } = formatearFechaUTC(fecha);
       return (
         <div className="text-sm">
           <div className="flex items-center gap-1">

@@ -2,10 +2,17 @@
  * Tipos de entrada (requests) para el módulo de usuarios del panel
  */
 
-export interface RolUsuarioPanel {
+export interface ModuloUsuarioPanel {
   nombre: string;
+  ruta: string;
+  icono: string;
+  orden: number;
+}
+
+export interface AutorizacionUsuarioPanel {
+  rol: string;
   permisos: string[];
-  modulos: string[];
+  modulos: ModuloUsuarioPanel[];
 }
 
 export interface CrearUsuarioPanelRequest {
@@ -13,7 +20,8 @@ export interface CrearUsuarioPanelRequest {
   grado: string;
   nombreCompleto: string;
   unidad: string;
-  rol: RolUsuarioPanel;
+  idDepartamento: number;
+  autorizacion: AutorizacionUsuarioPanel;
 }
 
 export interface RegistrarTokenFCMRequest {

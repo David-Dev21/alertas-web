@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import * as React from 'react';
+import * as React from "react";
 
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import Image from 'next/image';
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import Image from "next/image";
 
 export function HeaderSystem({ nombreSistema }: { nombreSistema: string }) {
   return (

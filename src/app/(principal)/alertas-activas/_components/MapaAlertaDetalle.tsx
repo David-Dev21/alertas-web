@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Navigation, Share2 } from "lucide-react";
 import { AlertaBadge } from "@/components/AlertaBadge";
 import { createAlertIconByEstado, createAssignedOperativeIcon, createPuntoRutaIcon } from "./MapIcons";
-import { useFuncionariosAsignados } from "@/hooks/atenciones/useFuncionariosAsignados";
 import { useRutaAlertaSocket } from "@/hooks/alertas/useRutaAlertaSocket";
 import { MAPA_CONFIG } from "@/lib/mapaConfig";
 
@@ -26,7 +25,6 @@ interface MapaAlertaDetalleProps {
 export function MapaAlertaDetalle({ alerta }: MapaAlertaDetalleProps) {
   const mapRef = useRef<LeafletMap | null>(null);
 
-  const { funcionarios: funcionariosAsignados } = useFuncionariosAsignados(alerta.id);
   const { ultimoPunto, escuchandoRuta } = useRutaAlertaSocket(alerta.id);
 
   if (!alerta.ubicacion) {
@@ -86,57 +84,6 @@ export function MapaAlertaDetalle({ alerta }: MapaAlertaDetalleProps) {
               </Popup>
             </Marker>
 
-            {/* Renderizar funcionarios ASIGNADOS (desde endpoint) */}
-            {funcionariosAsignados?.funcionariosOperativos
-              .filter((funcionario) => funcionario.ubicacion) // Filtrar solo funcionarios con ubicación
-              .map((funcionario, index) => {
-                const funcionarioLat = funcionario.ubicacion!.geometry.coordinates[1];
-                const funcionarioLng = funcionario.ubicacion!.geometry.coordinates[0];
-                return (
-                  <Marker
-                    key={`asignado-${funcionario.idUsuarioOperativo}-${index}`}
-                    position={[funcionarioLat, funcionarioLng]}
-                    icon={createAssignedOperativeIcon()}
-                  >
-                    <Popup>
-                      <div className="p-2 min-w-[250px]">
-                        <div className="font-semibold text-sm mb-2 text-green-700">Funcionario Asignado</div>
-                        <div className="space-y-2">
-                          <div className="text-sm">
-                            <span className="font-medium">Grado:</span> {funcionario.grado}
-                          </div>
-                          <div className="text-sm">
-                            <span className="font-medium">Nombre:</span> {funcionario.nombreCompleto}
-                          </div>
-                          <div className="text-sm">
-                            <span className="font-medium">Rol:</span> {funcionario.rolOperativo}
-                          </div>
-                          <div className="text-sm">
-                            <span className="font-medium">Ubicación:</span>
-                            <div className="text-xs text-muted-foreground">
-                              Lat: {funcionarioLat.toFixed(6)}, Lng: {funcionarioLng.toFixed(6)}
-                            </div>
-                          </div>
-                          {funcionario.ubicacion!.properties.accuracy && (
-                            <div className="text-sm">
-                              <span className="font-medium">Precisión:</span> ±{funcionario.ubicacion!.properties.accuracy}m
-                            </div>
-                          )}
-                          {funcionario.ubicacion!.properties.timestamp && (
-                            <div className="text-sm">
-                              <span className="font-medium">Hora:</span>
-                              <div className="text-xs text-muted-foreground">
-                                {new Date(funcionario.ubicacion!.properties.timestamp).toLocaleString("es-ES")}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </Popup>
-                  </Marker>
-                );
-              })}
-
             {/* Renderizar último punto de ruta recibido por WebSocket */}
             {ultimoPunto && (
               <Marker
@@ -184,9 +131,6 @@ export function MapaAlertaDetalle({ alerta }: MapaAlertaDetalleProps) {
 
           <div className="absolute bottom-2 right-2 bg-muted/80 backdrop-blur-sm p-2 rounded-lg shadow-sm text-xs z-[1000] border">
             <div className="font-medium">Ubicaciones</div>
-            {funcionariosAsignados && (
-              <div className="text-green-600">{funcionariosAsignados.funcionariosOperativos.length} funcionarios asignados</div>
-            )}
           </div>
         </div>
 

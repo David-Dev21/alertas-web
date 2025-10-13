@@ -17,7 +17,7 @@ import {
 import { SolicitudCancelacion } from "@/types/alertas/SolicitudCancelacion";
 import { useDetalleSolicitudCancelacion } from "@/hooks/solicitudes-cancelacion/useDetalleSolicitudCancelacion";
 import { ModalDetallesSolicitud } from "./ModalDetallesSolicitud";
-import { formatearFechaHora } from "@/lib/utils";
+import { formatearFechaUTC } from "@/lib/utils";
 
 function AccionesSolicitudCancelacion({
   solicitud,
@@ -160,7 +160,7 @@ export const columnasSolicitudesCancelacion: ColumnDef<SolicitudCancelacion>[] =
     },
     cell: ({ row }) => {
       const fecha = new Date(row.getValue("fechaSolicitud"));
-      const { hora, fecha: fechaFormateada } = formatearFechaHora(fecha);
+      const { hora, fecha: fechaFormateada } = formatearFechaUTC(fecha);
       return (
         <div className="text-sm">
           <div className="flex items-center gap-1">

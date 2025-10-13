@@ -1,35 +1,32 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Loader2 } from 'lucide-react';
-import { useAgresores } from '@/hooks/alertas/useAgresores';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
+import { agresorService, CrearAgresorRequest } from "@/services/agresores/agresorService";
 
 interface ModalAgregarAgresorProps {
   abierto: boolean;
   onCerrar: () => void;
-  idAlerta: string;
   cedulaInicial?: string;
-  onAgresorCreado?: (datos: { id: string; cedulaIdentidad: string; nombres: string; apellidos: string; parentesco: string }) => void;
+  onAgresorCreado?: (datos: { id: string; cedulaIdentidad: string; nombres: string; apellidos: string }) => void;
 }
 
 interface DatosAgresor {
   cedulaIdentidad: string;
   nombres: string;
   apellidos: string;
-  relacionVictima: string;
 }
 
-export function ModalAgregarAgresor({ abierto, onCerrar, cedulaInicial = '', onAgresorCreado }: ModalAgregarAgresorProps) {
-  const { crearAgresor, creandoAgresor } = useAgresores();
+export function ModalAgregarAgresor({ abierto, onCerrar, cedulaInicial = "", onAgresorCreado }: ModalAgregarAgresorProps) {
+  const [creando, setCreando] = useState(false);
   const [datosAgresor, setDatosAgresor] = useState<DatosAgresor>({
     cedulaIdentidad: cedulaInicial,
-    nombres: '',
-    apellidos: '',
-    relacionVictima: '',
+    nombres: "",
+    apellidos: "",
   });
 
   // Actualizar la cédula cuando cambie cedulaInicial o se abra el modal
@@ -42,10 +39,9 @@ export function ModalAgregarAgresor({ abierto, onCerrar, cedulaInicial = '', onA
     } else if (!abierto) {
       // Limpiar formulario cuando se cierra el modal
       setDatosAgresor({
-        cedulaIdentidad: '',
-        nombres: '',
-        apellidos: '',
-        relacionVictima: '',
+        cedulaIdentidad: "",
+        nombres: "",
+        apellidos: "",
       });
     }
   }, [abierto, cedulaInicial]);
@@ -60,45 +56,47 @@ export function ModalAgregarAgresor({ abierto, onCerrar, cedulaInicial = '', onA
   const manejarSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const datosCrear = {
-      cedulaIdentidad: datosAgresor.cedulaIdentidad,
-      nombres: datosAgresor.nombres,
-      apellidos: datosAgresor.apellidos,
-      parentesco: datosAgresor.relacionVictima,
-    };
+    setCreando(true);
+    try {
+      const datosCrear: CrearAgresorRequest = {
+        cedulaIdentidad: datosAgresor.cedulaIdentidad,
+        nombres: datosAgresor.nombres,
+        apellidos: datosAgresor.apellidos,
+      };
 
-    const agresorCreado = await crearAgresor(datosCrear);
+      const agresorCreado = await agresorService.crear(datosCrear);
 
-    if (agresorCreado) {
       onAgresorCreado?.({
         id: agresorCreado.id,
         cedulaIdentidad: datosCrear.cedulaIdentidad,
         nombres: datosCrear.nombres,
         apellidos: datosCrear.apellidos,
-        parentesco: datosCrear.parentesco,
       });
       onCerrar();
 
       // Limpiar formulario
       setDatosAgresor({
-        cedulaIdentidad: '',
-        nombres: '',
-        apellidos: '',
-        relacionVictima: '',
+        cedulaIdentidad: "",
+        nombres: "",
+        apellidos: "",
       });
+    } catch (error) {
+      console.error("Error creando agresor:", error);
+    } finally {
+      setCreando(false);
     }
   };
 
   const puedeEnviar = () => {
-    return datosAgresor.nombres.trim() !== '' && datosAgresor.apellidos.trim() !== '' && datosAgresor.cedulaIdentidad.trim() !== '';
+    return datosAgresor.nombres.trim() !== "" && datosAgresor.apellidos.trim() !== "" && datosAgresor.cedulaIdentidad.trim() !== "";
   };
 
   return (
     <Dialog open={abierto} onOpenChange={onCerrar}>
       <DialogContent className="sm:max-w-[500px] z-[11000] data-[state=open]:z-[11000]">
         <DialogHeader>
-          <DialogTitle>Agregar Agresor</DialogTitle>
-          <DialogDescription>Complete los datos del agresor identificado en la alerta.</DialogDescription>
+          <DialogTitle>Crear Agresor</DialogTitle>
+          <DialogDescription>Complete los datos del agresor para registrarlo en el sistema.</DialogDescription>
         </DialogHeader>
 
         {cedulaInicial && (
@@ -117,7 +115,7 @@ export function ModalAgregarAgresor({ abierto, onCerrar, cedulaInicial = '', onA
               <Input
                 id="cedula-agresor"
                 value={datosAgresor.cedulaIdentidad}
-                onChange={(e) => manejarCambio('cedulaIdentidad', e.target.value)}
+                onChange={(e) => manejarCambio("cedulaIdentidad", e.target.value)}
                 required
               />
             </div>
@@ -125,22 +123,12 @@ export function ModalAgregarAgresor({ abierto, onCerrar, cedulaInicial = '', onA
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="nombres-agresor">Nombres *</Label>
-                <Input id="nombres-agresor" value={datosAgresor.nombres} onChange={(e) => manejarCambio('nombres', e.target.value)} required />
+                <Input id="nombres-agresor" value={datosAgresor.nombres} onChange={(e) => manejarCambio("nombres", e.target.value)} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="apellidos-agresor">Apellidos *</Label>
-                <Input id="apellidos-agresor" value={datosAgresor.apellidos} onChange={(e) => manejarCambio('apellidos', e.target.value)} required />
+                <Input id="apellidos-agresor" value={datosAgresor.apellidos} onChange={(e) => manejarCambio("apellidos", e.target.value)} required />
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="relacion-agresor">Relación con la Víctima</Label>
-              <Input
-                id="relacion-agresor"
-                value={datosAgresor.relacionVictima}
-                onChange={(e) => manejarCambio('relacionVictima', e.target.value)}
-                placeholder="Ej: Pareja, Familiar, Conocido..."
-              />
             </div>
           </div>
 
@@ -148,14 +136,14 @@ export function ModalAgregarAgresor({ abierto, onCerrar, cedulaInicial = '', onA
             <Button type="button" variant="outline" onClick={onCerrar}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={creandoAgresor || !puedeEnviar()}>
-              {creandoAgresor ? (
+            <Button type="submit" disabled={creando || !puedeEnviar()}>
+              {creando ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Agregando...
+                  Creando...
                 </>
               ) : (
-                'Agregar Agresor'
+                "Crear Agresor"
               )}
             </Button>
           </DialogFooter>

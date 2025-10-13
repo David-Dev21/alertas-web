@@ -36,8 +36,8 @@ export function useVictimas(parametrosIniciales: ParametrosConsultaVictimas = {}
 
         setEstado((previo) => ({
           ...previo,
-          victimas: respuesta.datos?.victimas || [],
-          paginacion: respuesta.datos?.paginacion || {
+          victimas: respuesta.datos?.datos?.victimas || [],
+          paginacion: respuesta.datos?.datos?.paginacion || {
             paginaActual: 1,
             totalPaginas: 0,
             totalElementos: 0,
@@ -95,6 +95,18 @@ export function useVictimas(parametrosIniciales: ParametrosConsultaVictimas = {}
     [cargarVictimas]
   );
 
+  // Función para filtrar por estado de cuenta
+  const filtrarPorEstadoCuenta = useCallback(
+    (estadoCuenta: string) => {
+      const nuevosParametros: ParametrosConsultaVictimas = { pagina: 1 };
+      if (estadoCuenta !== "TODOS") {
+        nuevosParametros.estadoCuenta = estadoCuenta;
+      }
+      cargarVictimas(nuevosParametros);
+    },
+    [cargarVictimas]
+  );
+
   // Función para aplicar filtros
   const aplicarFiltros = useCallback(
     (filtros: Omit<ParametrosConsultaVictimas, "pagina" | "limite">) => {
@@ -124,6 +136,7 @@ export function useVictimas(parametrosIniciales: ParametrosConsultaVictimas = {}
     irAPagina,
     cambiarLimite,
     buscar,
+    filtrarPorEstadoCuenta,
     aplicarFiltros,
     limpiarFiltros,
     cargarVictimas,

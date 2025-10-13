@@ -5,10 +5,11 @@ interface ParametrosConexion {
   idUsuario: string;
   tipo: "SUPERVISOR";
   idDepartamento: number;
+  token: string;
 }
 
 let socket: Socket | null = null;
-const url = process.env.NEXT_PUBLIC_ALERTAS_WS_URL || "http://localhost:3001";
+const url = process.env.NEXT_PUBLIC_ALERTAS_WS_URL;
 let conexionCallbacks: ((conectado: boolean) => void)[] = [];
 let conectando: boolean = false;
 let parametrosActuales: ParametrosConexion | null = null;
@@ -41,6 +42,9 @@ export const alertasSocketService = {
     const opcionesConexion: any = {
       transports: ["websocket"],
       autoConnect: false,
+      auth: {
+        token: parametros.token,
+      },
       query: {
         idUsuario: parametros.idUsuario,
         tipo: parametros.tipo,

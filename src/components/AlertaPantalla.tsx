@@ -1,24 +1,85 @@
-'use client';
+"use client";
 
-import { useAlertasSocket } from '@/hooks/alertas/useAlertasSocket';
-import { toast } from 'sonner';
-import { X } from 'lucide-react';
-import { formatearFechaUTC } from '@/types/alertas/Alerta';
-import Link from 'next/link';
-import { useAlertaStore } from '../stores/alertas/alertaStore';
+import { useAlertasSocket } from "@/hooks/alertas/useAlertasSocket";
+import { toast } from "sonner";
+import { X } from "lucide-react";
+import { formatearFechaUTC } from "@/lib/utils";
+import Link from "next/link";
+import { useAlertaStore } from "../stores/alertas/alertaStore";
+import { useEffect, useRef } from "react";
 
 /**
  * Componente global para mostrar alertas en tiempo real
  * Se renderiza en el layout y escucha WebSocket
  */
 export function AlertaPantalla() {
-  const { agregarAlertaPendiente, removerAlertaPendiente, alertasPendientes } = useAlertaStore();
+  const { agregarAlertaPendiente, alertasPendientes } = useAlertaStore();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  // Efecto para unlock audio al montar
+  useEffect(() => {
+    const initAudio = async () => {
+      audioContextRef.current = new AudioContext();
+      if (audioContextRef.current.state === "suspended") {
+        await audioContextRef.current.resume();
+      }
+      // Reproducir buffer silencioso para unlock completo
+      const buffer = audioContextRef.current.createBuffer(1, 1, 22050);
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioContextRef.current.destination);
+      source.start(0);
+    };
+    initAudio();
+
+    return () => {
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
+
+  // Efecto para reproducir sonido continuo mientras haya alertas pendientes
+  useEffect(() => {
+    if (alertasPendientes.length > 0) {
+      // Iniciar reproducción continua con loop
+      if (!audioRef.current) {
+        try {
+          const audio = new Audio("/sonido/sonido-2.mp3");
+          audio.loop = true;
+          audioRef.current = audio;
+          audio.play().catch((error) => {
+            console.warn("No se pudo reproducir el sonido de alerta continuo:", error);
+          });
+        } catch (error) {
+          console.warn("Error al cargar el sonido de alerta continuo:", error);
+        }
+      }
+    } else {
+      // Detener si no hay alertas
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+    }
+
+    // Limpiar al desmontar
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
+  }, [alertasPendientes.length]);
 
   // Suscribirse a eventos del WebSocket
   useAlertasSocket({
     onNuevaAlerta: (datos) => {
+      console.log("🔔 Evento nuevaAlerta recibido en frontend:", datos); // Log temporal
       // Solo procesar alertas PENDIENTE
-      if (datos.estado === 'PENDIENTE') {
+      if (datos.estado === "PENDIENTE") {
         // Agregar a pendientes
         agregarAlertaPendiente(datos);
 
@@ -29,11 +90,6 @@ export function AlertaPantalla() {
               href={`/alertas-activas/${datos.idAlerta}`}
               onClick={() => {
                 toast.dismiss(t);
-                // Verificar si la alerta existe en pendientes antes de removerla
-                const existeEnPendientes = alertasPendientes.some((a) => a.idAlerta === datos.idAlerta);
-                if (existeEnPendientes) {
-                  removerAlertaPendiente(datos.idAlerta);
-                }
               }}
             >
               <div className="relative bg-red-600 text-white rounded-lg p-5 shadow-lg cursor-pointer hover:bg-red-700 transition-colors w-[420px]">
@@ -63,7 +119,7 @@ export function AlertaPantalla() {
                         <p className="font-medium">{datos.origen}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs opacity-75">{formatearFechaUTC(datos.fechaHora)}</p>
+                        <p>{formatearFechaUTC(datos.fechaHora)}</p>
                       </div>
                     </div>
                   </div>
@@ -73,8 +129,8 @@ export function AlertaPantalla() {
           ),
           {
             duration: 150000,
-            position: 'top-center',
-          },
+            position: "top-center",
+          }
         );
       }
     },
@@ -115,7 +171,7 @@ export function AlertaPantalla() {
                       <p className="font-medium">{datos.estado}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs opacity-75">{formatearFechaUTC(datos.fechaHora)}</p>
+                      <p>{formatearFechaUTC(datos.fechaHora)}</p>
                     </div>
                   </div>
                 </div>
@@ -125,8 +181,8 @@ export function AlertaPantalla() {
         ),
         {
           duration: 100000,
-          position: 'top-center',
-        },
+          position: "top-center",
+        }
       );
     },
   });

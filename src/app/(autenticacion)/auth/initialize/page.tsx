@@ -4,12 +4,17 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ErrorEstado } from "@/components/ErrorEstado";
 import { useAuth } from "@/hooks/autenticacion/useAutenticacion";
+import { usuariosPanelService } from "@/services/usuarios/usuariosPanelService";
+import { ubicacionesService } from "@/services/ubicaciones/departamentosService";
+import { useUbicacionDispositivo } from "@/hooks/ubicaciones/useUbicacionDispositivo";
+import { formatearNombreCompleto } from "@/lib/utils";
 
 export default function InicializaPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mensajeError, setMensajeError] = useState<string | null>(null);
-  const { setToken, setDatosUsuario, setDatosSistema } = useAuth();
+  const { setToken, setDatosUsuario, setDatosSistema, setUbicacionUsuario } = useAuth();
+  const { obtenerUbicacionActual } = useUbicacionDispositivo();
 
   useEffect(() => {
     const inicializarAutenticacion = async () => {
@@ -87,6 +92,43 @@ export default function InicializaPage() {
         setToken(respuestaBackend.access_token);
         setDatosUsuario(datosUsuario);
         setDatosSistema(datosSistema);
+
+        // Obtener ubicación para el registro
+        const coordenadas = await obtenerUbicacionActual();
+        const departamentoData = await ubicacionesService.obtenerDepartamentoPorCoordenadas(coordenadas);
+        if (!departamentoData.datos?.departamento?.id) {
+          throw new Error("No se pudo determinar el departamento para el registro");
+        }
+        const idDepartamento = departamentoData.datos.departamento.id;
+
+        // Guardar ubicación en el store
+        setUbicacionUsuario(idDepartamento, departamentoData.datos.departamento.departamento, coordenadas.latitud, coordenadas.longitud);
+
+        // Crear usuario panel cada vez que se inicializa
+        try {
+          const nombreFormateado = formatearNombreCompleto(datosUsuario.nombreCompleto);
+          await usuariosPanelService.crearUsuarioPanel({
+            id: datosUsuario.idUsuario,
+            grado: "Sgto.",
+            nombreCompleto: nombreFormateado,
+            unidad: datosUsuario.unidad.nombreCompletoOrganismo,
+            idDepartamento,
+            autorizacion: {
+              rol: datosSistema.roles[0]?.nombre || "OPERADOR",
+              permisos: datosSistema.permisos || [],
+              modulos:
+                datosSistema.modulos?.map((m: any) => ({
+                  nombre: m.nombre,
+                  ruta: m.ruta,
+                  icono: m.icono,
+                  orden: m.orden,
+                })) || [],
+            },
+          });
+        } catch (error) {
+          console.error("Error al crear usuario panel:", error);
+          // No bloquear la inicialización por este error
+        }
 
         console.log("Token:", respuestaBackend.access_token);
         console.log("Usuario:", datosUsuario);

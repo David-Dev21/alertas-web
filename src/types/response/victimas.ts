@@ -23,12 +23,13 @@ export interface Victima {
   nombreCompleto?: string;
   nombres: string;
   apellidos: string;
-  fechaNacimiento: string;
+  fechaNacimiento?: string;
   celular: string;
-  correo: string;
+  correo?: string;
+  estadoCuenta?: string;
+  creadoEn?: string;
   idMunicipio?: number;
   direccion?: Direccion;
-  fechaRegistro: string;
   contactosEmergencia?: ContactoEmergencia[];
 }
 
@@ -44,4 +45,35 @@ export interface DatosVictimas {
   paginacion: PaginacionVictimas;
 }
 
-export interface RespuestaVictimas extends RespuestaBase<DatosVictimas> {}
+export interface RespuestaVictimas extends RespuestaBase<{ datos: DatosVictimas }> {}
+
+export interface AlertaHistorial {
+  idAlerta: string;
+  fechaHora: string;
+  estadoAlerta: string;
+  origen: string;
+  idMunicipio: number;
+  codigoCud: string;
+  codigoRegistro: string;
+  tiempoAsignacion: string;
+  tiempoCierre: string;
+  creadoEn: string;
+  municipio: string;
+  provincia: string;
+  departamento: string;
+}
+
+export interface EstadisticasVictima {
+  totalAlertas: number;
+  alertasActivas: number;
+  alertasFinalizadas: number;
+  alertasPorEstado: Record<string, number>;
+}
+
+export interface HistorialAlertasVictima {
+  victima: Victima;
+  estadisticas: EstadisticasVictima;
+  alertas: AlertaHistorial[];
+}
+
+export interface RespuestaHistorialAlertasVictima extends RespuestaBase<HistorialAlertasVictima> {}

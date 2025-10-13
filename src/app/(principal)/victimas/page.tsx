@@ -3,9 +3,11 @@
 import { TablaVictimas } from "./tabla-victimas";
 import { columnasVictimas } from "./columnas-victimas";
 import { useVictimas } from "@/hooks/victimas/useVictimas";
+import { useState } from "react";
 
 export default function PaginaVictimas() {
-  const { victimas, paginacion, cargando, error, refrescar, irAPagina, cambiarLimite, buscar } = useVictimas();
+  const [estadoCuentaFiltro, setEstadoCuentaFiltro] = useState<string>("TODOS");
+  const { victimas, paginacion, cargando, error, refrescar, irAPagina, cambiarLimite, buscar, filtrarPorEstadoCuenta } = useVictimas();
 
   const manejarPaginaAnterior = () => {
     if (paginacion.paginaActual > 1) {
@@ -17,6 +19,11 @@ export default function PaginaVictimas() {
     if (paginacion.paginaActual < paginacion.totalPaginas) {
       irAPagina(paginacion.paginaActual + 1);
     }
+  };
+
+  const manejarFiltrarEstadoCuenta = (estadoCuenta: string) => {
+    setEstadoCuentaFiltro(estadoCuenta);
+    filtrarPorEstadoCuenta(estadoCuenta);
   };
 
   return (
@@ -41,6 +48,8 @@ export default function PaginaVictimas() {
         onCambiarLimite={cambiarLimite}
         onBuscar={buscar}
         onRefrescar={refrescar}
+        onFiltrarEstadoCuenta={manejarFiltrarEstadoCuenta}
+        estadoCuentaFiltro={estadoCuentaFiltro}
       />
     </div>
   );

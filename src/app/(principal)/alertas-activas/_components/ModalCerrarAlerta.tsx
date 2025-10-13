@@ -7,11 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, X } from "lucide-react";
 import { useAuth } from "@/hooks/autenticacion/useAutenticacion";
-import { alertasService } from "@/services/alertas/alertasService";
+import { agresorService } from "@/services/agresores/agresorService";
 import { ModalAgregarAgresor } from "./ModalAgregarAgresor";
-import { useAgresores } from "@/hooks/alertas/useAgresores";
+import { ModalParentescoAgresor } from "./ModalParentescoAgresor";
 
 interface ModalCerrarAlertaProps {
   abierto: boolean;
@@ -21,22 +21,15 @@ interface ModalCerrarAlertaProps {
 }
 
 interface DatosCierre {
-  idUsuarioPanel: string;
+  idUsuarioWeb: string;
   motivoCierre: "RESUELTA" | "FALSA_ALERTA";
   estadoVictima?: string;
-  idAgresor?: string;
+  agresores?: { idAgresor: string; parentesco: string }[];
   observaciones: string;
   fechaHora: string;
 }
 
-interface DatosAgresor {
-  cedulaIdentidad: string;
-  nombres: string;
-  apellidos: string;
-  parentesco: string;
-}
-
-interface AgresorEncontrado {
+interface AgresorSeleccionado {
   id: string;
   cedulaIdentidad: string;
   nombreCompleto: string;
@@ -45,45 +38,39 @@ interface AgresorEncontrado {
 
 export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada }: ModalCerrarAlertaProps) {
   const { usuario } = useAuth();
-  const { buscarAgresor: buscarAgresorHook, buscandoAgresor, creandoAgresor } = useAgresores();
   const [cargando, setCargando] = useState(false);
   const [pestañaActiva, setPestañaActiva] = useState("relevante");
+  const [buscando, setBuscando] = useState(false);
 
   const [datos, setDatos] = useState<DatosCierre>({
-    idUsuarioPanel: usuario.idUsuario || "",
+    idUsuarioWeb: usuario.idUsuario || "",
     motivoCierre: "RESUELTA",
     estadoVictima: "",
-    idAgresor: "",
+    agresores: [],
     observaciones: "",
     fechaHora: new Date().toISOString(),
   });
 
-  const [datosAgresor, setDatosAgresor] = useState<DatosAgresor>({
-    cedulaIdentidad: "",
-    nombres: "",
-    apellidos: "",
-    parentesco: "",
-  });
+  const [agresoresSeleccionados, setAgresoresSeleccionados] = useState<AgresorSeleccionado[]>([]);
 
   const [cedulaBusqueda, setCedulaBusqueda] = useState("");
-  const [agresorEncontrado, setAgresorEncontrado] = useState<AgresorEncontrado | null>(null);
   const [mostrarCrearAgresor, setMostrarCrearAgresor] = useState(false);
+  const [modalParentescoAbierto, setModalParentescoAbierto] = useState(false);
+  const [agresorParaParentesco, setAgresorParaParentesco] = useState<{ id: string; cedulaIdentidad: string; nombreCompleto: string } | null>(null);
 
   useEffect(() => {
     if (abierto) {
       // Resetear estados cuando se abre el modal
       setCedulaBusqueda("");
-      setAgresorEncontrado(null);
+      setAgresoresSeleccionados([]);
       setMostrarCrearAgresor(false);
-      setDatosAgresor({
-        cedulaIdentidad: "",
-        nombres: "",
-        apellidos: "",
-        parentesco: "",
-      });
+      setModalParentescoAbierto(false);
+      setAgresorParaParentesco(null);
       setDatos((prev) => ({
         ...prev,
-        idAgresor: "",
+        estadoVictima: "",
+        agresores: [],
+        observaciones: "",
       }));
     }
   }, [abierto]);
@@ -106,61 +93,60 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
   const buscarAgresor = async () => {
     if (!cedulaBusqueda.trim()) return;
 
-    const agresor = await buscarAgresorHook(cedulaBusqueda.trim());
+    setBuscando(true);
+    try {
+      const agresor = await agresorService.buscarPorCedula(cedulaBusqueda.trim());
 
-    if (agresor) {
-      setAgresorEncontrado(agresor);
-      // Guardar el ID del agresor encontrado
-      setDatos((prev) => ({
-        ...prev,
-        idAgresor: agresor.id,
-      }));
-      // Llenar datosAgresor con los datos encontrados
-      const [nombres, ...apellidosArray] = agresor.nombreCompleto.split(" ");
-      const apellidos = apellidosArray.join(" ");
-      setDatosAgresor({
-        cedulaIdentidad: agresor.cedulaIdentidad,
-        nombres: nombres,
-        apellidos: apellidos,
-        parentesco: agresor.parentesco,
-      });
-    } else {
-      // No se encontró, mostrar modal de crear
-      setMostrarCrearAgresor(true);
+      if (agresor) {
+        // Abrir modal para configurar parentesco
+        setAgresorParaParentesco(agresor);
+        setModalParentescoAbierto(true);
+        setCedulaBusqueda("");
+      } else {
+        // No se encontró, mostrar modal de crear
+        setMostrarCrearAgresor(true);
+      }
+    } catch (error) {
+      console.error("Error buscando agresor:", error);
+    } finally {
+      setBuscando(false);
     }
   };
 
-  const manejarAgresorCreado = (datosNuevoAgresor: {
-    id: string;
-    cedulaIdentidad: string;
-    nombres: string;
-    apellidos: string;
-    parentesco: string;
-  }) => {
-    setDatos((prev) => ({
-      ...prev,
-      idAgresor: datosNuevoAgresor.id,
-    }));
-    setDatosAgresor({
-      cedulaIdentidad: datosNuevoAgresor.cedulaIdentidad,
-      nombres: datosNuevoAgresor.nombres,
-      apellidos: datosNuevoAgresor.apellidos,
-      parentesco: datosNuevoAgresor.parentesco,
-    });
-    setMostrarCrearAgresor(false);
-    setAgresorEncontrado({
+  const manejarAgresorCreado = (datosNuevoAgresor: { id: string; cedulaIdentidad: string; nombres: string; apellidos: string }) => {
+    const agresor = {
       id: datosNuevoAgresor.id,
       cedulaIdentidad: datosNuevoAgresor.cedulaIdentidad,
       nombreCompleto: `${datosNuevoAgresor.nombres} ${datosNuevoAgresor.apellidos}`,
-      parentesco: datosNuevoAgresor.parentesco,
-    });
+    };
+    setAgresorParaParentesco(agresor);
+    setModalParentescoAbierto(true);
+    setMostrarCrearAgresor(false);
+    setCedulaBusqueda("");
+  };
+
+  const removerAgresor = (index: number) => {
+    setAgresoresSeleccionados((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const manejarParentescoConfirmado = (parentesco: string) => {
+    if (agresorParaParentesco) {
+      const nuevoAgresor: AgresorSeleccionado = {
+        id: agresorParaParentesco.id,
+        cedulaIdentidad: agresorParaParentesco.cedulaIdentidad,
+        nombreCompleto: agresorParaParentesco.nombreCompleto,
+        parentesco: parentesco,
+      };
+      setAgresoresSeleccionados((prev) => [...prev, nuevoAgresor]);
+      setAgresorParaParentesco(null);
+    }
   };
 
   const manejarSubmit = async () => {
     setCargando(true);
     try {
       const datosEnvio: DatosCierre = {
-        idUsuarioPanel: datos.idUsuarioPanel,
+        idUsuarioWeb: datos.idUsuarioWeb,
         motivoCierre: datos.motivoCierre,
         observaciones: datos.observaciones,
         fechaHora: datos.fechaHora,
@@ -168,16 +154,21 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
 
       // Solo incluir estadoVictima para casos RESUELTA
       if (pestañaActiva === "relevante") {
-        datosEnvio.estadoVictima = datos.estadoVictima;
+        if (datos.estadoVictima?.trim()) {
+          datosEnvio.estadoVictima = datos.estadoVictima.trim();
+        }
       }
 
-      // Incluir idAgresor solo si se completó
-      if (pestañaActiva === "relevante" && datos.idAgresor?.trim()) {
-        datosEnvio.idAgresor = datos.idAgresor.trim();
+      // Incluir agresores si hay alguno seleccionado
+      if (agresoresSeleccionados.length > 0) {
+        datosEnvio.agresores = agresoresSeleccionados.map((a) => ({
+          idAgresor: a.id,
+          parentesco: a.parentesco.trim(),
+        }));
       }
 
       console.log("Datos a enviar:", datosEnvio);
-      await alertasService.cerrar(idAlerta, datosEnvio);
+      await agresorService.cerrarAlerta(idAlerta, datosEnvio);
 
       onAlertaCerrada?.();
       onCerrar();
@@ -195,139 +186,128 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
       return false;
     }
 
-    // Para caso relevante, estadoVictima es requerido
-    if (pestañaActiva === "relevante" && !datos.estadoVictima?.trim()) {
-      return false;
-    }
-
-    // Para caso relevante, si hay datos del agresor (encontrado o manual), validar que haya idAgresor
-    if (pestañaActiva === "relevante" && (agresorEncontrado || datosAgresor.cedulaIdentidad.trim())) {
-      if (!datos.idAgresor?.trim()) {
-        return false;
-      }
-    }
-
+    // Para caso relevante, estadoVictima es opcional, agresores opcionales
     return true;
   };
 
   return (
     <>
       <Dialog open={abierto} onOpenChange={onCerrar}>
-        <DialogContent className="sm:max-w-[700px] z-[10000] data-[state=open]:z-[10000]">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col z-[10000] data-[state=open]:z-[10000]">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>Cerrar Alerta</DialogTitle>
             <DialogDescription>Complete los datos para cerrar la alerta. Seleccione el tipo de cierre apropiado.</DialogDescription>
           </DialogHeader>
 
-          <Tabs value={pestañaActiva} onValueChange={manejarCambioPestaña} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs value={pestañaActiva} onValueChange={manejarCambioPestaña} className="flex-1 flex flex-col min-h-0">
+            <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
               <TabsTrigger value="relevante">Relevante</TabsTrigger>
               <TabsTrigger value="falsa-alarma">Falsa Alarma</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="relevante" className="space-y-4 mt-4">
-              <div className="grid gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="estado-victima">Estado de la Víctima</Label>
-                  <Input
-                    id="estado-victima"
-                    value={datos.estadoVictima}
-                    onChange={(e) => manejarCambio("estadoVictima", e.target.value)}
-                    placeholder="Ej: Segura, En riesgo, Desaparecida..."
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="observaciones-relevante">Observaciones *</Label>
-                  <Textarea
-                    id="observaciones-relevante"
-                    value={datos.observaciones}
-                    onChange={(e) => manejarCambio("observaciones", e.target.value)}
-                    placeholder="Describa las acciones realizadas y el resultado..."
-                    rows={3}
-                  />
-                </div>
-
-                <div className="border-t pt-4">
-                  <h4 className="text-sm font-medium mb-3">Información del Agresor (Opcional)</h4>
-                  <p className="text-xs text-muted-foreground mb-4">Busque al agresor por cédula de identidad. Si no existe, podrá crearlo.</p>
-
-                  <div className="flex gap-2 mb-4">
-                    <div className="flex-1">
-                      <Label htmlFor="busqueda-cedula">Cédula de Identidad</Label>
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-4">
+                <TabsContent value="relevante" className="space-y-4 mt-0">
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="estado-victima">Estado de la Víctima</Label>
                       <Input
-                        id="busqueda-cedula"
-                        value={cedulaBusqueda}
-                        onChange={(e) => setCedulaBusqueda(e.target.value)}
-                        placeholder="Ingrese cédula para buscar"
+                        id="estado-victima"
+                        value={datos.estadoVictima}
+                        onChange={(e) => manejarCambio("estadoVictima", e.target.value)}
+                        placeholder="Ej: Segura"
                       />
                     </div>
-                    <div className="flex items-end">
-                      <Button type="button" onClick={buscarAgresor} disabled={buscandoAgresor || !cedulaBusqueda.trim()} size="sm">
-                        {buscandoAgresor ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-                        Buscar
-                      </Button>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="observaciones-relevante">Observaciones *</Label>
+                      <Textarea
+                        id="observaciones-relevante"
+                        value={datos.observaciones}
+                        onChange={(e) => manejarCambio("observaciones", e.target.value)}
+                        placeholder="Describa las acciones realizadas y el resultado..."
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="border-t pt-4">
+                      <h4 className="text-sm font-medium mb-3">Información del Agresor (Opcional)</h4>
+                      <p className="text-xs text-muted-foreground mb-4">Busque al agresor por cédula de identidad. Si no existe, podrá crearlo.</p>
+
+                      <div className="flex gap-2 mb-4">
+                        <div className="flex-1">
+                          <Label htmlFor="busqueda-cedula" className="mb-2">
+                            Cédula de Identidad
+                          </Label>
+                          <Input
+                            id="busqueda-cedula"
+                            value={cedulaBusqueda}
+                            onChange={(e) => setCedulaBusqueda(e.target.value)}
+                            placeholder="Ingrese cédula para buscar"
+                          />
+                        </div>
+                        <div className="flex items-end">
+                          <Button type="button" onClick={buscarAgresor} disabled={buscando || !cedulaBusqueda.trim()} size="sm">
+                            {buscando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                            Buscar
+                          </Button>
+                        </div>
+                      </div>
+
+                      {agresoresSeleccionados.length > 0 && (
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium">Agresores Seleccionados ({agresoresSeleccionados.length})</Label>
+                          <div className="space-y-2">
+                            {agresoresSeleccionados.map((agresor, index) => (
+                              <div key={agresor.id} className="border rounded-lg p-4 bg-card">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex items-start gap-3 flex-1">
+                                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                      <span className="text-sm font-medium text-primary">{agresor.nombreCompleto.charAt(0)}</span>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm font-medium text-foreground">{agresor.nombreCompleto}</p>
+                                      <p className="text-xs text-muted-foreground mt-1">
+                                        CI: {agresor.cedulaIdentidad} • Parentesco: {agresor.parentesco}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removerAgresor(index)}
+                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive flex-shrink-0"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
+                </TabsContent>
 
-                  {agresorEncontrado && (
-                    <div className="border rounded-md p-3 bg-muted/20">
-                      <div className="flex items-center justify-between">
-                        <div className="flex gap-4 text-sm">
-                          <span>
-                            <strong>Cédula:</strong> {agresorEncontrado.cedulaIdentidad}
-                          </span>
-                          <span>
-                            <strong>Nombre:</strong> {agresorEncontrado.nombreCompleto}
-                          </span>
-                          <span>
-                            <strong>Parentesco:</strong> {agresorEncontrado.parentesco}
-                          </span>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setAgresorEncontrado(null);
-                            setCedulaBusqueda("");
-                            setMostrarCrearAgresor(false);
-                            setDatosAgresor({
-                              cedulaIdentidad: "",
-                              nombres: "",
-                              apellidos: "",
-                              parentesco: "",
-                            });
-                            setDatos((prev) => ({
-                              ...prev,
-                              idAgresor: "",
-                            }));
-                          }}
-                        >
-                          Cambiar
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <TabsContent value="falsa-alarma" className="space-y-4 mt-0">
+                  <div className="space-y-2">
+                    <Label htmlFor="observaciones-falsa">Observaciones *</Label>
+                    <Textarea
+                      id="observaciones-falsa"
+                      value={datos.observaciones}
+                      onChange={(e) => manejarCambio("observaciones", e.target.value)}
+                      placeholder="Explique por qué se considera falsa alarma..."
+                      rows={4}
+                    />
+                  </div>
+                </TabsContent>
               </div>
-            </TabsContent>
-
-            <TabsContent value="falsa-alarma" className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="observaciones-falsa">Observaciones *</Label>
-                <Textarea
-                  id="observaciones-falsa"
-                  value={datos.observaciones}
-                  onChange={(e) => manejarCambio("observaciones", e.target.value)}
-                  placeholder="Explique por qué se considera falsa alarma..."
-                  rows={4}
-                />
-              </div>
-            </TabsContent>
+            </div>
           </Tabs>
 
-          <DialogFooter>
+          <DialogFooter className="flex-shrink-0 border-t pt-4">
             <Button type="button" variant="outline" onClick={onCerrar}>
               Cancelar
             </Button>
@@ -348,9 +328,18 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
       <ModalAgregarAgresor
         abierto={mostrarCrearAgresor}
         onCerrar={() => setMostrarCrearAgresor(false)}
-        idAlerta={idAlerta}
         cedulaInicial={cedulaBusqueda}
         onAgresorCreado={manejarAgresorCreado}
+      />
+
+      <ModalParentescoAgresor
+        abierto={modalParentescoAbierto}
+        onCerrar={() => {
+          setModalParentescoAbierto(false);
+          setAgresorParaParentesco(null);
+        }}
+        agresor={agresorParaParentesco}
+        onConfirmar={manejarParentescoConfirmado}
       />
     </>
   );

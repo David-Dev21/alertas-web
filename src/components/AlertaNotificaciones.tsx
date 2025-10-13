@@ -4,6 +4,7 @@ import { useAlertaStore } from "../stores/alertas/alertaStore";
 import { Clock } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
+import { formatearFechaUTC } from "@/lib/utils";
 
 /**
  * Componente que muestra notificaciones de alertas pendientes con la misma
@@ -12,7 +13,7 @@ import { Button } from "./ui/button";
  * navegar.
  */
 export function AlertaNotificaciones() {
-  const { alertasPendientes, removerAlertaPendiente } = useAlertaStore();
+  const { alertasPendientes } = useAlertaStore();
 
   if (!alertasPendientes || alertasPendientes.length === 0) {
     return (
@@ -32,21 +33,11 @@ export function AlertaNotificaciones() {
               <div className="text-sm">Origen: {alerta.origen}</div>
               <div className="text-xs mt-1 opacity-90 flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                {alerta.fechaHora}
+                {formatearFechaUTC(alerta.fechaHora)}
               </div>
             </div>
             <Button asChild size="sm" variant="default">
-              <Link
-                href={`/alertas-activas/${alerta.idAlerta}`}
-                onClick={() => {
-                  // Verificar si la alerta aún existe antes de removerla
-                  const existeEnPendientes = alertasPendientes.some((a) => a.idAlerta === alerta.idAlerta);
-                  if (existeEnPendientes) {
-                    removerAlertaPendiente(alerta.idAlerta);
-                  }
-                }}
-                className="text-xs px-2 py-1"
-              >
+              <Link href={`/alertas-activas/${alerta.idAlerta}`} className="text-xs px-2 py-1">
                 Detalles
               </Link>
             </Button>

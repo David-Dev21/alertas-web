@@ -4,7 +4,8 @@ import {
   Home,
   UsersRound,
   BarChart3,
-  Shield,
+  MonitorCheck,
+  Ambulance,
   User,
   CheckCircle,
   Calendar,
@@ -14,6 +15,7 @@ import {
   MessageSquareWarning,
   ClockAlert,
   ShieldAlert,
+  Settings,
   type LucideIcon,
 } from "lucide-react";
 import { NavSections } from "@/components/nav-sections";
@@ -30,7 +32,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       Home: Home,
       UsersRound: UsersRound,
       BarChart3: BarChart3,
-      Shield: Shield,
+      MonitorCheck: MonitorCheck,
       User: User,
       ShieldAlert: ShieldAlert,
       CheckCircle: CheckCircle,
@@ -40,8 +42,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       UserRound: UserRound,
       MessageSquareWarning: MessageSquareWarning,
       ClockAlert: ClockAlert,
-      Settings: Shield,
+      Settings: Settings,
       FileText: BarChart3,
+      Ambulance: Ambulance,
     };
     const normalizedIconName = iconName?.replace(/\s+/g, "").replace(/^\w/, (c) => c.toUpperCase()) || "";
     return iconMap[normalizedIconName] || Home;

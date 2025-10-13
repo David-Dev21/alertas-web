@@ -3,14 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, User, Radio, Car, Clock } from "lucide-react";
 
-interface FuncionarioAsignado {
+export interface FuncionarioAsignado {
   id: string;
   idUsuarioOperativo: string | null;
   rolAtencion: string;
   ubicacion: string | null;
   turnoInicio: string;
   turnoFin: string;
-  funcionarioExterno: {
+  grado: string;
+  nombreCompleto: string;
+  unidad: string;
+  funcionarioExterno?: {
     grado: string;
     nombreCompleto: string;
     organismo?: string;
@@ -22,6 +25,8 @@ interface Atencion {
   id: string;
   siglaVehiculo?: string;
   siglaRadio?: string;
+  gradoUsuarioWeb?: string;
+  nombreCompletoUsuarioWeb?: string;
   atencionFuncionario?: FuncionarioAsignado[];
 }
 
@@ -85,75 +90,108 @@ export function FuncionariosAsignados({ atencion }: FuncionariosAsignadosProps) 
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shield className="w-5 h-5" />
-          Funcionarios Asignados ({funcionarios.length})
+          Información de la Atención
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Información de Recursos */}
-        {(atencion.siglaVehiculo || atencion.siglaRadio) && (
-          <div className="grid grid-cols-2 gap-3">
-            {atencion.siglaVehiculo && (
-              <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-3">
-                <div className="flex items-center gap-2">
-                  <Car className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  <span className="text-sm font-medium">Código de vehículo:</span>
-                  <div className="font-mono text-sm">{atencion.siglaVehiculo}</div>
-                </div>
+      <CardContent className="space-y-6">
+        {/* Información General de la Atención */}
+        <div className="space-y-4">
+          {/* Despachador y Recursos en una sola fila */}
+          <div className="flex gap-4">
+            {/* Usuario Despachador */}
+            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg flex-[2] min-w-0">
+              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                <User className="w-4 h-4 text-muted-foreground" />
               </div>
-            )}
-            {atencion.siglaRadio && (
-              <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-3">
-                <div className="flex items-center gap-2">
-                  <Radio className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  <span className="text-sm font-medium">Codigo de Radio: </span>
-                  <div className="font-mono text-sm">{atencion.siglaRadio}</div>
-                </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground">Despachador</p>
+                <p className="text-sm font-medium truncate">
+                  {atencion.gradoUsuarioWeb || atencion.nombreCompletoUsuarioWeb
+                    ? `${atencion.gradoUsuarioWeb || ""} ${atencion.nombreCompletoUsuarioWeb || ""}`.trim()
+                    : "No asignado"}
+                </p>
               </div>
-            )}
-          </div>
-        )}
+            </div>
 
-        {/* Lista de Funcionarios */}
-        <div>
-          <h4 className="font-medium text-sm mb-3">Funcionarios en Atención</h4>
-          <div className="space-y-2">
-            {funcionarios.map((funcionario: FuncionarioAsignado, index: number) => (
-              <div key={funcionario.id} className="border rounded-lg p-4 bg-card">
-                {/* Encabezado del Funcionario */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="w-5 h-5 text-primary" />
+            {/* Vehículo */}
+            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg flex-1 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                <Car className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground">Vehículo</p>
+                <p className={`font-medium font-mono truncate ${atencion.siglaVehiculo ? "text-sm" : "text-xs opacity-60"}`}>
+                  {atencion.siglaVehiculo || "—"}
+                </p>
+              </div>
+            </div>
+
+            {/* Radio */}
+            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg flex-1 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                <Radio className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground">Radio</p>
+                <p className={`font-medium font-mono truncate ${atencion.siglaRadio ? "text-sm" : "text-xs opacity-60"}`}>
+                  {atencion.siglaRadio || "—"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Funcionarios Asignados */}
+        <div className="space-y-4">
+          {funcionarios.length === 0 ? (
+            <div className="text-center py-6 text-muted-foreground">
+              <Shield className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No hay funcionarios asignados</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <h4 className="font-medium text-sm text-muted-foreground pb-2"> Funcionarios Asignados ({funcionarios.length})</h4>
+              {funcionarios.map((funcionario: FuncionarioAsignado, index: number) => (
+                <div key={funcionario.id} className="border rounded-lg p-4 bg-card">
+                  {/* Información del Funcionario en 3 columnas */}
+                  <div className="grid grid-cols-4 gap-4 items-start">
+                    {/* Columna 1: Grado, Nombre y Unidad (ocupa 2 columnas) */}
+                    <div className="col-span-2 flex items-center gap-3 my-auto">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <User className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h5 className="font-semibold text-sm">
+                          {funcionario.grado || funcionario.funcionarioExterno?.grado}{" "}
+                          {funcionario.nombreCompleto || funcionario.funcionarioExterno?.nombreCompleto}
+                        </h5>
+                        <p className="text-xs text-muted-foreground">
+                          {funcionario.funcionarioExterno?.organismo ? `${funcionario.funcionarioExterno.organismo} - ` : ""}
+                          {funcionario.unidad || funcionario.funcionarioExterno?.unidad}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h5 className="font-semibold text-sm">
-                        {funcionario.funcionarioExterno.grado} {funcionario.funcionarioExterno.nombreCompleto}
-                      </h5>
-                      <p className="text-xs text-muted-foreground">
-                        {funcionario.funcionarioExterno.organismo ? `${funcionario.funcionarioExterno.organismo} - ` : ""}
-                        {funcionario.funcionarioExterno.unidad}
-                      </p>
+
+                    {/* Columna 2: Turno */}
+                    <div className="flex items-center gap-2 my-auto">
+                      <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                      <div className="text-xs">
+                        <span className="font-medium text-muted-foreground">Turno:</span>
+                        <span className="ml-1 text-foreground">{formatearTurno(funcionario.turnoInicio, funcionario.turnoFin)}</span>
+                      </div>
+                    </div>
+
+                    {/* Columna 3: Rol de Atención */}
+                    <div className="flex justify-center items-center my-auto">
+                      <Badge variant={funcionario.rolAtencion === "ENCARGADO" ? "default" : "secondary"} className="text-xs">
+                        {funcionario.rolAtencion}
+                      </Badge>
                     </div>
                   </div>
-                  <Badge variant={funcionario.rolAtencion === "ENCARGADO" ? "default" : "secondary"} className="text-xs">
-                    {funcionario.rolAtencion}
-                  </Badge>
                 </div>
-
-                {/* Separador */}
-                <div className="border-t border-border/50 my-3"></div>
-
-                {/* Información del Turno */}
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-muted-foreground" />
-                  <div className="text-xs">
-                    <span className="font-medium text-muted-foreground">Turno de Servicio:</span>
-                    <span className="ml-1 text-foreground">{formatearTurno(funcionario.turnoInicio, funcionario.turnoFin)}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

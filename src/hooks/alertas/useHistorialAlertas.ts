@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { alertasService } from '@/services/alertas/alertasService';
-import { Alerta } from '@/types/alertas/Alerta';
+import { useState, useEffect, useCallback } from "react";
+import { alertasService } from "@/services/alertas/alertasService";
+import { Alerta } from "@/types/alertas/Alerta";
 
 export interface EstadoHistorial {
   alertas: Alerta[];
@@ -55,19 +55,19 @@ export function useHistorialAlertas() {
         const datos = await alertasService.obtenerHistorial(final);
 
         setEstado({
-          alertas: datos.historial || [],
-          paginacion: datos.paginacion || { paginaActual: 1, totalPaginas: 0, totalElementos: 0, elementosPorPagina: final.limite || 10 },
+          alertas: datos.datos?.historial || [],
+          paginacion: datos.datos?.paginacion || { paginaActual: 1, totalPaginas: 0, totalElementos: 0, elementosPorPagina: final.limite || 10 },
           cargando: false,
           error: null,
         });
 
         if (nuevosParametros) setParametros(final);
       } catch (error) {
-        console.error('Error cargando historial:', error);
-        setEstado((p) => ({ ...p, cargando: false, error: error instanceof Error ? error.message : 'Error desconocido' }));
+        console.error("Error cargando historial:", error);
+        setEstado((p) => ({ ...p, cargando: false, error: error instanceof Error ? error.message : "Error desconocido" }));
       }
     },
-    [parametros],
+    [parametros]
   );
 
   useEffect(() => {
@@ -90,7 +90,7 @@ export function useHistorialAlertas() {
       fechaDesde?: string;
       fechaHasta?: string;
     }) => cargar({ ...filtros, pagina: 1 }),
-    [cargar],
+    [cargar]
   );
 
   return { ...estado, parametros, refrescar, irAPagina, cambiarLimite, buscar, cargar };

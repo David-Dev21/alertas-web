@@ -124,39 +124,6 @@ export interface NuevaAlertaSimple {
   fechaHora: string;
 }
 
-export function formatearFechaUTC(fechaUTC: string): string {
-  try {
-    // Normalizar string UTC si es necesario
-    let fechaNormalizada = fechaUTC;
-
-    // Si no tiene timezone, añadir Z
-    if (!fechaUTC.includes("Z") && !fechaUTC.includes("+") && !fechaUTC.includes("-")) {
-      fechaNormalizada = fechaUTC + "Z";
-    }
-
-    // Crear fecha desde string UTC normalizado
-    const fecha = new Date(fechaNormalizada);
-
-    // Verificar si la fecha es válida
-    if (isNaN(fecha.getTime())) {
-      throw new Error("Fecha inválida");
-    }
-
-    return fecha.toLocaleString("es-BO", {
-      timeZone: "America/La_Paz",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-  } catch (error) {
-    console.error("Error al formatear fecha UTC:", error, "Input:", fechaUTC);
-    return "Fecha no disponible";
-  }
-}
-
 export function obtenerTextoEstado(estado: string | EstadoAlerta): string {
   const estadoNormalizado = typeof estado === "string" ? estado : String(estado);
 

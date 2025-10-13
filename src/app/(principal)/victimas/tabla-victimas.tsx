@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import * as React from 'react';
+import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -11,14 +11,14 @@ import {
   getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
-import { ChevronDown, Search, RefreshCw } from 'lucide-react';
+} from "@tanstack/react-table";
+import { ChevronDown, Search, RefreshCw } from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -27,7 +27,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/components/ui/pagination';
+} from "@/components/ui/pagination";
 
 interface DataTableProps<TData, TValue> {
   columnas: ColumnDef<TData, TValue>[];
@@ -45,6 +45,8 @@ interface DataTableProps<TData, TValue> {
   onCambiarLimite?: (limite: number) => void;
   onBuscar?: (termino: string) => void;
   onRefrescar?: () => void;
+  onFiltrarEstadoCuenta?: (estadoCuenta: string) => void;
+  estadoCuentaFiltro?: string;
 }
 
 export function TablaVictimas<TData, TValue>({
@@ -58,12 +60,14 @@ export function TablaVictimas<TData, TValue>({
   onCambiarLimite,
   onBuscar,
   onRefrescar,
+  onFiltrarEstadoCuenta,
+  estadoCuentaFiltro,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [busqueda, setBusqueda] = React.useState('');
+  const [busqueda, setBusqueda] = React.useState("");
 
   const table = useReactTable({
     data: datos,
@@ -103,8 +107,20 @@ export function TablaVictimas<TData, TValue>({
               className="pl-8 w-96"
             />
           </div>
+          <Select value={estadoCuentaFiltro || "TODOS"} onValueChange={onFiltrarEstadoCuenta}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filtrar por estado cuenta" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="TODOS">Todos los estados</SelectItem>
+              <SelectItem value="ACTIVA">Activa</SelectItem>
+              <SelectItem value="INACTIVA">Inactiva</SelectItem>
+              <SelectItem value="SUSPENDIDA">Suspendida</SelectItem>
+              <SelectItem value="PENDIENTE_VERIFICACION">Pendiente Verificación</SelectItem>
+            </SelectContent>
+          </Select>
           <Button variant="outline" size="sm" onClick={onRefrescar} disabled={cargando}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${cargando ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`mr-2 h-4 w-4 ${cargando ? "animate-spin" : ""}`} />
             Refrescar
           </Button>
         </div>
@@ -162,7 +178,7 @@ export function TablaVictimas<TData, TValue>({
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}
@@ -215,7 +231,7 @@ export function TablaVictimas<TData, TValue>({
                         onPaginaAnterior?.();
                       }
                     }}
-                    className={paginacion.paginaActual <= 1 || cargando ? 'pointer-events-none opacity-50' : ''}
+                    className={paginacion.paginaActual <= 1 || cargando ? "pointer-events-none opacity-50" : ""}
                   />
                 </PaginationItem>
 
@@ -224,7 +240,6 @@ export function TablaVictimas<TData, TValue>({
                   const items = [];
                   const totalPaginas = paginacion.totalPaginas;
                   const paginaActual = paginacion.paginaActual;
-
                   // Siempre mostrar primera página
                   if (totalPaginas > 0) {
                     items.push(
@@ -239,7 +254,7 @@ export function TablaVictimas<TData, TValue>({
                         >
                           1
                         </PaginationLink>
-                      </PaginationItem>,
+                      </PaginationItem>
                     );
                   }
 
@@ -248,7 +263,7 @@ export function TablaVictimas<TData, TValue>({
                     items.push(
                       <PaginationItem key="ellipsis-start">
                         <PaginationEllipsis />
-                      </PaginationItem>,
+                      </PaginationItem>
                     );
                   }
 
@@ -270,7 +285,7 @@ export function TablaVictimas<TData, TValue>({
                           >
                             {i}
                           </PaginationLink>
-                        </PaginationItem>,
+                        </PaginationItem>
                       );
                     }
                   }
@@ -280,7 +295,7 @@ export function TablaVictimas<TData, TValue>({
                     items.push(
                       <PaginationItem key="ellipsis-end">
                         <PaginationEllipsis />
-                      </PaginationItem>,
+                      </PaginationItem>
                     );
                   }
 
@@ -298,7 +313,7 @@ export function TablaVictimas<TData, TValue>({
                         >
                           {totalPaginas}
                         </PaginationLink>
-                      </PaginationItem>,
+                      </PaginationItem>
                     );
                   }
 
@@ -314,7 +329,7 @@ export function TablaVictimas<TData, TValue>({
                         onPaginaSiguiente?.();
                       }
                     }}
-                    className={paginacion.paginaActual >= paginacion.totalPaginas || cargando ? 'pointer-events-none opacity-50' : ''}
+                    className={paginacion.paginaActual >= paginacion.totalPaginas || cargando ? "pointer-events-none opacity-50" : ""}
                   />
                 </PaginationItem>
               </PaginationContent>
