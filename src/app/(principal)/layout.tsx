@@ -17,10 +17,34 @@ import { EstadoConexion } from "@/components/EstadoConexion";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore";
+import { jwtDecode } from "jwt-decode";
+import { useRouter } from "next/navigation";
+
+/**
+ * Función para decodificar JWT y verificar expiración
+ */
+function isTokenValid(token: string): boolean {
+  try {
+    const decoded: any = jwtDecode(token);
+    const currentTime = Math.floor(Date.now() / 1000);
+    return decoded.exp > currentTime;
+  } catch {
+    return false;
+  }
+}
 
 export default function LayoutPrincipal({ children }: { children: React.ReactNode }) {
   const { alertasPendientes } = useAlertaStore();
   const cantidadPendientes = alertasPendientes.length;
+  const router = useRouter();
+  const { accessToken } = useAutenticacionStore();
+
+  // Verificar token y redirigir si no es válido
+  useEffect(() => {
+    if (!accessToken || !isTokenValid(accessToken)) {
+      window.location.href = "https://kerveros-dev.policia.bo/auth/login";
+    }
+  }, [accessToken]);
 
   // Inicializar permisos, ubicación y WebSocket cuando esté en la app principal
   useInicializacionPrincipal();

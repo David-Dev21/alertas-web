@@ -104,15 +104,6 @@ export const useAutenticacionStore = create<AlmacenamientoAutenticacion>()((set,
   setToken: (token: string | null) => {
     guardarEnLocalStorage("access_token", token);
 
-    // También guardar en cookie para el middleware
-    if (typeof window !== "undefined") {
-      if (token) {
-        document.cookie = `access_token=${token}; path=/; secure; samesite=strict`;
-      } else {
-        document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-      }
-    }
-
     if (!token) {
       guardarEnLocalStorage("refresh_token", null);
     }
@@ -172,11 +163,6 @@ export const useAutenticacionStore = create<AlmacenamientoAutenticacion>()((set,
     guardarEnLocalStorage("refresh_token", null);
     guardarEnLocalStorage("datosUsuario", null);
     guardarEnLocalStorage("datosSistema", null);
-
-    // Eliminar cookie
-    if (typeof window !== "undefined") {
-      document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    }
 
     set({
       accessToken: null,
