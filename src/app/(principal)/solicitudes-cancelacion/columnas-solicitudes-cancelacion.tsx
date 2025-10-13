@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SolicitudCancelacion } from "@/types/alertas/SolicitudCancelacion";
+import { SolicitudCancelacion, EstadoSolicitudCancelacion } from "@/types/response/solicitudes-cancelacion";
 import { useDetalleSolicitudCancelacion } from "@/hooks/solicitudes-cancelacion/useDetalleSolicitudCancelacion";
 import { ModalDetallesSolicitud } from "./ModalDetallesSolicitud";
 import { formatearFechaUTC } from "@/lib/utils";
@@ -73,8 +73,8 @@ function AccionesSolicitudCancelacion({
   );
 }
 
-function EstadoBadge({ estado }: { estado: SolicitudCancelacion["estadoSolicitud"] }) {
-  const colores = {
+function EstadoBadge({ estado }: { estado: EstadoSolicitudCancelacion }) {
+  const colores: Record<EstadoSolicitudCancelacion, string> = {
     PENDIENTE: "bg-red-900 text-white",
     APROBADA: "bg-green-900 text-white",
     RECHAZADA: "bg-orange-900 text-white",
@@ -144,7 +144,7 @@ export const columnasSolicitudesCancelacion: ColumnDef<SolicitudCancelacion>[] =
     accessorKey: "estadoSolicitud",
     header: "Estado",
     cell: ({ row }) => {
-      const estado = row.getValue("estadoSolicitud") as SolicitudCancelacion["estadoSolicitud"];
+      const estado = row.getValue("estadoSolicitud") as EstadoSolicitudCancelacion;
       return <EstadoBadge estado={estado} />;
     },
   },
@@ -159,14 +159,10 @@ export const columnasSolicitudesCancelacion: ColumnDef<SolicitudCancelacion>[] =
       );
     },
     cell: ({ row }) => {
-      const fecha = new Date(row.getValue("fechaSolicitud"));
-      const { hora, fecha: fechaFormateada } = formatearFechaUTC(fecha);
+      const fecha = new Date(row.getValue("fechaSolicitud") as string);
+      const fechaFormateada = formatearFechaUTC(fecha.toISOString());
       return (
         <div className="text-sm">
-          <div className="flex items-center gap-1">
-            <Clock className="size-3" />
-            <div className="font-medium">{hora}</div>
-          </div>
           <div className="text-muted-foreground">{fechaFormateada}</div>
         </div>
       );

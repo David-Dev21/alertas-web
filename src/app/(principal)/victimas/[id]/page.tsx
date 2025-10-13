@@ -223,8 +223,8 @@ export default function VictimaPage() {
                       Cierre: {alerta.tiempoCierre}
                     </TableCell>
                     <TableCell>
-                      <Button variant="outline" size="sm">
-                        Ver
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/historial-alertas/${alerta.idAlerta}`}>Ver</Link>
                       </Button>
                     </TableCell>
                   </TableRow>

@@ -29,10 +29,6 @@ function AccionesVictima({ victima }: { victima: Victima }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(victima.id)}>
-          <Eye className="mr-2 h-4 w-4" />
-          Copiar ID
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href={`/victimas/${victima.id}`}>
@@ -40,7 +36,6 @@ function AccionesVictima({ victima }: { victima: Victima }) {
             Ver Historial de Alertas
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -149,14 +144,12 @@ export const columnasVictimas: ColumnDef<Victima>[] = [
     },
     cell: ({ row }) => {
       const fecha = row.getValue("creadoEn") as string;
-      const { hora, fecha: fechaFormateada } = formatearFechaUTC(fecha);
       return (
         <div className="text-sm">
           <div className="flex items-center gap-1">
             <Clock className="size-3" />
-            <div className="font-medium">{hora}</div>
+            <div className="font-medium">{formatearFechaUTC(fecha)}</div>
           </div>
-          <div className="text-muted-foreground">{fechaFormateada}</div>
         </div>
       );
     },

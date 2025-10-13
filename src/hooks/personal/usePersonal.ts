@@ -116,6 +116,61 @@ export function usePersonal() {
     [cargarPersonal]
   );
 
+  // Función para buscar personal (sin actualizar estado principal)
+  const buscarPersonal = useCallback(async (termino: string, idDepartamento?: number) => {
+    try {
+      const respuesta = await personalService.buscarPersonal(termino, idDepartamento!);
+      return respuesta;
+    } catch (error) {
+      console.error("Error al buscar personal:", error);
+      throw error;
+    }
+  }, []);
+
+  // Función para crear personal
+  const crearPersonal = useCallback(
+    async (datos: { grado: string; nombreCompleto: string; unidad: string; escalafon: string; idDepartamento: number }) => {
+      try {
+        setEstado((previo) => ({ ...previo, cargando: true, error: null }));
+        const respuesta = await personalService.crearPersonal(datos);
+        setEstado((previo) => ({ ...previo, cargando: false }));
+        return respuesta;
+      } catch (error) {
+        console.error("Error al crear personal:", error);
+        setEstado((previo) => ({
+          ...previo,
+          cargando: false,
+          error: error instanceof Error ? error.message : "Error desconocido",
+        }));
+        throw error;
+      }
+    },
+    []
+  );
+
+  // Función para actualizar personal
+  const actualizarPersonal = useCallback(
+    async (id: string, datos: Partial<{ grado: string; nombreCompleto: string; unidad: string; escalafon: string; idDepartamento: number }>) => {
+      try {
+        setEstado((previo) => ({ ...previo, cargando: true, error: null }));
+        const respuesta = await personalService.actualizarPersonal(id, datos);
+        setEstado((previo) => ({ ...previo, cargando: false }));
+        // Refrescar la lista después de actualizar
+        refrescar();
+        return respuesta;
+      } catch (error) {
+        console.error("Error al actualizar personal:", error);
+        setEstado((previo) => ({
+          ...previo,
+          cargando: false,
+          error: error instanceof Error ? error.message : "Error desconocido",
+        }));
+        throw error;
+      }
+    },
+    [refrescar]
+  );
+
   return {
     ...estado,
     parametros,
@@ -125,5 +180,8 @@ export function usePersonal() {
     buscar,
     filtrarPorDepartamento,
     cargarPersonal,
+    buscarPersonal,
+    crearPersonal,
+    actualizarPersonal,
   };
 }

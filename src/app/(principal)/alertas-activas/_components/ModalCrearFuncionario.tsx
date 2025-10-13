@@ -12,7 +12,7 @@ import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore
 interface ModalCrearFuncionarioProps {
   abierto: boolean;
   onCerrar: () => void;
-  onPersonalCreado: (personal: any) => void;
+  onPersonalCreado: () => void;
 }
 
 export function ModalCrearFuncionario({ abierto, onCerrar, onPersonalCreado }: ModalCrearFuncionarioProps) {
@@ -39,7 +39,7 @@ export function ModalCrearFuncionario({ abierto, onCerrar, onPersonalCreado }: M
 
     const resultado = await crearPersonal(datos);
     if (resultado?.exito) {
-      onPersonalCreado(resultado.datos);
+      onPersonalCreado();
       setGrado("");
       setNombreCompleto("");
       setUnidad("");
@@ -50,7 +50,7 @@ export function ModalCrearFuncionario({ abierto, onCerrar, onPersonalCreado }: M
 
   return (
     <Dialog open={abierto} onOpenChange={onCerrar}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] z-[10001]">
         <DialogHeader>
           <DialogTitle>Crear Funcionario</DialogTitle>
           <DialogDescription>Complete los datos del nuevo funcionario para agregarlo al sistema.</DialogDescription>
@@ -82,17 +82,8 @@ export function ModalCrearFuncionario({ abierto, onCerrar, onPersonalCreado }: M
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="escalafon">Escalafón</Label>
-            <Select value={escalafon} onValueChange={setEscalafon} disabled={cargando}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar escalafón" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Oficial">Oficial</SelectItem>
-                <SelectItem value="Suboficial">Suboficial</SelectItem>
-                <SelectItem value="Tropa">Tropa</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label htmlFor="escalafon">Escalafón (opcional)</Label>
+            <Input id="escalafon" placeholder="ej: Oficial" value={escalafon} onChange={(e) => setEscalafon(e.target.value)} disabled={cargando} />
           </div>
         </div>
 

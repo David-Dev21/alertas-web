@@ -45,17 +45,14 @@ export interface BuscarPersonalResponse {
   exito: boolean;
   codigo: number;
   mensaje: string;
-  datos: {
-    personal: Personal[];
-    total: number;
-  };
+  datos: Personal[];
 }
 
 export interface CrearPersonalResponse {
   exito: boolean;
   codigo: number;
   mensaje: string;
-  datos: Personal;
+  datos?: Personal;
 }
 
 export const personalService = {
@@ -84,6 +81,11 @@ export const personalService = {
 
   crearPersonal: async (datos: CrearPersonalRequest): Promise<CrearPersonalResponse> => {
     const response = await baseApi.post("/personal", datos);
+    return response.data;
+  },
+
+  actualizarPersonal: async (id: string, datos: Partial<CrearPersonalRequest>): Promise<CrearPersonalResponse> => {
+    const response = await baseApi.patch(`/personal/${id}`, datos);
     return response.data;
   },
 };

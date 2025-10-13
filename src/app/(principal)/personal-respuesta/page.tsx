@@ -1,13 +1,28 @@
 "use client";
 
 import { TablaPersonal } from "./tabla-personal";
-import { columnasPersonal } from "./columnas-personal";
+import { crearColumnasPersonal } from "./columnas-personal";
+import { ModalEditarPersonal } from "./ModalEditarPersonal";
 import { usePersonal } from "@/hooks/personal/usePersonal";
 import { useState } from "react";
+import { Personal } from "@/services/personalService";
 
 export default function PaginaPersonalRespuesta() {
   const [departamentoFiltro, setDepartamentoFiltro] = useState<string>("TODOS");
+  const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
+  const [personalAEditar, setPersonalAEditar] = useState<Personal | null>(null);
   const { personal, paginacion, cargando, error, refrescar, irAPagina, cambiarLimite, buscar, filtrarPorDepartamento } = usePersonal();
+
+  const manejarEditar = (personal: Personal) => {
+    setPersonalAEditar(personal);
+    setModalEditarAbierto(true);
+  };
+
+  const manejarActualizado = () => {
+    refrescar();
+  };
+
+  const columnas = crearColumnasPersonal(manejarEditar);
 
   const manejarPaginaAnterior = () => {
     if (paginacion.paginaActual > 1) {
@@ -39,7 +54,7 @@ export default function PaginaPersonalRespuesta() {
 
       <TablaPersonal
         datos={personal}
-        columnas={columnasPersonal}
+        columnas={columnas}
         cargando={cargando}
         paginacion={paginacion}
         onPaginaAnterior={manejarPaginaAnterior}
@@ -50,6 +65,13 @@ export default function PaginaPersonalRespuesta() {
         onRefrescar={refrescar}
         onFiltrarDepartamento={manejarFiltrarDepartamento}
         departamentoFiltro={departamentoFiltro}
+      />
+
+      <ModalEditarPersonal
+        personal={personalAEditar}
+        abierto={modalEditarAbierto}
+        onCerrar={() => setModalEditarAbierto(false)}
+        onActualizado={manejarActualizado}
       />
     </div>
   );

@@ -4,12 +4,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UserPlus, Loader2, MapPin, Search, Check, X } from "lucide-react";
-import { RolAtencion, AgregarFuncionarioExternoRequest } from "@/types/request/atenciones";
+import { RolAtencion } from "@/types/request/atenciones";
 import { useAtencionesExternas } from "@/hooks/atenciones/useAtencionesExternas";
 import { useAuth } from "@/hooks/autenticacion/useAutenticacion";
 import { usePersonal } from "@/hooks/personal/usePersonal";
@@ -92,10 +91,11 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
   const [modalConfiguracionAbierto, setModalConfiguracionAbierto] = useState(false);
   const [funcionarioAConfigurar, setFuncionarioAConfigurar] = useState<Personal | null>(null);
   const [busquedaCompletada, setBusquedaCompletada] = useState(false);
+  const [cargandoBusqueda, setCargandoBusqueda] = useState(false);
   const { usuario } = useAuth();
   const datosUsuario = useAutenticacionStore((state) => state.datosUsuario);
   const { crearAtencionExterna, agregarFuncionarioExterno, cargando } = useAtencionesExternas();
-  const { buscarPersonal, cargando: cargandoBusqueda } = usePersonal();
+  const { buscarPersonal } = usePersonal();
 
   const idDepartamento = useMemo(() => datosUsuario?.ubicacion?.idDepartamento, [datosUsuario?.ubicacion?.idDepartamento]);
 
@@ -138,13 +138,22 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
 
     const timeoutId = setTimeout(async () => {
       if (idDepartamento) {
-        const resultado = await buscarPersonal(busqueda, idDepartamento);
-        if (resultado?.exito) {
-          setPersonalEncontrado(resultado.datos.personal);
-        } else {
+        setCargandoBusqueda(true);
+        try {
+          const resultado = await buscarPersonal(busqueda, idDepartamento);
+          if (resultado?.exito) {
+            setPersonalEncontrado(resultado.datos);
+          } else {
+            setPersonalEncontrado([]);
+          }
+          setBusquedaCompletada(true);
+        } catch (error) {
+          console.error("Error en búsqueda:", error);
           setPersonalEncontrado([]);
+          setBusquedaCompletada(true);
+        } finally {
+          setCargandoBusqueda(false);
         }
-        setBusquedaCompletada(true);
       }
     }, 500); // 500ms debounce
 
@@ -325,7 +334,7 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
                         disabled={cargando}
                         className="pl-10"
                       />
-                      {personalEncontrado.length > 0 && (
+                      {personalEncontrado && personalEncontrado.length > 0 && (
                         <div className="absolute top-full left-0 right-0 z-[10002] mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-auto">
                           {personalEncontrado.map((personal) => {
                             const yaSeleccionado = personalSeleccionado.some((p) => p.id === personal.id);
@@ -364,7 +373,7 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
                     {cargandoBusqueda && <p className="text-sm text-muted-foreground">Buscando...</p>}
                   </div>
 
-                  {busqueda.length >= 2 && busquedaCompletada && personalEncontrado.length === 0 && !cargandoBusqueda && (
+                  {busqueda.length >= 2 && busquedaCompletada && personalEncontrado && personalEncontrado.length === 0 && !cargandoBusqueda && (
                     <div className="text-center py-4">
                       <p className="text-sm text-muted-foreground mb-2">No se encontraron funcionarios</p>
                       <Button type="button" variant="outline" onClick={() => setModalCrearAbierto(true)} disabled={cargando}>
@@ -468,15 +477,8 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
       <ModalCrearFuncionario
         abierto={modalCrearAbierto}
         onCerrar={() => setModalCrearAbierto(false)}
-        onPersonalCreado={(personal) => {
-          const funcionarioConConfig: FuncionarioConConfiguracion = {
-            ...personal,
-            rolAtencion: RolAtencion.APOYO,
-            turnoId: "1",
-          };
-          setPersonalSeleccionado((prev) => [...prev, funcionarioConConfig]);
-          setBusqueda(`${personal.grado} ${personal.nombreCompleto}`);
-          setPersonalEncontrado([personal]);
+        onPersonalCreado={() => {
+          setBusqueda("");
         }}
       />
 

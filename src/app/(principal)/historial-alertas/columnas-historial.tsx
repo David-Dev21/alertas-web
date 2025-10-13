@@ -28,11 +28,6 @@ function AccionesAlerta({ alerta }: { alerta: Alerta }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(alerta.id)}>
-          <Eye className="mr-2 h-4 w-4" />
-          Copiar ID
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => (window.location.href = `/historial-alertas/${alerta.id}`)}>
           <Eye className="mr-2 h-4 w-4" />
           Ver detalles
