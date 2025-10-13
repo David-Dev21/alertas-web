@@ -29,7 +29,7 @@ export function middleware(request: NextRequest) {
 
   if (!token || !isTokenValid(token)) {
     // Redirigir al login si no hay token válido
-    const loginUrl = new URL("https://kerveros-dev.policia.bo", request.url);
+    const loginUrl = new URL("https://kerveros-dev.policia.bo/auth/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
 
