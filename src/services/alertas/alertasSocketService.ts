@@ -39,7 +39,7 @@ export const alertasSocketService = {
     conectando = true;
     parametrosActuales = parametros;
 
-    const opcionesConexion: any = {
+    const opcionesConexion = {
       transports: ["websocket"],
       autoConnect: false,
       auth: {
@@ -127,11 +127,11 @@ export const alertasSocketService = {
   },
 
   // Métodos genéricos para escuchar eventos específicos
-  escucharEvento: (evento: string, callback: (...args: any[]) => void) => {
+  escucharEvento: (evento: string, callback: (...args: unknown[]) => void) => {
     socket?.on(evento, callback);
   },
 
-  dejarDeEscucharEvento: (evento: string, callback: (...args: any[]) => void) => {
+  dejarDeEscucharEvento: (evento: string, callback: (...args: unknown[]) => void) => {
     socket?.off(evento, callback);
   },
 };

@@ -1,33 +1,28 @@
 import { useState, useEffect, useCallback } from "react";
-import { victimasService } from "@/services/victimas/victimasService";
-import { ParametrosConsultaVictimas } from "@/types/request/victimas";
-import { Victima, RespuestaVictimas, PaginacionVictimas } from "@/types/response/victimas";
+import { victimasService, Victima } from "@/services/victimas/victimasService";
+import { EstadoCuenta } from "@/types/enums";
+import { EstadoCarga, RespuestaPaginada, ParametrosBusqueda } from "@/types/common.types";
 
-export interface EstadoVictimas {
-  victimas: Victima[];
-  paginacion: PaginacionVictimas;
-  cargando: boolean;
-  error: string | null;
+interface ParametrosVictimas extends ParametrosBusqueda {
+  estadoCuenta?: EstadoCuenta;
 }
 
-export function useVictimas(parametrosIniciales: ParametrosConsultaVictimas = {}) {
+export interface EstadoVictimas extends EstadoCarga {
+  datos: RespuestaPaginada<Victima> | null;
+}
+
+export function useVictimas(parametrosIniciales: ParametrosVictimas = {}) {
   const [estado, setEstado] = useState<EstadoVictimas>({
-    victimas: [],
-    paginacion: {
-      paginaActual: 1,
-      totalPaginas: 0,
-      totalElementos: 0,
-      elementosPorPagina: 10,
-    },
+    datos: null,
     cargando: true,
     error: null,
   });
 
-  const [parametros, setParametros] = useState<ParametrosConsultaVictimas>(parametrosIniciales);
+  const [parametros, setParametros] = useState<ParametrosVictimas>(parametrosIniciales);
 
   // Función para cargar víctimas
   const cargarVictimas = useCallback(
-    async (nuevosParametros?: ParametrosConsultaVictimas) => {
+    async (nuevosParametros?: ParametrosVictimas) => {
       try {
         setEstado((previo) => ({ ...previo, cargando: true, error: null }));
 
@@ -36,13 +31,7 @@ export function useVictimas(parametrosIniciales: ParametrosConsultaVictimas = {}
 
         setEstado((previo) => ({
           ...previo,
-          victimas: respuesta.datos?.datos?.victimas || [],
-          paginacion: respuesta.datos?.datos?.paginacion || {
-            paginaActual: 1,
-            totalPaginas: 0,
-            totalElementos: 0,
-            elementosPorPagina: 10,
-          },
+          datos: respuesta,
           cargando: false,
         }));
 
@@ -64,7 +53,7 @@ export function useVictimas(parametrosIniciales: ParametrosConsultaVictimas = {}
   // Cargar víctimas inicialmente
   useEffect(() => {
     cargarVictimas();
-  }, []);
+  }, [cargarVictimas]);
 
   // Función para refrescar los datos
   const refrescar = useCallback(() => {
@@ -97,8 +86,8 @@ export function useVictimas(parametrosIniciales: ParametrosConsultaVictimas = {}
 
   // Función para filtrar por estado de cuenta
   const filtrarPorEstadoCuenta = useCallback(
-    (estadoCuenta: string) => {
-      const nuevosParametros: ParametrosConsultaVictimas = { pagina: 1 };
+    (estadoCuenta: EstadoCuenta | "TODOS") => {
+      const nuevosParametros: ParametrosVictimas = { pagina: 1 };
       if (estadoCuenta !== "TODOS") {
         nuevosParametros.estadoCuenta = estadoCuenta;
       }
@@ -109,7 +98,7 @@ export function useVictimas(parametrosIniciales: ParametrosConsultaVictimas = {}
 
   // Función para aplicar filtros
   const aplicarFiltros = useCallback(
-    (filtros: Omit<ParametrosConsultaVictimas, "pagina" | "limite">) => {
+    (filtros: Omit<ParametrosVictimas, "pagina" | "limite">) => {
       cargarVictimas({ ...filtros, pagina: 1 });
     },
     [cargarVictimas]
@@ -124,13 +113,19 @@ export function useVictimas(parametrosIniciales: ParametrosConsultaVictimas = {}
     cargarVictimas(parametrosLimpios);
   }, [cargarVictimas, parametros.limite]);
 
-  // Cargar datos iniciales
-  useEffect(() => {
-    cargarVictimas();
-  }, []);
-
   return {
-    ...estado,
+    // Datos principales
+    victimas: estado.datos?.datos || [],
+    paginacion: estado.datos?.paginacion || {
+      paginaActual: 1,
+      totalPaginas: 0,
+      totalElementos: 0,
+      elementosPorPagina: 10,
+    },
+    // Estados de carga
+    cargando: estado.cargando,
+    error: estado.error,
+    // Funciones
     parametros,
     refrescar,
     irAPagina,

@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { SolicitudCancelacion } from "@/types/response/solicitudes-cancelacion";
+import { SolicitudCancelacion } from "@/services/alertas/solicitudesCancelacionService";
 import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore";
 import { CheckCircle, XCircle } from "lucide-react";
 

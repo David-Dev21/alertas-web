@@ -4,9 +4,10 @@ import { TablaVictimas } from "./tabla-victimas";
 import { columnasVictimas } from "./columnas-victimas";
 import { useVictimas } from "@/hooks/victimas/useVictimas";
 import { useState } from "react";
+import { EstadoCuenta } from "@/types/enums";
 
 export default function PaginaVictimas() {
-  const [estadoCuentaFiltro, setEstadoCuentaFiltro] = useState<string>("TODOS");
+  const [estadoCuentaFiltro, setEstadoCuentaFiltro] = useState<EstadoCuenta | "TODOS">("TODOS");
   const { victimas, paginacion, cargando, error, refrescar, irAPagina, cambiarLimite, buscar, filtrarPorEstadoCuenta } = useVictimas();
 
   const manejarPaginaAnterior = () => {
@@ -22,8 +23,9 @@ export default function PaginaVictimas() {
   };
 
   const manejarFiltrarEstadoCuenta = (estadoCuenta: string) => {
-    setEstadoCuentaFiltro(estadoCuenta);
-    filtrarPorEstadoCuenta(estadoCuenta);
+    const estadoConvertido = estadoCuenta === "TODOS" ? "TODOS" : (estadoCuenta as EstadoCuenta);
+    setEstadoCuentaFiltro(estadoConvertido);
+    filtrarPorEstadoCuenta(estadoConvertido);
   };
 
   return (

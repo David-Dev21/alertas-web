@@ -4,9 +4,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { DetalleSolicitudCancelacion } from "@/services/alertas/solicitudesCancelacionService";
+import { DatosDetalleSolicitudCancelacion } from "@/services/alertas/solicitudesCancelacionService";
 
-function EstadoBadge({ estado }: { estado: DetalleSolicitudCancelacion["estadoSolicitud"] }) {
+function EstadoBadge({ estado }: { estado: DatosDetalleSolicitudCancelacion["estadoSolicitud"] }) {
   // Badge simple y legible
   const variante = estado === "APROBADA" ? "default" : estado === "RECHAZADA" ? "destructive" : "secondary";
   return (
@@ -19,7 +19,7 @@ function EstadoBadge({ estado }: { estado: DetalleSolicitudCancelacion["estadoSo
 interface ModalDetallesSolicitudProps {
   abierto: boolean;
   onCerrar: () => void;
-  detalle: DetalleSolicitudCancelacion | null;
+  detalle: DatosDetalleSolicitudCancelacion | null;
   cargando: boolean;
   error: string | null;
 }

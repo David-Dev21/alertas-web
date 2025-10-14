@@ -8,16 +8,35 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { EstadoAlerta, obtenerTextoEstado } from "@/types/alertas/Alerta";
 import { Loading } from "@/components/EstadoCarga";
 import { ErrorEstado } from "@/components/ErrorEstado";
 import { useHistorialVictima } from "@/hooks/victimas/useHistorialVictima";
+import { EstadoAlerta } from "@/types/enums";
+
+// Interfaces duplicadas de types para refactorización
+// De alertas/Alerta.ts
+// Enum movido a src/types/enums.ts
+
+function obtenerTextoEstado(estado: string | EstadoAlerta): string {
+  const estadoNormalizado = typeof estado === "string" ? estado : String(estado);
+
+  const textos = {
+    PENDIENTE: "Pendiente",
+    ASIGNADA: "Asignada",
+    EN_ATENCION: "En Atención",
+    RESUELTA: "Resuelta",
+    CANCELADA: "Cancelada",
+    FALSA_ALERTA: "Falsa Alerta",
+  } as const;
+
+  return textos[estadoNormalizado as keyof typeof textos] || estadoNormalizado;
+}
 
 export default function VictimaPage() {
   const params = useParams();
   const idVictima = params.id as string;
 
-  const { historial, loading, error, reintentar } = useHistorialVictima(idVictima);
+  const { historial, cargando, error, reintentar } = useHistorialVictima(idVictima);
 
   const getEstadoBadgeVariant = (estado: string) => {
     switch (estado) {
@@ -38,7 +57,7 @@ export default function VictimaPage() {
     }
   };
 
-  if (loading) {
+  if (cargando) {
     return (
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="flex items-center gap-4 mb-4">

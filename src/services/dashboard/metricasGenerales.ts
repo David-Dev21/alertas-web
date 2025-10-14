@@ -1,13 +1,5 @@
 import baseApi from "../baseApi";
 
-// Tipos para las respuestas
-interface RespuestaApi<T> {
-  exito: boolean;
-  codigo: number;
-  mensaje: string;
-  datos: T;
-}
-
 export interface MetricasGenerales {
   alertasActivas: number;
   alertasPendientes: number;
@@ -61,47 +53,18 @@ export interface MetricasTiempo {
   metricasPorOrigen: MetricaPorOrigen[];
 }
 
-// Función para obtener métricas generales
+// Funciones del servicio
 export const obtenerMetricasGenerales = async (): Promise<MetricasGenerales> => {
-  try {
-    const response = await baseApi.get<RespuestaApi<MetricasGenerales>>("/dashboard/metricas-generales");
-    if (response.data.exito) {
-      return response.data.datos;
-    } else {
-      throw new Error(response.data.mensaje);
-    }
-  } catch (error) {
-    console.error("Error obteniendo métricas generales:", error);
-    throw error;
-  }
+  const response = await baseApi.get("/dashboard/metricas-generales");
+  return response.data;
 };
 
-// Función para obtener alertas geográficas
 export const obtenerAlertasGeograficas = async (): Promise<AlertasGeograficas> => {
-  try {
-    const response = await baseApi.get<RespuestaApi<AlertasGeograficas>>("/dashboard/alertas-geograficas");
-    if (response.data.exito) {
-      return response.data.datos;
-    } else {
-      throw new Error(response.data.mensaje);
-    }
-  } catch (error) {
-    console.error("Error obteniendo alertas geográficas:", error);
-    throw error;
-  }
+  const response = await baseApi.get("/dashboard/alertas-geograficas");
+  return response.data;
 };
 
-// Función para obtener métricas de tiempo
 export const obtenerMetricasTiempo = async (): Promise<MetricasTiempo> => {
-  try {
-    const response = await baseApi.get<RespuestaApi<MetricasTiempo>>("/dashboard/metricas-tiempo");
-    if (response.data.exito) {
-      return response.data.datos;
-    } else {
-      throw new Error(response.data.mensaje);
-    }
-  } catch (error) {
-    console.error("Error obteniendo métricas de tiempo:", error);
-    throw error;
-  }
+  const response = await baseApi.get("/dashboard/metricas-tiempo");
+  return response.data;
 };

@@ -76,7 +76,7 @@ export const solicitarPermisoNotificaciones = async (): Promise<string | null> =
     console.error("Error al solicitar permiso de notificaciones:", error);
 
     // Detectar si es Brave y dar un mensaje más útil
-    if ((navigator as any).brave && error instanceof Error && error.message.includes("push service error")) {
+    if ((navigator as { brave?: unknown }).brave && error instanceof Error && error.message.includes("push service error")) {
       console.error("⚠️ Brave Browser: Activa 'Google Services for push messaging' en brave://settings/privacy");
     }
 
@@ -87,7 +87,9 @@ export const solicitarPermisoNotificaciones = async (): Promise<string | null> =
 /**
  * Escucha mensajes en primer plano
  */
-export const escucharMensajesPrimerPlano = (callback: (payload: any) => void): (() => void) | null => {
+export const escucharMensajesPrimerPlano = (
+  callback: (payload: { data?: Record<string, string>; notification?: { title?: string; body?: string } }) => void
+): (() => void) | null => {
   if (!messaging) {
     console.warn("Firebase Messaging no está disponible");
     return null;

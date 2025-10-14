@@ -1,4 +1,5 @@
 import baseApi from "./baseApi";
+import { RespuestaPaginada, ParametrosBusqueda } from "@/types/common.types";
 
 export interface Personal {
   id: string;
@@ -12,28 +13,12 @@ export interface Personal {
   departamento: string;
 }
 
-export interface PaginacionPersonal {
-  paginaActual: number;
-  totalPaginas: number;
-  totalElementos: number;
-  elementosPorPagina: number;
+// Interfaces de request
+interface ParametrosConsultaPersonal extends ParametrosBusqueda {
+  idDepartamento?: number;
 }
 
-export interface DatosPersonal {
-  personal: Personal[];
-  paginacion: PaginacionPersonal;
-}
-
-export interface ObtenerPersonalResponse {
-  exito: boolean;
-  codigo: number;
-  mensaje: string;
-  datos: {
-    datos: DatosPersonal;
-  };
-}
-
-export interface CrearPersonalRequest {
+interface CrearPersonalRequest {
   grado: string;
   nombreCompleto: string;
   unidad: string;
@@ -41,29 +26,11 @@ export interface CrearPersonalRequest {
   idDepartamento: number;
 }
 
-export interface BuscarPersonalResponse {
-  exito: boolean;
-  codigo: number;
-  mensaje: string;
-  datos: Personal[];
-}
-
-export interface CrearPersonalResponse {
-  exito: boolean;
-  codigo: number;
-  mensaje: string;
-  datos?: Personal;
-}
+// Tipos de respuesta usando interfaces comunes
+type DatosPersonal = RespuestaPaginada<Personal>;
 
 export const personalService = {
-  obtenerTodos: async (
-    parametros: {
-      pagina?: number;
-      limite?: number;
-      busqueda?: string;
-      idDepartamento?: number;
-    } = {}
-  ): Promise<ObtenerPersonalResponse> => {
+  obtenerTodos: async (parametros: ParametrosConsultaPersonal = {}): Promise<DatosPersonal> => {
     const queryParams = new URLSearchParams();
     if (parametros.pagina) queryParams.append("pagina", parametros.pagina.toString());
     if (parametros.limite) queryParams.append("limite", parametros.limite.toString());
@@ -74,17 +41,17 @@ export const personalService = {
     return response.data;
   },
 
-  buscarPersonal: async (busqueda: string, idDepartamento: number): Promise<BuscarPersonalResponse> => {
+  buscarPersonal: async (busqueda: string, idDepartamento: number): Promise<Personal[]> => {
     const response = await baseApi.get(`/personal/buscar?busqueda=${encodeURIComponent(busqueda)}&idDepartamento=${idDepartamento}`);
     return response.data;
   },
 
-  crearPersonal: async (datos: CrearPersonalRequest): Promise<CrearPersonalResponse> => {
+  crearPersonal: async (datos: CrearPersonalRequest): Promise<Personal> => {
     const response = await baseApi.post("/personal", datos);
     return response.data;
   },
 
-  actualizarPersonal: async (id: string, datos: Partial<CrearPersonalRequest>): Promise<CrearPersonalResponse> => {
+  actualizarPersonal: async (id: string, datos: Partial<CrearPersonalRequest>): Promise<Personal> => {
     const response = await baseApi.patch(`/personal/${id}`, datos);
     return response.data;
   },

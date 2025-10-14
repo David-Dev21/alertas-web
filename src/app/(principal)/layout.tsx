@@ -16,20 +16,62 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { EstadoConexion } from "@/components/EstadoConexion";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
-import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore";
+import { useRouter } from "next/navigation";
 
 export default function LayoutPrincipal({ children }: { children: React.ReactNode }) {
   const { alertasPendientes } = useAlertaStore();
   const cantidadPendientes = alertasPendientes.length;
+  const router = useRouter();
 
-  // Inicializar permisos, ubicación y WebSocket cuando esté en la app principal
+  // Verificar autenticación directamente desde localStorage
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const datosUsuarioRaw = typeof window !== "undefined" ? localStorage.getItem("datosUsuario") : null;
+
+  // Parsear datos JSON
+  let datosUsuario = null;
+
+  try {
+    datosUsuario = datosUsuarioRaw ? JSON.parse(datosUsuarioRaw) : null;
+  } catch (error) {
+    console.warn("Error al parsear datos de localStorage:", error);
+  } // Función para verificar si el token JWT está vencido
+  const tokenEstaVencido = (token: string | null): boolean => {
+    if (!token) return true;
+
+    try {
+      // Decodificar el payload del JWT (parte media, separada por puntos)
+      const payload = token.split(".")[1];
+      const decodedPayload = JSON.parse(atob(payload));
+
+      // Verificar si tiene campo 'exp' (expiration time en segundos)
+      if (!decodedPayload.exp) return false; // Si no tiene exp, asumimos válido
+
+      // Comparar con la fecha actual (en segundos)
+      const ahora = Math.floor(Date.now() / 1000);
+      return decodedPayload.exp < ahora;
+    } catch (error) {
+      // Si hay error al decodificar, consideramos vencido
+      console.warn("Error al verificar token:", error);
+      return true;
+    }
+  };
+
+  const tokenVencido = tokenEstaVencido(token);
+
+  // Inicializar permisos, ubicación y WebSocket cuando esté autenticado
   useInicializacionPrincipal();
 
-  // Inicializar store de autenticación
-  const inicializar = useAutenticacionStore((state) => state.inicializar);
+  // Si no hay token, datos de usuario, o el token está vencido, redirigir al login
   useEffect(() => {
-    inicializar();
-  }, [inicializar]);
+    if (!token || !datosUsuario || tokenVencido) {
+      router.push("https://kerveros-dev.policia.bo/auth/login");
+    }
+  }, [token, datosUsuario, tokenVencido, router]);
+
+  // Si no está autenticado o token vencido, no renderizar
+  if (!token || !datosUsuario || tokenVencido) {
+    return null;
+  }
 
   return (
     <>
@@ -41,7 +83,7 @@ export default function LayoutPrincipal({ children }: { children: React.ReactNod
               <div className="flex items-center gap-2 px-4">
                 <SidebarTrigger className="-ml-1" />
                 <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
-                <span>Sistema de Alertas Adelia Samudio</span>
+                <span>Sistema de Alertas Adela Zamudio</span>
               </div>
 
               <div className="flex items-center gap-2 px-4">

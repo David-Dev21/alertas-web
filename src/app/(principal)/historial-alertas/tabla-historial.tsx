@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import * as React from 'react';
+import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -11,16 +11,16 @@ import {
   getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
-import { ChevronDown, Search, RefreshCw } from 'lucide-react';
-import { format } from 'date-fns';
+} from "@tanstack/react-table";
+import { ChevronDown, Search, RefreshCw } from "lucide-react";
+import { format } from "date-fns";
 
-import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -29,8 +29,8 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/components/ui/pagination';
-import { FiltrosUbicacion } from '@/components/FiltrosUbicacion';
+} from "@/components/ui/pagination";
+import { FiltrosUbicacion } from "@/components/FiltrosUbicacion";
 
 interface DataTableProps<TData, TValue> {
   columnas: ColumnDef<TData, TValue>[];
@@ -74,10 +74,10 @@ export function TablaHistorial<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [busqueda, setBusqueda] = React.useState('');
+  const [busqueda, setBusqueda] = React.useState("");
   const [resetearUbicacion, setResetearUbicacion] = React.useState(false);
   const [filtros, setFiltros] = React.useState({
-    origen: 'TODOS',
+    origen: "TODOS",
     idDepartamento: undefined as number | undefined,
     idProvincia: undefined as number | undefined,
     idMunicipio: undefined as number | undefined,
@@ -110,16 +110,16 @@ export function TablaHistorial<TData, TValue>({
     (nuevosFiltros: typeof filtros, nuevaBusqueda?: string) => {
       const filtrosEnvio = {
         busqueda: nuevaBusqueda !== undefined ? nuevaBusqueda : busqueda,
-        origen: nuevosFiltros.origen === 'TODOS' ? undefined : nuevosFiltros.origen,
+        origen: nuevosFiltros.origen === "TODOS" ? undefined : nuevosFiltros.origen,
         idDepartamento: nuevosFiltros.idDepartamento,
         idProvincia: nuevosFiltros.idProvincia,
         idMunicipio: nuevosFiltros.idMunicipio,
-        fechaDesde: nuevosFiltros.fechaDesde ? format(nuevosFiltros.fechaDesde, 'yyyy-MM-dd') : undefined,
-        fechaHasta: nuevosFiltros.fechaHasta ? format(nuevosFiltros.fechaHasta, 'yyyy-MM-dd') : undefined,
+        fechaDesde: nuevosFiltros.fechaDesde ? format(nuevosFiltros.fechaDesde, "yyyy-MM-dd") : undefined,
+        fechaHasta: nuevosFiltros.fechaHasta ? format(nuevosFiltros.fechaHasta, "yyyy-MM-dd") : undefined,
       };
       onBuscar?.(filtrosEnvio);
     },
-    [busqueda, onBuscar],
+    [busqueda, onBuscar]
   );
 
   const manejarBusqueda = (valor: string) => {
@@ -158,7 +158,7 @@ export function TablaHistorial<TData, TValue>({
 
   const limpiarFiltros = () => {
     const filtrosLimpios = {
-      origen: 'TODOS',
+      origen: "TODOS",
       idDepartamento: undefined,
       idProvincia: undefined,
       idMunicipio: undefined,
@@ -168,7 +168,7 @@ export function TablaHistorial<TData, TValue>({
 
     // Enviar explícitamente todos los parámetros para limpiar
     const parametrosLimpios = {
-      busqueda: '',
+      busqueda: "",
       origen: undefined, // No enviamos 'TODOS', enviamos undefined para limpiar
       idDepartamento: undefined,
       idProvincia: undefined,
@@ -177,7 +177,7 @@ export function TablaHistorial<TData, TValue>({
       fechaHasta: undefined,
     };
 
-    setBusqueda('');
+    setBusqueda("");
     setFiltros(filtrosLimpios);
 
     // Resetear filtros de ubicación
@@ -190,8 +190,8 @@ export function TablaHistorial<TData, TValue>({
 
   // Verificar si hay filtros activos
   const hayFiltrosActivos =
-    busqueda !== '' ||
-    filtros.origen !== 'TODOS' ||
+    busqueda !== "" ||
+    filtros.origen !== "TODOS" ||
     filtros.idDepartamento !== undefined ||
     filtros.idProvincia !== undefined ||
     filtros.idMunicipio !== undefined ||
@@ -215,7 +215,7 @@ export function TablaHistorial<TData, TValue>({
               />
             </div>
             <Button variant="outline" size="sm" onClick={onRefrescar} disabled={cargando}>
-              <RefreshCw className={`mr-2 h-4 w-4 ${cargando ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`mr-2 h-4 w-4 ${cargando ? "animate-spin" : ""}`} />
               Refrescar
             </Button>
           </div>
@@ -273,14 +273,14 @@ export function TablaHistorial<TData, TValue>({
                 placeholder="Desde"
                 value={filtros.fechaDesde}
                 onSelect={manejarCambioFechaDesde}
-                disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                 buttonClassName="w-[130px] h-8"
               />
               <DatePicker
                 placeholder="Hasta"
                 value={filtros.fechaHasta}
                 onSelect={manejarCambioFechaHasta}
-                disabled={(date) => date > new Date() || date < new Date('1900-01-01') || (filtros.fechaDesde ? date < filtros.fechaDesde : false)}
+                disabled={(date) => date > new Date() || date < new Date("1900-01-01") || (filtros.fechaDesde ? date < filtros.fechaDesde : false)}
                 buttonClassName="w-[130px] h-8"
               />
             </div>
@@ -316,7 +316,7 @@ export function TablaHistorial<TData, TValue>({
           <TableBody>
             {cargando ? (
               <TableRow>
-                <TableCell colSpan={(columnas as any).length} className="h-24 text-center">
+                <TableCell colSpan={columnas.length} className="h-24 text-center">
                   <div className="flex items-center justify-center space-x-2">
                     <RefreshCw className="h-4 w-4 animate-spin" />
                     <span>Cargando...</span>
@@ -325,7 +325,7 @@ export function TablaHistorial<TData, TValue>({
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}
@@ -333,7 +333,7 @@ export function TablaHistorial<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={(columnas as any).length} className="h-24 text-center">
+                <TableCell colSpan={columnas.length} className="h-24 text-center">
                   No se encontraron registros.
                 </TableCell>
               </TableRow>
@@ -378,7 +378,7 @@ export function TablaHistorial<TData, TValue>({
                         onPaginaAnterior?.();
                       }
                     }}
-                    className={paginacion.paginaActual <= 1 || cargando ? 'pointer-events-none opacity-50' : ''}
+                    className={paginacion.paginaActual <= 1 || cargando ? "pointer-events-none opacity-50" : ""}
                   />
                 </PaginationItem>
 
@@ -402,7 +402,7 @@ export function TablaHistorial<TData, TValue>({
                         >
                           1
                         </PaginationLink>
-                      </PaginationItem>,
+                      </PaginationItem>
                     );
                   }
 
@@ -411,7 +411,7 @@ export function TablaHistorial<TData, TValue>({
                     items.push(
                       <PaginationItem key="ellipsis-start">
                         <PaginationEllipsis />
-                      </PaginationItem>,
+                      </PaginationItem>
                     );
                   }
 
@@ -433,7 +433,7 @@ export function TablaHistorial<TData, TValue>({
                           >
                             {i}
                           </PaginationLink>
-                        </PaginationItem>,
+                        </PaginationItem>
                       );
                     }
                   }
@@ -443,7 +443,7 @@ export function TablaHistorial<TData, TValue>({
                     items.push(
                       <PaginationItem key="ellipsis-end">
                         <PaginationEllipsis />
-                      </PaginationItem>,
+                      </PaginationItem>
                     );
                   }
 
@@ -461,7 +461,7 @@ export function TablaHistorial<TData, TValue>({
                         >
                           {totalPaginas}
                         </PaginationLink>
-                      </PaginationItem>,
+                      </PaginationItem>
                     );
                   }
 
@@ -477,7 +477,7 @@ export function TablaHistorial<TData, TValue>({
                         onPaginaSiguiente?.();
                       }
                     }}
-                    className={paginacion.paginaActual >= paginacion.totalPaginas || cargando ? 'pointer-events-none opacity-50' : ''}
+                    className={paginacion.paginaActual >= paginacion.totalPaginas || cargando ? "pointer-events-none opacity-50" : ""}
                   />
                 </PaginationItem>
               </PaginationContent>

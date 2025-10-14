@@ -1,29 +1,11 @@
 import baseApi from "@/services/baseApi";
+import { RespuestaPaginada, ParametrosBusqueda, RespuestaBase } from "@/types/common.types";
 
 export interface Agresor {
   id: string;
   cedulaIdentidad: string;
   nombres: string;
   apellidos: string;
-}
-
-export interface PaginacionAgresores {
-  paginaActual: number;
-  totalPaginas: number;
-  totalElementos: number;
-  elementosPorPagina: number;
-}
-
-export interface DatosAgresores {
-  agresores: Agresor[];
-  paginacion: PaginacionAgresores;
-}
-
-export interface ObtenerAgresoresResponse {
-  exito: boolean;
-  codigo: number;
-  mensaje: string;
-  datos: DatosAgresores;
 }
 
 export interface CrearAgresorRequest {
@@ -46,14 +28,11 @@ export interface CerrarAlertaRequest {
   observaciones: string;
 }
 
+// Tipos de respuesta usando interfaces comunes
+type DatosAgresores = RespuestaPaginada<Agresor>;
+
 export const agresorService = {
-  obtenerTodos: async (
-    parametros: {
-      pagina?: number;
-      limite?: number;
-      busqueda?: string;
-    } = {}
-  ): Promise<ObtenerAgresoresResponse> => {
+  obtenerTodos: async (parametros: ParametrosBusqueda = {}): Promise<DatosAgresores> => {
     const queryParams = new URLSearchParams();
     if (parametros.pagina) queryParams.append("pagina", parametros.pagina.toString());
     if (parametros.limite) queryParams.append("limite", parametros.limite.toString());
@@ -64,30 +43,17 @@ export const agresorService = {
   },
 
   buscarPorCedula: async (cedula: string): Promise<Agresor | null> => {
-    try {
-      const response = await baseApi.get(`/agresores/${cedula}`);
-      // El backend envuelve la respuesta en un objeto con exito/datos
-      if (response.data && response.data.exito === true && response.data.datos) {
-        return response.data.datos;
-      }
-      return null;
-    } catch (error) {
-      return null;
-    }
+    const response = await baseApi.get(`/agresores/${cedula}`);
+    return response.data || null;
   },
 
   crear: async (datos: CrearAgresorRequest): Promise<Agresor> => {
     const response = await baseApi.post("/agresores", datos);
-    if (response.data && response.data.exito === true && response.data.datos) {
-      return response.data.datos;
-    }
-    throw new Error(response.data?.mensaje || "Error al crear agresor");
+    return response.data;
   },
 
-  cerrarAlerta: async (idAlerta: string, datos: CerrarAlertaRequest): Promise<void> => {
+  cerrarAlerta: async (idAlerta: string, datos: CerrarAlertaRequest): Promise<RespuestaBase<void>> => {
     const response = await baseApi.post(`/cierre-alertas/${idAlerta}`, datos);
-    if (response.data && response.data.exito === false) {
-      throw new Error(response.data.mensaje || "Error al cerrar alerta");
-    }
+    return response.data;
   },
 };

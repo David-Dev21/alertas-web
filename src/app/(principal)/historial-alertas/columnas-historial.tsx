@@ -5,17 +5,25 @@ import { ArrowUpDown, MoreHorizontal, Eye, Clock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Alerta } from "@/types/alertas/Alerta";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { formatearFechaUTC } from "@/lib/utils";
-import { obtenerTextoEstado } from "@/types/alertas/Alerta";
+import type { Alerta } from "@/services/alertas/alertasService";
+import { EstadoAlerta } from "@/types/enums";
+
+function obtenerTextoEstado(estado: string | EstadoAlerta): string {
+  const estadoNormalizado = typeof estado === "string" ? estado : String(estado);
+
+  const textos = {
+    PENDIENTE: "Pendiente",
+    ASIGNADA: "Asignada",
+    EN_ATENCION: "En Atención",
+    RESUELTA: "Resuelta",
+    CANCELADA: "Cancelada",
+    FALSA_ALERTA: "Falsa Alerta",
+  } as const;
+
+  return textos[estadoNormalizado as keyof typeof textos] || estadoNormalizado;
+}
 
 function AccionesAlerta({ alerta }: { alerta: Alerta }) {
   return (
@@ -65,7 +73,7 @@ export const columnasHistorial: ColumnDef<Alerta>[] = [
     cell: ({ row }) => (
       <div>
         <div className="font-medium">{row.getValue("victima")}</div>
-        <div className="text-sm text-muted-foreground font-mono">{(row.original as any).victima?.celular || "Sin celular"}</div>
+        <div className="text-sm text-muted-foreground font-mono">{row.original.victima?.celular || "Sin celular"}</div>
       </div>
     ),
     enableSorting: false,
@@ -97,7 +105,7 @@ export const columnasHistorial: ColumnDef<Alerta>[] = [
     accessorKey: "estadoAlerta",
     header: "Estado",
     cell: ({ row }) => {
-      const estado = row.getValue("estadoAlerta") as any;
+      const estado = row.getValue("estadoAlerta") as EstadoAlerta;
       return <div>{obtenerTextoEstado(estado)}</div>;
     },
   },
@@ -125,7 +133,7 @@ export const columnasHistorial: ColumnDef<Alerta>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const alerta = row.original as Alerta;
+      const alerta = row.original;
       return <AccionesAlerta alerta={alerta} />;
     },
   },

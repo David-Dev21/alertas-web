@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ubicacionesService } from "@/services/ubicaciones/departamentosService";
-import { Departamento, Provincia, Municipio } from "@/types/response/ubicaciones";
+import { ubicacionesService, Departamento, Provincia, Municipio } from "@/services/ubicaciones/departamentosService";
 
 export interface EstadoUbicaciones {
   departamentos: Departamento[];
@@ -40,7 +39,7 @@ export function useUbicacionesCascada() {
       const respuesta = await ubicacionesService.obtenerDepartamentos();
       setEstado((prev) => ({
         ...prev,
-        departamentos: respuesta.datos || [],
+        departamentos: respuesta || [],
         cargandoDepartamentos: false,
       }));
     } catch (error) {
@@ -69,7 +68,7 @@ export function useUbicacionesCascada() {
       const respuesta = await ubicacionesService.obtenerProvinciasPorDepartamento(idDepartamento);
       setEstado((prev) => ({
         ...prev,
-        provincias: respuesta.datos || [],
+        provincias: respuesta || [],
         cargandoProvincias: false,
       }));
     } catch (error) {
@@ -96,7 +95,7 @@ export function useUbicacionesCascada() {
       const respuesta = await ubicacionesService.obtenerMunicipiosPorProvincia(idProvincia);
       setEstado((prev) => ({
         ...prev,
-        municipios: respuesta.datos || [],
+        municipios: respuesta || [],
         cargandoMunicipios: false,
       }));
     } catch (error) {

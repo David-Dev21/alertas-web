@@ -1,24 +1,24 @@
-'use client';
-import L from 'leaflet';
+"use client";
+import L from "leaflet";
 
 // Crear iconos personalizados para los marcadores usando SVG existentes
 export const createAlertIconByEstado = (estado: string) => {
   // Mapear estados a los iconos SVG disponibles
-  let iconPath = '';
+  let iconPath = "";
 
   switch (estado?.toLowerCase()) {
-    case 'pendiente':
-      iconPath = '/markers/pin-pendiente.svg';
+    case "pendiente":
+      iconPath = "/markers/pin-pendiente.svg";
       break;
-    case 'en_atencion':
-    case 'en atencion':
-      iconPath = '/markers/pin-enatencion.svg';
+    case "en_atencion":
+    case "en atencion":
+      iconPath = "/markers/pin-enatencion.svg";
       break;
-    case 'asignada':
-      iconPath = '/markers/pin-asignada.svg';
+    case "asignada":
+      iconPath = "/markers/pin-asignada.svg";
       break;
     default:
-      iconPath = '/markers/pin-pendiente.svg'; // Por defecto
+      iconPath = "/markers/pin-pendiente.svg"; // Por defecto
   }
 
   return L.icon({
@@ -26,7 +26,7 @@ export const createAlertIconByEstado = (estado: string) => {
     iconSize: [32, 40],
     iconAnchor: [16, 40],
     popupAnchor: [0, -40],
-    className: 'custom-alert-marker',
+    className: "custom-alert-marker",
   });
 };
 
@@ -52,7 +52,7 @@ export const createAlertIcon = () => {
         "></div>
       </div>
     `,
-    className: 'custom-marker-alert',
+    className: "custom-marker-alert",
     iconSize: [24, 24],
     iconAnchor: [12, 12],
     popupAnchor: [0, -12],
@@ -81,7 +81,7 @@ export const createOperativeIcon = () => {
         "></div>
       </div>
     `,
-    className: 'custom-marker-operative',
+    className: "custom-marker-operative",
     iconSize: [20, 20],
     iconAnchor: [10, 10],
     popupAnchor: [0, -10],
@@ -110,7 +110,7 @@ export const createAssignedOperativeIcon = () => {
         "></div>
       </div>
     `,
-    className: 'custom-marker-operative-assigned',
+    className: "custom-marker-operative-assigned",
     iconSize: [22, 22],
     iconAnchor: [11, 11],
     popupAnchor: [0, -11],
@@ -118,9 +118,9 @@ export const createAssignedOperativeIcon = () => {
 };
 
 // Icono con efecto de pulso para ubicaciones en tiempo real
-export const createRealTimeLocationIcon = (tipoUsuario: 'victima' | 'operativo') => {
-  const color = tipoUsuario === 'victima' ? '#dc2626' : '#3b82f6';
-  const size = tipoUsuario === 'victima' ? 26 : 24;
+export const createRealTimeLocationIcon = (tipoUsuario: "victima") => {
+  const color = "#dc2626";
+  const size = 26;
 
   return L.divIcon({
     html: `
@@ -198,7 +198,7 @@ export const createPuntoRutaIcon = () => {
         box-shadow: 0 1px 3px rgba(0,0,0,0.4);
       "></div>
     `,
-    className: 'custom-marker-punto-ruta',
+    className: "custom-marker-punto-ruta",
     iconSize: [12, 12],
     iconAnchor: [6, 6],
     popupAnchor: [0, -6],

@@ -8,7 +8,6 @@ import {
   VisibilityState,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -28,6 +27,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { EstadoCuenta } from "@/types/enums";
 
 interface DataTableProps<TData, TValue> {
   columnas: ColumnDef<TData, TValue>[];
@@ -45,8 +45,8 @@ interface DataTableProps<TData, TValue> {
   onCambiarLimite?: (limite: number) => void;
   onBuscar?: (termino: string) => void;
   onRefrescar?: () => void;
-  onFiltrarEstadoCuenta?: (estadoCuenta: string) => void;
-  estadoCuentaFiltro?: string;
+  onFiltrarEstadoCuenta?: (estadoCuenta: EstadoCuenta | "TODOS") => void;
+  estadoCuentaFiltro?: EstadoCuenta | "TODOS";
 }
 
 export function TablaVictimas<TData, TValue>({

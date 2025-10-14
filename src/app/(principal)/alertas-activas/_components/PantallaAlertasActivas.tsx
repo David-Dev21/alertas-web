@@ -7,10 +7,23 @@ import { MapaAlertasActivas } from "./MapaAlertasActivas";
 import { ListaAlertasLateral } from "./ListaAlertasLateral";
 import { Loading } from "@/components/EstadoCarga";
 import { ErrorEstado } from "@/components/ErrorEstado";
-import { EstadoAlerta } from "@/types/alertas/Alerta";
-import { obtenerTextoEstado } from "@/types/alertas/Alerta";
-import { useAlertaStore } from "@/stores/alertas/alertaStore";
 import { FiltrosUbicacion } from "@/components/FiltrosUbicacion";
+import { EstadoAlerta } from "@/types/enums";
+
+export function obtenerTextoEstado(estado: string | EstadoAlerta): string {
+  const estadoNormalizado = typeof estado === "string" ? estado : String(estado);
+
+  const textos = {
+    PENDIENTE: "Pendiente",
+    ASIGNADA: "Asignada",
+    EN_ATENCION: "En Atención",
+    RESUELTA: "Resuelta",
+    CANCELADA: "Cancelada",
+    FALSA_ALERTA: "Falsa Alerta",
+  } as const;
+
+  return textos[estadoNormalizado as keyof typeof textos] || estadoNormalizado;
+}
 
 function obtenerClasesBotonEstado(estado: EstadoAlerta, activo: boolean): string {
   if (!activo) {
@@ -38,20 +51,18 @@ export function PantallaAlertasActivas() {
     idMunicipio: undefined as number | undefined,
   });
 
-  const { alertas, loading, error, refetch } = useAlertasActivas(filtros);
-  const { alertasPendientes } = useAlertaStore(); // Para re-renderizar cuando llegue nueva alerta
+  const { alertas, cargando, error, refetch } = useAlertasActivas(filtros);
 
   // Refrescar datos cuando cambien los filtros de ubicación
   useEffect(() => {
     refetch();
   }, [filtros.idDepartamento, filtros.idProvincia, filtros.idMunicipio, refetch]);
 
-  const alertasArray = Array.isArray(alertas) ? alertas : [];
-
   // Solo los 3 estados activos
   const estadosActivos: EstadoAlerta[] = [EstadoAlerta.PENDIENTE, EstadoAlerta.ASIGNADA, EstadoAlerta.EN_ATENCION];
 
   const alertasFiltradas = useMemo(() => {
+    const alertasArray = Array.isArray(alertas) ? alertas : [];
     let alertasFiltradas = alertasArray;
 
     // Filtrar por estados seleccionados (si hay alguno seleccionado)
@@ -60,7 +71,7 @@ export function PantallaAlertasActivas() {
     }
 
     return alertasFiltradas;
-  }, [alertasArray, estadosSeleccionados, alertasPendientes]); // Agregado alertasPendientes
+  }, [alertas, estadosSeleccionados]);
 
   const toggleEstadoFiltro = (estado: EstadoAlerta) => {
     setEstadosSeleccionados((prev) => {
@@ -99,7 +110,7 @@ export function PantallaAlertasActivas() {
     });
   };
 
-  if (loading) {
+  if (cargando) {
     return <Loading mensaje="Cargando alertas activas..." />;
   }
 
@@ -135,7 +146,7 @@ export function PantallaAlertasActivas() {
         <div>
           <FiltrosUbicacion
             onCambioUbicacion={manejarCambioUbicacion}
-            deshabilitado={loading}
+            deshabilitado={cargando}
             resetear={resetearUbicacion}
             valoresIniciales={{
               departamento: filtros.idDepartamento,

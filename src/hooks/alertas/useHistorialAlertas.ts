@@ -1,25 +1,16 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { alertasService } from "@/services/alertas/alertasService";
-import { Alerta } from "@/types/alertas/Alerta";
+import { alertasService, Alerta } from "@/services/alertas/alertasService";
+import { EstadoCarga, RespuestaPaginada } from "@/types/common.types";
 
-export interface EstadoHistorial {
-  alertas: Alerta[];
-  paginacion: {
-    paginaActual: number;
-    totalPaginas: number;
-    totalElementos: number;
-    elementosPorPagina: number;
-  };
-  cargando: boolean;
-  error: string | null;
+export interface EstadoHistorialAlertas extends EstadoCarga {
+  datos: RespuestaPaginada<Alerta> | null;
 }
 
 export function useHistorialAlertas() {
-  const [estado, setEstado] = useState<EstadoHistorial>({
-    alertas: [],
-    paginacion: { paginaActual: 1, totalPaginas: 0, totalElementos: 0, elementosPorPagina: 10 },
+  const [estado, setEstado] = useState<EstadoHistorialAlertas>({
+    datos: null,
     cargando: true,
     error: null,
   });
@@ -55,8 +46,7 @@ export function useHistorialAlertas() {
         const datos = await alertasService.obtenerHistorial(final);
 
         setEstado({
-          alertas: datos.datos?.historial || [],
-          paginacion: datos.datos?.paginacion || { paginaActual: 1, totalPaginas: 0, totalElementos: 0, elementosPorPagina: final.limite || 10 },
+          datos: datos,
           cargando: false,
           error: null,
         });
@@ -72,7 +62,7 @@ export function useHistorialAlertas() {
 
   useEffect(() => {
     cargar();
-  }, []);
+  }, [cargar]);
 
   const refrescar = useCallback(() => cargar(), [cargar]);
 
@@ -93,7 +83,26 @@ export function useHistorialAlertas() {
     [cargar]
   );
 
-  return { ...estado, parametros, refrescar, irAPagina, cambiarLimite, buscar, cargar };
+  return {
+    // Datos principales
+    alertas: estado.datos?.datos || [],
+    paginacion: estado.datos?.paginacion || {
+      paginaActual: 1,
+      totalPaginas: 0,
+      totalElementos: 0,
+      elementosPorPagina: 10,
+    },
+    // Estados de carga
+    cargando: estado.cargando,
+    error: estado.error,
+    // Funciones
+    parametros,
+    refrescar,
+    irAPagina,
+    cambiarLimite,
+    buscar,
+    cargar,
+  };
 }
 
 export default useHistorialAlertas;

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import * as React from 'react';
+import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -8,17 +8,16 @@ import {
   VisibilityState,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
-import { ChevronDown, Search, RefreshCw } from 'lucide-react';
+} from "@tanstack/react-table";
+import { ChevronDown, Search, RefreshCw } from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -27,7 +26,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/components/ui/pagination';
+} from "@/components/ui/pagination";
 
 interface DataTableProps<TData, TValue> {
   columnas: ColumnDef<TData, TValue>[];
@@ -67,7 +66,7 @@ export function TablaSolicitudesCancelacion<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [busqueda, setBusqueda] = React.useState('');
+  const [busqueda, setBusqueda] = React.useState("");
 
   const manejarBusqueda = (valor: string) => {
     setBusqueda(valor);
@@ -105,7 +104,7 @@ export function TablaSolicitudesCancelacion<TData, TValue>({
               className="pl-8 w-80"
             />
           </div>
-          <Select value={estadoFiltro || 'TODOS'} onValueChange={onFiltrarEstado}>
+          <Select value={estadoFiltro || "TODOS"} onValueChange={onFiltrarEstado}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filtrar por estado" />
             </SelectTrigger>
@@ -119,7 +118,7 @@ export function TablaSolicitudesCancelacion<TData, TValue>({
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" size="sm" onClick={onRefrescar} disabled={cargando}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${cargando ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`mr-2 h-4 w-4 ${cargando ? "animate-spin" : ""}`} />
             Refrescar
           </Button>
           <DropdownMenu>
@@ -175,7 +174,7 @@ export function TablaSolicitudesCancelacion<TData, TValue>({
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}
@@ -226,7 +225,7 @@ export function TablaSolicitudesCancelacion<TData, TValue>({
                         onPaginaAnterior?.();
                       }
                     }}
-                    className={paginacion.paginaActual <= 1 || cargando ? 'pointer-events-none opacity-50' : ''}
+                    className={paginacion.paginaActual <= 1 || cargando ? "pointer-events-none opacity-50" : ""}
                   />
                 </PaginationItem>
 
@@ -250,7 +249,7 @@ export function TablaSolicitudesCancelacion<TData, TValue>({
                         >
                           1
                         </PaginationLink>
-                      </PaginationItem>,
+                      </PaginationItem>
                     );
                   }
 
@@ -259,7 +258,7 @@ export function TablaSolicitudesCancelacion<TData, TValue>({
                     items.push(
                       <PaginationItem key="ellipsis-start">
                         <PaginationEllipsis />
-                      </PaginationItem>,
+                      </PaginationItem>
                     );
                   }
 
@@ -281,7 +280,7 @@ export function TablaSolicitudesCancelacion<TData, TValue>({
                           >
                             {i}
                           </PaginationLink>
-                        </PaginationItem>,
+                        </PaginationItem>
                       );
                     }
                   }
@@ -291,7 +290,7 @@ export function TablaSolicitudesCancelacion<TData, TValue>({
                     items.push(
                       <PaginationItem key="ellipsis-end">
                         <PaginationEllipsis />
-                      </PaginationItem>,
+                      </PaginationItem>
                     );
                   }
 
@@ -309,7 +308,7 @@ export function TablaSolicitudesCancelacion<TData, TValue>({
                         >
                           {totalPaginas}
                         </PaginationLink>
-                      </PaginationItem>,
+                      </PaginationItem>
                     );
                   }
 
@@ -325,7 +324,7 @@ export function TablaSolicitudesCancelacion<TData, TValue>({
                         onPaginaSiguiente?.();
                       }
                     }}
-                    className={paginacion.paginaActual >= paginacion.totalPaginas || cargando ? 'pointer-events-none opacity-50' : ''}
+                    className={paginacion.paginaActual >= paginacion.totalPaginas || cargando ? "pointer-events-none opacity-50" : ""}
                   />
                 </PaginationItem>
               </PaginationContent>

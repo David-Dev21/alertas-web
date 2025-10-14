@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { usuariosWebService, UsuarioWeb, PaginacionUsuariosWeb, ObtenerUsuariosWebResponse } from "@/services/usuariosWebService";
+import { usuariosWebService, UsuarioWeb } from "@/services/usuariosWebService";
+import { EstadoCarga, RespuestaPaginada } from "@/types/common.types";
 
-export interface EstadoUsuariosWeb {
+export interface EstadoUsuariosWeb extends EstadoCarga {
   usuarios: UsuarioWeb[];
-  paginacion: PaginacionUsuariosWeb;
-  cargando: boolean;
-  error: string | null;
+  paginacion: RespuestaPaginada<UsuarioWeb>["paginacion"];
 }
 
 export interface ParametrosConsultaUsuariosWeb {
@@ -44,8 +43,8 @@ export function useUsuariosWeb() {
 
         setEstado((previo) => ({
           ...previo,
-          usuarios: respuesta.datos?.usuarios || [],
-          paginacion: respuesta.datos?.paginacion || {
+          usuarios: respuesta.datos || [],
+          paginacion: respuesta.paginacion || {
             paginaActual: 1,
             totalPaginas: 0,
             totalElementos: 0,
@@ -72,7 +71,7 @@ export function useUsuariosWeb() {
   // Cargar usuarios web inicialmente
   useEffect(() => {
     cargarUsuariosWeb();
-  }, []);
+  }, [cargarUsuariosWeb]);
 
   // Función para refrescar los datos
   const refrescar = useCallback(() => {

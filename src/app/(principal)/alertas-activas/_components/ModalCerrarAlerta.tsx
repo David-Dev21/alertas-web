@@ -98,8 +98,14 @@ export function ModalCerrarAlerta({ abierto, onCerrar, idAlerta, onAlertaCerrada
       const agresor = await agresorService.buscarPorCedula(cedulaBusqueda.trim());
 
       if (agresor) {
+        // Construir el objeto con nombreCompleto para el estado
+        const agresorParaEstado = {
+          id: agresor.id,
+          cedulaIdentidad: agresor.cedulaIdentidad,
+          nombreCompleto: `${agresor.nombres} ${agresor.apellidos}`,
+        };
         // Abrir modal para configurar parentesco
-        setAgresorParaParentesco(agresor);
+        setAgresorParaParentesco(agresorParaEstado);
         setModalParentescoAbierto(true);
         setCedulaBusqueda("");
       } else {

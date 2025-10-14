@@ -10,7 +10,6 @@ import { MapaAlertaDetalle } from "./MapaAlertaDetalle";
 import { AlertaBadge } from "@/components/AlertaBadge";
 import { DatosVictimas } from "./DatosVictimas";
 import { FuncionariosAsignados } from "./FuncionariosAsignados";
-import type { FuncionarioAsignado } from "./FuncionariosAsignados";
 import { BitacoraEventos } from "./BitacoraEventos";
 import { CierreAlerta } from "./CierreAlerta";
 import { ModalCerrarAlerta } from "./ModalCerrarAlerta";
@@ -18,14 +17,18 @@ import { ModalAsignarFuncionarioExterno } from "./ModalAsignarFuncionarioExterno
 import { ErrorEstado } from "@/components/ErrorEstado";
 import { Loading } from "@/components/EstadoCarga";
 import { useAlertaStore } from "@/stores/alertas/alertaStore";
-import { EstadoAlerta } from "@/types/alertas/Alerta";
+import { EstadoAlerta } from "@/types/enums";
 
 interface Props {
   idAlerta: string;
 }
 
+// Interfaces duplicadas de types para refactorización
+// De alertas/Alerta.ts
+// Enum movido a src/types/enums.ts
+
 export function DetalleAlerta({ idAlerta }: Props) {
-  const { alerta, loading, error, refetch } = useAlertaDetalle(idAlerta);
+  const { alerta, cargando, error, refetch } = useAlertaDetalle(idAlerta);
   // Estado para controlar el modal de cerrar alerta
   const [modalCerrarAbierto, setModalCerrarAbierto] = useState(false);
   const { removerAlertaPendiente, alertasPendientes } = useAlertaStore();
@@ -37,7 +40,7 @@ export function DetalleAlerta({ idAlerta }: Props) {
     }
   }, [idAlerta, removerAlertaPendiente, alertasPendientes]);
 
-  if (loading) {
+  if (cargando) {
     return <Loading mensaje="Cargando detalle de alerta..." />;
   }
 
@@ -120,13 +123,7 @@ export function DetalleAlerta({ idAlerta }: Props) {
           <MapaAlertaDetalle alerta={alerta} />
 
           {/* Funcionarios Asignados */}
-          <FuncionariosAsignados
-            atencion={
-              alerta.atencion
-                ? { ...alerta.atencion, atencionFuncionario: alerta.atencion.atencionFuncionario as unknown as FuncionarioAsignado[] }
-                : undefined
-            }
-          />
+          <FuncionariosAsignados atencion={alerta.atencion} />
 
           {/* Bitácora de Eventos */}
           <BitacoraEventos eventos={alerta.eventos || []} />
@@ -137,7 +134,7 @@ export function DetalleAlerta({ idAlerta }: Props) {
           <DatosVictimas victima={alerta.victima} />
 
           {/* Mostrar cierre de alerta si existe */}
-          {alerta.cierre && <CierreAlerta cierre={alerta.cierre} estadoAlerta={alerta.estadoAlerta} />}
+          {alerta.cierre && <CierreAlerta cierre={alerta.cierre} />}
         </div>
       </div>
 

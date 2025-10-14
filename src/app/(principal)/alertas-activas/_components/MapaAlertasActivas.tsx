@@ -3,17 +3,12 @@
 import { useEffect, useRef } from "react";
 import * as L from "leaflet";
 import type { Map as LeafletMap } from "leaflet";
-import dynamic from "next/dynamic";
-import { Alerta } from "@/types/alertas/Alerta";
+import { MapContainer, TileLayer, Marker, Circle } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import { Alerta } from "@/services/alertas/alertasService";
 import { useAlertaSeleccionStore } from "@/stores/alertas/alertaSeleccionStore";
 import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore";
 import { MAPA_CONFIG, obtenerCentroMapa } from "@/lib/mapaConfig";
-
-// Importar Leaflet dinámicamente para evitar problemas de SSR
-const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false });
-const TileLayer = dynamic(() => import("react-leaflet").then((mod) => mod.TileLayer), { ssr: false });
-const Marker = dynamic(() => import("react-leaflet").then((mod) => mod.Marker), { ssr: false });
-const Circle = dynamic(() => import("react-leaflet").then((mod) => mod.Circle), { ssr: false });
 
 interface MapaAlertasActivasProps {
   alertas: Alerta[];

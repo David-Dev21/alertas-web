@@ -2,11 +2,11 @@
 import { useRef } from "react";
 import type { Map as LeafletMap } from "leaflet";
 import dynamic from "next/dynamic";
-import { Alerta } from "@/types/alertas/Alerta";
+import { Alerta } from "@/services/alertas/alertasService";
 import { Button } from "@/components/ui/button";
 import { MapPin, Navigation, Share2 } from "lucide-react";
 import { AlertaBadge } from "@/components/AlertaBadge";
-import { createAlertIconByEstado, createAssignedOperativeIcon, createPuntoRutaIcon } from "./MapIcons";
+import { createAlertIconByEstado, createPuntoRutaIcon } from "./MapIcons";
 import { useRutaAlertaSocket } from "@/hooks/alertas/useRutaAlertaSocket";
 import { MAPA_CONFIG } from "@/lib/mapaConfig";
 

@@ -1,8 +1,53 @@
 import { useState } from "react";
 import { atencionesExternasService } from "@/services/atenciones/atencionesExternasService";
-import { CrearAtencionExternaRequest, FuncionarioExternoAtencion, AgregarFuncionarioExternoRequest } from "@/types/request/atenciones";
-import { AtencionExternaResponse } from "@/types/response/atenciones";
 import { toast } from "sonner";
+import { RolAtencion } from "@/types/enums";
+
+// Interfaces duplicadas de types para refactorización
+// De request/atenciones.ts
+// Enum movido a src/types/enums.ts
+
+interface FuncionarioExternoAtencion {
+  rolAtencion: RolAtencion;
+  ubicacion?: {
+    longitud: number;
+    latitud: number;
+    precision: number;
+    marcaTiempo: string;
+  };
+  turnoInicio: string;
+  turnoFin: string;
+  idPersonal: string;
+}
+
+interface AgregarFuncionarioExternoRequest {
+  rolAtencion: RolAtencion;
+  ubicacion?: {
+    longitud: number;
+    latitud: number;
+    precision: number;
+    marcaTiempo: string;
+  };
+  turnoInicio: string;
+  turnoFin: string;
+  idPersonal: string;
+}
+
+interface CrearAtencionExternaRequest {
+  idAlerta: string;
+  idUsuarioWeb: string;
+  siglaVehiculo: string;
+  siglaRadio: string;
+  funcionarios: FuncionarioExternoAtencion[];
+}
+
+// De response/atenciones.ts
+interface AtencionExternaResponse {
+  exito: boolean;
+  mensaje: string;
+  datos?: unknown;
+  error?: string;
+}
 
 export function useAtencionesExternas() {
   const [cargando, setCargando] = useState(false);
@@ -14,10 +59,11 @@ export function useAtencionesExternas() {
 
     try {
       const respuesta = await atencionesExternasService.crearAtencionExterna(data);
-      toast.success(respuesta.mensaje || "Operación realizada exitosamente");
+      toast.success(respuesta.mensaje);
       return respuesta;
-    } catch (err: any) {
-      const mensajeError = err?.response?.data?.mensaje || err?.message || "Error al asignar funcionario externo";
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { mensaje?: string } }; message?: string };
+      const mensajeError = error.response?.data?.mensaje || error.message || "Error al asignar funcionario externo";
       setError(mensajeError);
       toast.error(mensajeError);
       return null;
@@ -32,10 +78,11 @@ export function useAtencionesExternas() {
 
     try {
       const respuesta = await atencionesExternasService.agregarFuncionarioExterno(idAtencion, data);
-      toast.success(respuesta.mensaje || "Funcionario agregado exitosamente");
+      toast.success(respuesta.mensaje);
       return respuesta;
-    } catch (err: any) {
-      const mensajeError = err?.response?.data?.mensaje || err?.message || "Error al agregar funcionario externo";
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { mensaje?: string } }; message?: string };
+      const mensajeError = error.response?.data?.mensaje || error.message || "Error al agregar funcionario externo";
       setError(mensajeError);
       toast.error(mensajeError);
       return null;

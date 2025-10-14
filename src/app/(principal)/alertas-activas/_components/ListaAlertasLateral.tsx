@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Alerta } from "@/types/alertas/Alerta";
+import { Alerta } from "@/services/alertas/alertasService";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clock, MapPin, UserRound } from "lucide-react";
 import Link from "next/link";
@@ -80,7 +80,6 @@ export function ListaAlertasLateral({ alertas }: ListaAlertasLateralProps) {
                         : "hover:border-border hover:shadow-sm hover:bg-muted/30"
                     }`}
                     onClick={(e) => manejarClickCard(alerta.id, e)}
-                    aria-pressed={estaDestacada}
                   >
                     {/* Barra lateral de estado */}
                     <div

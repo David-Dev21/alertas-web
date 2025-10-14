@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { alertasService } from '@/services/alertas/alertasService';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { alertasService } from "@/services/alertas/alertasService";
+import { toast } from "sonner";
 
 interface AgresorEncontrado {
   id: string;
@@ -9,7 +9,7 @@ interface AgresorEncontrado {
   parentesco: string;
 }
 
-interface DatosCrearAgresor {
+interface DatosCrearAgresorRequest {
   cedulaIdentidad: string;
   nombres: string;
   apellidos: string;
@@ -26,43 +26,31 @@ export const useAgresores = () => {
     setBuscandoAgresor(true);
     try {
       const response = await alertasService.buscarAgresor(cedula.trim());
-
-      if (response.exito && response.datos) {
-        toast.success('Agresor encontrado exitosamente');
-        return response.datos;
-      } else {
-        toast.info('No se encontró un agresor con esa cédula');
-        return null;
-      }
+      toast.success("Agresor encontrado exitosamente");
+      return response;
     } catch (error) {
-      toast.error('Error al buscar el agresor');
-      console.error('Error al buscar agresor:', error);
+      toast.info("No se encontró un agresor con esa cédula");
+      console.error("Error al buscar agresor:", error);
       return null;
     } finally {
       setBuscandoAgresor(false);
     }
   };
 
-  const crearAgresor = async (datos: DatosCrearAgresor): Promise<AgresorEncontrado | null> => {
+  const crearAgresor = async (datos: DatosCrearAgresorRequest): Promise<AgresorEncontrado | null> => {
     setCreandoAgresor(true);
     try {
       const response = await alertasService.crearAgresor(datos);
-
-      if (response.exito && response.datos) {
-        toast.success('Agresor creado exitosamente');
-        return {
-          id: response.datos.id,
-          cedulaIdentidad: datos.cedulaIdentidad,
-          nombreCompleto: `${datos.nombres} ${datos.apellidos}`,
-          parentesco: datos.parentesco,
-        };
-      } else {
-        toast.error(response.mensaje || 'Error al crear el agresor');
-        return null;
-      }
+      toast.success("Agresor creado exitosamente");
+      return {
+        id: response.id,
+        cedulaIdentidad: datos.cedulaIdentidad,
+        nombreCompleto: `${datos.nombres} ${datos.apellidos}`,
+        parentesco: datos.parentesco,
+      };
     } catch (error) {
-      toast.error('Error al crear el agresor');
-      console.error('Error al crear agresor:', error);
+      toast.error("Error al crear el agresor");
+      console.error("Error al crear agresor:", error);
       return null;
     } finally {
       setCreandoAgresor(false);

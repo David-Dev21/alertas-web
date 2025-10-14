@@ -19,15 +19,6 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 
 interface TablaUsuariosWebProps<TData, TValue> {
   columnas: ColumnDef<TData, TValue>[];
@@ -41,7 +32,6 @@ interface TablaUsuariosWebProps<TData, TValue> {
   };
   onPaginaAnterior?: () => void;
   onPaginaSiguiente?: () => void;
-  onIrAPagina?: (pagina: number) => void;
   onCambiarLimite?: (limite: number) => void;
   onBuscar?: (termino: string) => void;
   onRefrescar?: () => void;
@@ -54,7 +44,6 @@ export function TablaUsuariosWeb<TData, TValue>({
   paginacion,
   onPaginaAnterior,
   onPaginaSiguiente,
-  onIrAPagina,
   onCambiarLimite,
   onBuscar,
   onRefrescar,

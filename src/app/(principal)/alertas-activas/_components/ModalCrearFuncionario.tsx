@@ -4,7 +4,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, UserPlus } from "lucide-react";
 import { usePersonal } from "@/hooks/personal/usePersonal";
 import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore";
@@ -38,7 +37,7 @@ export function ModalCrearFuncionario({ abierto, onCerrar, onPersonalCreado }: M
     };
 
     const resultado = await crearPersonal(datos);
-    if (resultado?.exito) {
+    if (resultado) {
       onPersonalCreado();
       setGrado("");
       setNombreCompleto("");

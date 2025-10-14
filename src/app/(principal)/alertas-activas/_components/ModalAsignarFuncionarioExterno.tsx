@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UserPlus, Loader2, MapPin, Search, Check, X } from "lucide-react";
-import { RolAtencion } from "@/types/request/atenciones";
 import { useAtencionesExternas } from "@/hooks/atenciones/useAtencionesExternas";
 import { useAuth } from "@/hooks/autenticacion/useAutenticacion";
 import { usePersonal } from "@/hooks/personal/usePersonal";
@@ -17,6 +16,11 @@ import { ModalCrearFuncionario } from "./ModalCrearFuncionario";
 import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore";
 import { cn } from "@/lib/utils";
 import { ModalDetalleFuncionario } from "./ModalDetalleFuncionario";
+import { RolAtencion } from "@/types/enums";
+
+// Interfaces duplicadas de types para refactorización
+// De request/atenciones.ts
+// Enum movido a src/types/enums.ts
 
 interface Turno {
   id: string;
@@ -50,22 +54,27 @@ function calcularTimestampsTurno(turnoId: string): { turnoInicio: string; turnoF
 
   const turnoInicio = new Date(now.getFullYear(), now.getMonth(), now.getDate(), inicioH, inicioM, inicioS);
 
-  let turnoFin = new Date(now.getFullYear(), now.getMonth(), now.getDate(), finH, finM, finS);
+  // Crear turnoFin base y aplicar modificaciones
+  const turnoFin = (() => {
+    const base = new Date(now.getFullYear(), now.getMonth(), now.getDate(), finH, finM, finS);
 
-  // Si fin es menor que inicio, significa que cruza medianoche, sumar 1 día
-  if (finH < inicioH || (finH === inicioH && finM < inicioM)) {
-    turnoFin.setDate(turnoFin.getDate() + 1);
-  }
+    // Si fin es menor que inicio, significa que cruza medianoche, sumar 1 día
+    if (finH < inicioH || (finH === inicioH && finM < inicioM)) {
+      base.setDate(base.getDate() + 1);
+    }
 
-  // Para turno 24 horas, sumar 1 día a fin
-  if (turnoId === "5") {
-    turnoFin.setDate(turnoFin.getDate() + 1);
-  }
+    // Para turno 24 horas, sumar 1 día a fin
+    if (turnoId === "5") {
+      base.setDate(base.getDate() + 1);
+    }
 
-  // Para turno 48 horas, sumar 2 días a fin
-  if (turnoId === "6") {
-    turnoFin.setDate(turnoFin.getDate() + 2);
-  }
+    // Para turno 48 horas, sumar 2 días a fin
+    if (turnoId === "6") {
+      base.setDate(base.getDate() + 2);
+    }
+
+    return base;
+  })();
 
   return {
     turnoInicio: turnoInicio.toISOString(),
@@ -141,11 +150,7 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
         setCargandoBusqueda(true);
         try {
           const resultado = await buscarPersonal(busqueda, idDepartamento);
-          if (resultado?.exito) {
-            setPersonalEncontrado(resultado.datos);
-          } else {
-            setPersonalEncontrado([]);
-          }
+          setPersonalEncontrado(resultado);
           setBusquedaCompletada(true);
         } catch (error) {
           console.error("Error en búsqueda:", error);
@@ -172,23 +177,7 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
     }
 
     // Crear datos para cada funcionario seleccionado
-    const funcionarios = personalSeleccionado.map((personal) => {
-      const { turnoInicio, turnoFin } = calcularTimestampsTurno(personal.turnoId);
-      return {
-        rolAtencion: personal.rolAtencion,
-        ...(personal.ubicacion && {
-          ubicacion: {
-            longitud: personal.ubicacion[1],
-            latitud: personal.ubicacion[0],
-            precision: 5.2,
-            marcaTiempo: new Date().toISOString(),
-          },
-        }),
-        turnoInicio,
-        turnoFin,
-        idPersonal: personal.id,
-      };
-    });
+    // Los datos se crean directamente en las ramas if/else
 
     let resultado;
 
@@ -246,7 +235,7 @@ export function ModalAsignarFuncionarioExterno({ idAlerta, idAtencion, onAsignac
         siglaRadio: siglaRadio.trim(),
         funcionarios: funcionariosParaCrear,
       };
-      resultado = await crearAtencionExterna(datosAtencion as any);
+      resultado = await crearAtencionExterna(datosAtencion);
     }
 
     if (resultado) {

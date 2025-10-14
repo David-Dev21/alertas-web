@@ -5,7 +5,7 @@ import { crearColumnasSolicitudesCancelacion } from "./columnas-solicitudes-canc
 import { ModalProcesarSolicitud } from "./ModalProcesarSolicitud";
 import { useSolicitudesCancelacion } from "@/hooks/solicitudes-cancelacion/useSolicitudesCancelacion";
 import { useState } from "react";
-import { SolicitudCancelacion } from "@/types/alertas/SolicitudCancelacion";
+import { SolicitudCancelacion } from "@/services/alertas/solicitudesCancelacionService";
 
 export default function PaginaSolicitudesCancelacion() {
   const [estadoFiltro, setEstadoFiltro] = useState<string>("TODOS");
@@ -41,7 +41,7 @@ export default function PaginaSolicitudesCancelacion() {
   const manejarConfirmarAccion = async (
     id: string,
     datos: {
-      usuarioAdmin: string;
+      idUsuarioWeb: string;
       estadoSolicitud: "APROBADA" | "RECHAZADA";
       motivoCancelacion: string;
     }

@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { agresorService, Agresor, PaginacionAgresores, ObtenerAgresoresResponse } from "@/services/agresores/agresorService";
+import { agresorService, Agresor } from "@/services/agresores/agresorService";
+import { EstadoCarga, RespuestaPaginada } from "@/types/common.types";
 
-export interface EstadoAgresores {
+export interface EstadoAgresores extends EstadoCarga {
   agresores: Agresor[];
-  paginacion: PaginacionAgresores;
-  cargando: boolean;
-  error: string | null;
+  paginacion: RespuestaPaginada<Agresor>["paginacion"];
 }
 
 export interface ParametrosConsultaAgresores {
@@ -43,8 +42,8 @@ export function useAgresores() {
 
         setEstado((previo) => ({
           ...previo,
-          agresores: respuesta.datos?.agresores || [],
-          paginacion: respuesta.datos?.paginacion || {
+          agresores: respuesta.datos || [],
+          paginacion: respuesta.paginacion || {
             paginaActual: 1,
             totalPaginas: 0,
             totalElementos: 0,
@@ -71,7 +70,7 @@ export function useAgresores() {
   // Cargar agresores inicialmente
   useEffect(() => {
     cargarAgresores();
-  }, []);
+  }, [cargarAgresores]);
 
   // Función para refrescar los datos
   const refrescar = useCallback(() => {

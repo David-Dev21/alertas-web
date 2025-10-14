@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 import { jwtDecode } from "jwt-decode";
 
 const baseApi = axios.create({
@@ -12,13 +12,13 @@ const baseApi = axios.create({
 // Variables para manejar refresh
 let isRefreshing = false;
 let failedQueue: Array<{
-  resolve: (value?: any) => void;
-  reject: (error?: any) => void;
+  resolve: (value?: unknown) => void;
+  reject: (error?: unknown) => void;
 }> = [];
 let refreshTimeoutId: NodeJS.Timeout | null = null; // Para rastrear el timer activo
 
 // Función para procesar la cola de peticiones fallidas
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach(({ resolve, reject }) => {
     if (error) {
       reject(error);
@@ -63,7 +63,7 @@ const startRefreshTimer = (token: string) => {
   }
 
   try {
-    const decoded: any = jwtDecode(token);
+    const decoded: { exp: number } = jwtDecode(token);
     const currentTime = Date.now() / 1000;
     const timeUntilExpiry = decoded.exp - currentTime;
     const refreshTime = Math.max((timeUntilExpiry - 300) * 1000, 0); // 5 minutos antes
@@ -107,12 +107,23 @@ baseApi.interceptors.request.use((config) => {
 });
 baseApi.interceptors.response.use(
   (response: AxiosResponse) => {
+    // Verificar si la respuesta tiene la estructura base
+    if (response.data && typeof response.data === "object" && "exito" in response.data) {
+      if (response.data.exito === true) {
+        // Devolver solo los datos
+        response.data = response.data.datos;
+      } else {
+        // Si exito es false, crear un error
+        const apiError = new Error(response.data.mensaje || "Error en la respuesta del servidor");
+        (apiError as Error & { response: AxiosResponse }).response = response;
+        throw apiError;
+      }
+    }
+
     // Log de responses en desarrollo
     if (process.env.NODE_ENV === "development") {
-      // Si el backend indica error en el contenido, usar ese código
-      const codigoLog = response.data && response.data.exito === false && response.data.codigo ? response.data.codigo : response.status;
-      const emoji = response.data && response.data.exito === false ? "❌" : "✅";
-      console.log(`${emoji} ${codigoLog} ${response.config.url}`, response.data);
+      const emoji = "✅";
+      console.log(`${emoji} ${response.status} ${response.config.url}`, response.data);
     }
     return response;
   },
@@ -132,7 +143,7 @@ baseApi.interceptors.response.use(
       throw error;
     }
 
-    if (error.response?.status === 401 && !(originalRequest as any)._retry) {
+    if (error.response?.status === 401 && !(originalRequest as AxiosRequestConfig & { _retry?: boolean })._retry) {
       if (isRefreshing) {
         // Si ya está refrescando, agregar a la cola
         return new Promise((resolve, reject) => {
@@ -146,7 +157,7 @@ baseApi.interceptors.response.use(
           });
       }
 
-      (originalRequest as any)._retry = true;
+      (originalRequest as AxiosRequestConfig & { _retry?: boolean })._retry = true;
       isRefreshing = true;
 
       try {
@@ -183,7 +194,7 @@ baseApi.interceptors.response.use(
 // Función helper para obtener mensaje de error
 const obtenerMensajeError = (error: AxiosError): string => {
   if (error.response?.data && typeof error.response.data === "object" && "message" in error.response.data) {
-    return (error.response.data as any).message;
+    return (error.response.data as { message: string }).message;
   }
   return error.message || "Error desconocido";
 };

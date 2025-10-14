@@ -1,4 +1,5 @@
 import baseApi from "./baseApi";
+import { RespuestaPaginada, ParametrosBusqueda } from "@/types/common.types";
 
 export interface UsuarioWeb {
   id: string;
@@ -9,34 +10,16 @@ export interface UsuarioWeb {
   actualizadoEn: string;
 }
 
-export interface PaginacionUsuariosWeb {
-  paginaActual: number;
-  totalPaginas: number;
-  totalElementos: number;
-  elementosPorPagina: number;
+// Interfaces de request
+interface ParametrosConsultaUsuariosWeb extends ParametrosBusqueda {
+  estadoSession?: boolean;
 }
 
-export interface DatosUsuariosWeb {
-  usuarios: UsuarioWeb[];
-  paginacion: PaginacionUsuariosWeb;
-}
-
-export interface ObtenerUsuariosWebResponse {
-  exito: boolean;
-  codigo: number;
-  mensaje: string;
-  datos: DatosUsuariosWeb;
-}
+// Tipos de respuesta usando interfaces comunes
+type DatosUsuariosWeb = RespuestaPaginada<UsuarioWeb>;
 
 export const usuariosWebService = {
-  obtenerTodos: async (
-    parametros: {
-      pagina?: number;
-      limite?: number;
-      busqueda?: string;
-      estadoSession?: boolean;
-    } = {}
-  ): Promise<ObtenerUsuariosWebResponse> => {
+  obtenerTodos: async (parametros: ParametrosConsultaUsuariosWeb = {}): Promise<DatosUsuariosWeb> => {
     const queryParams = new URLSearchParams();
     if (parametros.pagina) queryParams.append("pagina", parametros.pagina.toString());
     if (parametros.limite) queryParams.append("limite", parametros.limite.toString());

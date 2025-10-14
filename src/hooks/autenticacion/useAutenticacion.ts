@@ -12,7 +12,6 @@ export function useAuth() {
     accessToken: almacenamiento.accessToken,
     datosUsuario: almacenamiento.datosUsuario,
     datosSistema: almacenamiento.datosSistema,
-    estaAutenticado: almacenamiento.estaAutenticado,
 
     // Datos específicos del usuario
     usuario: {

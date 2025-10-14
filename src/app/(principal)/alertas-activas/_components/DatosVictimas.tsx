@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, Calendar, Phone, Mail, CheckCircle, Home, Info } from "lucide-react";
-import { Victima } from "@/types/response/victimas";
+import { User, Calendar, Phone, Mail, Home, Info } from "lucide-react";
+import { Victima } from "@/services/alertas/alertasService";
 import { calcularEdad } from "@/lib/utils";
 
 interface Props {

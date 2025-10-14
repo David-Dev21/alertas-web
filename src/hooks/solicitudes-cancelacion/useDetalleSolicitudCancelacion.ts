@@ -1,9 +1,25 @@
 import { useState, useCallback } from "react";
 import { solicitudesCancelacionService } from "@/services/alertas/solicitudesCancelacionService";
-import { RespuestaDetalleSolicitudCancelacion } from "@/types/response/solicitudes-cancelacion";
+
+// Interfaces locales para el hook
+
+// Tipo de datos que devuelve
+interface DatosDetalleSolicitudCancelacion {
+  fechaSolicitud: string;
+  estadoSolicitud: "PENDIENTE" | "APROBADA" | "RECHAZADA";
+  motivoCancelacion: string;
+  usuarioAprobador: string;
+  victima: {
+    id: string;
+    nombres: string;
+    apellidos: string;
+    celular: string;
+    cedulaIdentidad: string;
+  };
+}
 
 export interface EstadoDetalleSolicitud {
-  detalle: RespuestaDetalleSolicitudCancelacion["datos"] | null;
+  detalle: DatosDetalleSolicitudCancelacion | null;
   cargando: boolean;
   error: string | null;
   modalAbierto: boolean;
@@ -42,7 +58,7 @@ export function useDetalleSolicitudCancelacion() {
 
       setEstado((previo) => ({
         ...previo,
-        detalle: respuesta.datos || null,
+        detalle: respuesta || null,
         cargando: false,
       }));
     } catch (error) {

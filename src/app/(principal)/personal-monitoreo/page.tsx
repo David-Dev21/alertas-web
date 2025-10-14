@@ -39,7 +39,6 @@ export default function PaginaPersonalMonitoreo() {
         paginacion={paginacion}
         onPaginaAnterior={manejarPaginaAnterior}
         onPaginaSiguiente={manejarPaginaSiguiente}
-        onIrAPagina={irAPagina}
         onCambiarLimite={cambiarLimite}
         onBuscar={buscar}
         onRefrescar={refrescar}

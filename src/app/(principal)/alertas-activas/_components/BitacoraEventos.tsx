@@ -1,48 +1,49 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, User, AlertTriangle, Phone, Heart, X, Ban } from "lucide-react";
-import { Evento } from "@/types/alertas/Alerta";
+import { Evento } from "@/services/alertas/alertasService";
+import { TipoEvento } from "@/types/enums";
 
 interface BitacoraEventosProps {
   eventos: Evento[];
 }
 
 export function BitacoraEventos({ eventos }: BitacoraEventosProps) {
-  const obtenerIconoEvento = (tipoEvento: string) => {
+  const obtenerIconoEvento = (tipoEvento: TipoEvento | string) => {
     switch (tipoEvento) {
-      case "ALERTA_RECIBIDA":
+      case TipoEvento.ALERTA_RECIBIDA:
         return <AlertTriangle className="w-4 h-4 text-red-500" />;
-      case "ALERTA_ASIGNADA":
+      case TipoEvento.ALERTA_ASIGNADA:
         return <User className="w-4 h-4 text-blue-500" />;
-      case "CONTACTO_FAMILIARES":
+      case TipoEvento.CONTACTO_FAMILIARES:
         return <Phone className="w-4 h-4 text-green-500" />;
-      case "ATENCION_VICTIMA":
+      case TipoEvento.ATENCION_VICTIMA:
         return <Heart className="w-4 h-4 text-purple-500" />;
-      case "ALERTA_CERRADA":
+      case TipoEvento.ALERTA_CERRADA:
         return <Clock className="w-4 h-4 text-green-500" />;
-      case "ALERTA_CANCELADA":
+      case TipoEvento.ALERTA_CANCELADA:
         return <X className="w-4 h-4 text-orange-500" />;
-      case "FALSA_ALERTA":
+      case TipoEvento.FALSA_ALERTA:
         return <Ban className="w-4 h-4 text-gray-500" />;
       default:
         return <Clock className="w-4 h-4 text-gray-500" />;
     }
   };
 
-  const obtenerTituloEvento = (tipoEvento: string) => {
+  const obtenerTituloEvento = (tipoEvento: TipoEvento | string) => {
     switch (tipoEvento) {
-      case "ALERTA_RECIBIDA":
+      case TipoEvento.ALERTA_RECIBIDA:
         return "Esta alerta de emergencia llegó al sistema";
-      case "ALERTA_ASIGNADA":
+      case TipoEvento.ALERTA_ASIGNADA:
         return "Se asigno personal policial para atender esta alerta";
-      case "CONTACTO_FAMILIARES":
+      case TipoEvento.CONTACTO_FAMILIARES:
         return "Se contactó a la familia de la víctima";
-      case "ATENCION_VICTIMA":
+      case TipoEvento.ATENCION_VICTIMA:
         return "Se tomo contacto con víctima en el lugar";
-      case "ALERTA_CERRADA":
+      case TipoEvento.ALERTA_CERRADA:
         return "Esta alerta de emergencia se resolvió por completo";
-      case "ALERTA_CANCELADA":
+      case TipoEvento.ALERTA_CANCELADA:
         return "Esta alerta fue cancelada";
-      case "FALSA_ALERTA":
+      case TipoEvento.FALSA_ALERTA:
         return "Esta alerta resultó ser una falsa alarma";
       default:
         return tipoEvento.toLowerCase().replace("_", " ");

@@ -2,24 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, User, Radio, Car, Clock } from "lucide-react";
-
-export interface FuncionarioAsignado {
-  id: string;
-  idUsuarioOperativo: string | null;
-  rolAtencion: string;
-  ubicacion: string | null;
-  turnoInicio: string;
-  turnoFin: string;
-  grado: string;
-  nombreCompleto: string;
-  unidad: string;
-  funcionarioExterno?: {
-    grado: string;
-    nombreCompleto: string;
-    organismo?: string;
-    unidad: string;
-  };
-}
+import type { FuncionarioAsignado } from "@/services/alertas/alertasService";
 
 interface Atencion {
   id: string;
@@ -151,7 +134,7 @@ export function FuncionariosAsignados({ atencion }: FuncionariosAsignadosProps) 
           ) : (
             <div className="space-y-3">
               <h4 className="font-medium text-sm text-muted-foreground pb-2"> Funcionarios Asignados ({funcionarios.length})</h4>
-              {funcionarios.map((funcionario: FuncionarioAsignado, index: number) => (
+              {funcionarios.map((funcionario: FuncionarioAsignado) => (
                 <div key={funcionario.id} className="border rounded-lg p-4 bg-card">
                   {/* Información del Funcionario en 3 columnas */}
                   <div className="grid grid-cols-4 gap-4 items-start">

@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { personalService, Personal, PaginacionPersonal, ObtenerPersonalResponse } from "@/services/personalService";
+import { personalService, Personal } from "@/services/personalService";
+import { EstadoCarga, RespuestaPaginada } from "@/types/common.types";
 
-export interface EstadoPersonal {
+export interface EstadoPersonal extends EstadoCarga {
   personal: Personal[];
-  paginacion: PaginacionPersonal;
-  cargando: boolean;
-  error: string | null;
+  paginacion: RespuestaPaginada<Personal>["paginacion"];
 }
 
 export interface ParametrosConsultaPersonal {
@@ -44,8 +43,8 @@ export function usePersonal() {
 
         setEstado((previo) => ({
           ...previo,
-          personal: respuesta.datos?.datos?.personal || [],
-          paginacion: respuesta.datos?.datos?.paginacion || {
+          personal: respuesta.datos || [],
+          paginacion: respuesta.paginacion || {
             paginaActual: 1,
             totalPaginas: 0,
             totalElementos: 0,
@@ -72,7 +71,7 @@ export function usePersonal() {
   // Cargar personal inicialmente
   useEffect(() => {
     cargarPersonal();
-  }, []);
+  }, [cargarPersonal]);
 
   // Función para refrescar los datos
   const refrescar = useCallback(() => {

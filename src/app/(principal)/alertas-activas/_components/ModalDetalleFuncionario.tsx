@@ -6,11 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { MapPin, Loader2 } from "lucide-react";
-import { obtenerCentroMapa } from "@/lib/mapaConfig";
-import { RolAtencion } from "@/types/request/atenciones";
 import { Personal } from "@/services/personalService";
-import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore";
 import { MapaSeleccionUbicacion } from "./MapaSeleccionUbicacion";
+import { RolAtencion } from "@/types/enums";
 
 interface Turno {
   id: string;
@@ -36,6 +34,10 @@ interface ModalDetalleFuncionarioProps {
   idAtencion?: string; // Para ocultar opciones de rol cuando se agrega a atención existente
 }
 
+// Interfaces duplicadas de types para refactorización
+// De request/atenciones.ts
+// Enum movido a src/types/enums.ts
+
 export function ModalDetalleFuncionario({
   abierto,
   onCerrar,
@@ -50,10 +52,6 @@ export function ModalDetalleFuncionario({
   const [turnoId, setTurnoId] = useState("1");
   const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<[number, number] | null>(null);
   const [mapaAbierto, setMapaAbierto] = useState(false);
-
-  const datosUsuario = useAutenticacionStore((state) => state.datosUsuario);
-  const idDepartamento = datosUsuario?.ubicacion?.idDepartamento;
-  const centroMapa = obtenerCentroMapa(undefined, undefined, idDepartamento);
 
   // Verificar si ya hay un encargado seleccionado (excluyendo el funcionario actual)
   const yaHayEncargado = personalSeleccionado.some((p) => p.rolAtencion === RolAtencion.ENCARGADO && p.id !== funcionario?.id);
@@ -148,7 +146,7 @@ export function ModalDetalleFuncionario({
                 </RadioGroup>
                 {rolAtencion === RolAtencion.ENCARGADO && yaHayEncargado && (
                   <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-2">
-                    Ya hay un encargado seleccionado. Al confirmar, el rol del encargado actual cambiará automáticamente a "Apoyo".
+                    Ya hay un encargado seleccionado. Al confirmar, el rol del encargado actual cambiará automáticamente a &quot;Apoyo&quot;.
                   </div>
                 )}
               </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal, Eye, CheckCircle, Clock } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Eye, CheckCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SolicitudCancelacion, EstadoSolicitudCancelacion } from "@/types/response/solicitudes-cancelacion";
+import { SolicitudCancelacion } from "@/services/alertas/solicitudesCancelacionService";
+import { EstadoSolicitudCancelacion } from "@/types/enums";
 import { useDetalleSolicitudCancelacion } from "@/hooks/solicitudes-cancelacion/useDetalleSolicitudCancelacion";
 import { ModalDetallesSolicitud } from "./ModalDetallesSolicitud";
 import { formatearFechaUTC } from "@/lib/utils";
@@ -183,7 +184,7 @@ export const crearColumnasSolicitudesCancelacion = (onAccionSolicitud?: (solicit
     if (columna.id === "acciones") {
       return {
         ...columna,
-        cell: ({ row }: any) => {
+        cell: ({ row }: { row: { original: SolicitudCancelacion } }) => {
           const solicitud = row.original;
           return <AccionesSolicitudCancelacion solicitud={solicitud} onAccionSolicitud={onAccionSolicitud} />;
         },

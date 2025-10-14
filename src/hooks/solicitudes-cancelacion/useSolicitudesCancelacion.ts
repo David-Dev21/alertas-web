@@ -1,7 +1,49 @@
 import { useState, useEffect, useCallback } from "react";
 import { solicitudesCancelacionService } from "@/services/alertas/solicitudesCancelacionService";
-import { ParametrosConsultaSolicitudesCancelacion, DatosActualizarEstadoSolicitud } from "@/types/request/solicitudes-cancelacion";
-import { SolicitudCancelacion, RespuestaSolicitudesCancelacion, PaginacionSolicitudesCancelacion } from "@/types/response/solicitudes-cancelacion";
+import { EstadoSolicitudCancelacion } from "@/types/enums";
+
+// Interfaces locales para el hook
+
+// De request/solicitudes-cancelacion.ts
+interface ParametrosConsultaSolicitudesCancelacion {
+  pagina?: number;
+  limite?: number;
+  busqueda?: string;
+  estado?: "PENDIENTE" | "APROBADA" | "RECHAZADA";
+}
+
+interface DatosActualizarEstadoSolicitud {
+  idUsuarioWeb: string;
+  estadoSolicitud: "APROBADA" | "RECHAZADA";
+  motivoCancelacion: string;
+}
+
+// De response/solicitudes-cancelacion.ts
+// Enum movido a src/types/enums.ts
+
+interface VictimaSolicitud {
+  id: string;
+  nombres: string;
+  apellidos: string;
+  cedulaIdentidad: string;
+  celular: string;
+}
+
+interface SolicitudCancelacion {
+  id: string;
+  idAlerta: string;
+  fechaSolicitud: string;
+  estadoSolicitud: EstadoSolicitudCancelacion;
+  motivoCancelacion: string;
+  victima: VictimaSolicitud;
+}
+
+interface PaginacionSolicitudesCancelacion {
+  paginaActual: number;
+  totalPaginas: number;
+  totalElementos: number;
+  elementosPorPagina: number;
+}
 
 export interface EstadoSolicitudesCancelacion {
   solicitudes: SolicitudCancelacion[];
@@ -36,8 +78,8 @@ export function useSolicitudesCancelacion(parametrosIniciales: ParametrosConsult
 
         setEstado((previo) => ({
           ...previo,
-          solicitudes: respuesta.datos?.solicitudes || [],
-          paginacion: respuesta.datos?.paginacion || {
+          solicitudes: respuesta.solicitudes || [],
+          paginacion: respuesta.paginacion || {
             paginaActual: 1,
             totalPaginas: 0,
             totalElementos: 0,
@@ -129,7 +171,7 @@ export function useSolicitudesCancelacion(parametrosIniciales: ParametrosConsult
   // Cargar datos iniciales
   useEffect(() => {
     cargarSolicitudes();
-  }, []);
+  }, [cargarSolicitudes]);
 
   return {
     ...estado,

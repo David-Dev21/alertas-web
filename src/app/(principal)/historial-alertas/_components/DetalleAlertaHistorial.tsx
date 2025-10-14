@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useAlertaDetalle } from "@/hooks/alertas/useAlertasActivas";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +9,6 @@ import { MapaAlertaDetalle } from "@/app/(principal)/alertas-activas/_components
 import { AlertaBadge } from "@/components/AlertaBadge";
 import { DatosVictimas } from "@/app/(principal)/alertas-activas/_components/DatosVictimas";
 import { FuncionariosAsignados } from "@/app/(principal)/alertas-activas/_components/FuncionariosAsignados";
-import type { FuncionarioAsignado } from "@/app/(principal)/alertas-activas/_components/FuncionariosAsignados";
 import { BitacoraEventos } from "@/app/(principal)/alertas-activas/_components/BitacoraEventos";
 import { CierreAlerta } from "@/app/(principal)/alertas-activas/_components/CierreAlerta";
 import { ErrorEstado } from "@/components/ErrorEstado";
@@ -21,9 +19,9 @@ interface Props {
 }
 
 export function DetalleAlertaHistorial({ idAlerta }: Props) {
-  const { alerta, loading, error, refetch } = useAlertaDetalle(idAlerta);
+  const { alerta, cargando, error, refetch } = useAlertaDetalle(idAlerta);
 
-  if (loading) {
+  if (cargando) {
     return <Loading mensaje="Cargando detalle del historial..." />;
   }
 
@@ -96,13 +94,7 @@ export function DetalleAlertaHistorial({ idAlerta }: Props) {
           <MapaAlertaDetalle alerta={alerta} />
 
           {/* Funcionarios Asignados */}
-          <FuncionariosAsignados
-            atencion={
-              alerta.atencion
-                ? { ...alerta.atencion, atencionFuncionario: alerta.atencion.atencionFuncionario as unknown as FuncionarioAsignado[] }
-                : undefined
-            }
-          />
+          <FuncionariosAsignados atencion={alerta.atencion} />
 
           {/* Bitácora de Eventos */}
           <BitacoraEventos eventos={alerta.eventos || []} />
@@ -113,7 +105,7 @@ export function DetalleAlertaHistorial({ idAlerta }: Props) {
           <DatosVictimas victima={alerta.victima} />
 
           {/* Mostrar cierre de alerta si existe */}
-          {alerta.cierre && <CierreAlerta cierre={alerta.cierre} estadoAlerta={alerta.estadoAlerta} />}
+          {alerta.cierre && <CierreAlerta cierre={alerta.cierre} />}
         </div>
       </div>
     </div>

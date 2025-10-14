@@ -5,7 +5,7 @@ import { useNotificacionesPush } from "@/hooks/notificaciones/useNotificacionesP
 import { toast } from "sonner";
 
 export function useInicializacionPrincipal() {
-  const { estaAutenticado, datosUsuario, datosSistema, accessToken } = useAutenticacionStore();
+  const { datosUsuario, accessToken } = useAutenticacionStore();
   const { solicitarPermiso, permisoConcedido } = useNotificacionesPush();
   const inicializadoRef = useRef(false);
 
@@ -40,20 +40,20 @@ export function useInicializacionPrincipal() {
       console.error("Error al inicializar:", error);
       toast.error(error instanceof Error ? error.message : "Error de inicialización");
     }
-  }, [datosUsuario, datosSistema, accessToken, permisoConcedido, solicitarPermiso]);
+  }, [datosUsuario, accessToken, permisoConcedido, solicitarPermiso]);
 
   useEffect(() => {
-    if (!estaAutenticado || !datosUsuario?.idUsuario || inicializadoRef.current) return;
+    if (!datosUsuario?.idUsuario || !accessToken || inicializadoRef.current) return;
     inicializadoRef.current = true;
     inicializar();
-  }, [estaAutenticado, datosUsuario?.idUsuario, inicializar]);
+  }, [datosUsuario?.idUsuario, accessToken, inicializar]);
 
   // Limpiar cuando se desautentica
   useEffect(() => {
-    if (!estaAutenticado) {
+    if (!datosUsuario?.idUsuario || !accessToken) {
       alertasSocketService.desconectar();
       localStorage.removeItem("fcmTokenRegistrado");
       inicializadoRef.current = false;
     }
-  }, [estaAutenticado]);
+  }, [datosUsuario?.idUsuario, accessToken]);
 }

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { alertasSocketService } from '@/services/alertas/alertasSocketService';
-import { useConexionSocketAutenticada } from './useConexionSocketAutenticada';
+import { useEffect, useState } from "react";
+import { alertasSocketService } from "@/services/alertas/alertasSocketService";
+import { useAutenticacionStore } from "@/stores/autenticacion/autenticacionStore";
 
 interface UltimoPuntoRuta {
   idAlerta: string;
@@ -8,13 +8,18 @@ interface UltimoPuntoRuta {
   timestamp: number; // Timestamp de cuando se recibió el punto
 }
 
+interface DatosRutaSocket {
+  idAlerta: string;
+  coordenadas: [number, number];
+}
+
 export function useRutaAlertaSocket(idAlerta: string) {
   const [ultimoPunto, setUltimoPunto] = useState<UltimoPuntoRuta | null>(null);
   const [escuchandoRuta, setEscuchandoRuta] = useState(false);
-  const { estaAutenticado } = useConexionSocketAutenticada();
+  const { datosUsuario, accessToken } = useAutenticacionStore();
 
   useEffect(() => {
-    if (!estaAutenticado || !idAlerta) {
+    if (!datosUsuario?.idUsuario || !accessToken || !idAlerta) {
       setEscuchandoRuta(false);
       return;
     }
@@ -22,7 +27,7 @@ export function useRutaAlertaSocket(idAlerta: string) {
     const eventoRuta = `rutaAlerta:${idAlerta}`;
     setEscuchandoRuta(true);
 
-    const manejarPuntoRuta = (datos: { idAlerta: string; coordenadas: [number, number] }) => {
+    const manejarPuntoRuta = (datos: DatosRutaSocket) => {
       const nuevoPunto: UltimoPuntoRuta = {
         ...datos,
         timestamp: Date.now(),
@@ -32,14 +37,14 @@ export function useRutaAlertaSocket(idAlerta: string) {
     };
 
     // Suscribirse al evento específico de esta alerta
-    alertasSocketService.escucharEvento(eventoRuta, manejarPuntoRuta);
+    alertasSocketService.escucharEvento(eventoRuta, manejarPuntoRuta as (...args: unknown[]) => void);
 
     return () => {
       // Limpiar suscripción cuando el componente se desmonte o cambie la alerta
-      alertasSocketService.dejarDeEscucharEvento(eventoRuta, manejarPuntoRuta);
+      alertasSocketService.dejarDeEscucharEvento(eventoRuta, manejarPuntoRuta as (...args: unknown[]) => void);
       setEscuchandoRuta(false);
     };
-  }, [estaAutenticado, idAlerta]);
+  }, [datosUsuario?.idUsuario, accessToken, idAlerta]);
 
   return {
     ultimoPunto,

@@ -1,6 +1,15 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { NuevaAlertaSimple } from '@/types/alertas/Alerta';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+
+// Interfaces duplicadas de types para refactorización
+
+// De alertas/Alerta.ts
+interface NuevaAlertaSimple {
+  idAlerta: string;
+  estado: string;
+  origen: string;
+  fechaHora: string;
+}
 
 interface AlertaStore {
   // Estado de alertas pendientes
@@ -38,11 +47,11 @@ export const useAlertaStore = create<AlertaStore>()(
         })),
     }),
     {
-      name: 'alertas-store',
+      name: "alertas-store",
       partialize: (state) => ({
         alertasPendientes: state.alertasPendientes,
       }),
       version: 1,
-    },
-  ),
+    }
+  )
 );

@@ -1,26 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { alertasService } from "@/services/alertas/alertasService";
-import { Alerta } from "@/types/alertas/Alerta";
-import { FiltrosUbicacion } from "@/types/alertas/Ubicacion";
+import { Alerta, FiltrosUbicacion } from "@/services/alertas/alertasService";
+import { EstadoCarga } from "@/types/common.types";
 
-interface UseAlertasActivasResult {
+interface UseAlertasActivasResult extends EstadoCarga {
   alertas: Alerta[];
-  loading: boolean;
-  error: string | null;
   refetch: () => Promise<void>;
 }
 
-interface UseAlertaDetalleResult {
+interface UseAlertaDetalleResult extends EstadoCarga {
   alerta: Alerta | null;
-  loading: boolean;
-  error: string | null;
-  refetch: () => Promise<void>;
-}
-
-interface UseAlertasResult {
-  alertas: Alerta[];
-  loading: boolean;
-  error: string | null;
   refetch: () => Promise<void>;
 }
 
@@ -29,12 +18,12 @@ interface UseAlertasResult {
  */
 export function useAlertasActivas(filtros: FiltrosUbicacion = {}): UseAlertasActivasResult {
   const [alertas, setAlertas] = useState<Alerta[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const obtenerAlertasActivas = useCallback(async () => {
     try {
-      setLoading(true);
+      setCargando(true);
       setError(null);
 
       // Obtener alertas activas desde el endpoint dedicado con filtros
@@ -45,9 +34,9 @@ export function useAlertasActivas(filtros: FiltrosUbicacion = {}): UseAlertasAct
       setError("Error al cargar las alertas activas");
       setAlertas([]);
     } finally {
-      setLoading(false);
+      setCargando(false);
     }
-  }, [filtros.idDepartamento, filtros.idProvincia, filtros.idMunicipio]);
+  }, [filtros]);
 
   const refetch = useCallback(async () => {
     await obtenerAlertasActivas();
@@ -59,7 +48,7 @@ export function useAlertasActivas(filtros: FiltrosUbicacion = {}): UseAlertasAct
 
   return {
     alertas,
-    loading,
+    cargando,
     error,
     refetch,
   };
@@ -70,14 +59,14 @@ export function useAlertasActivas(filtros: FiltrosUbicacion = {}): UseAlertasAct
  */
 export function useAlertaDetalle(idAlerta: string): UseAlertaDetalleResult {
   const [alerta, setAlerta] = useState<Alerta | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const obtenerAlertaDetalle = useCallback(async () => {
     if (!idAlerta || idAlerta === "undefined") return;
 
     try {
-      setLoading(true);
+      setCargando(true);
       setError(null);
 
       const alertaDetalle = await alertasService.obtenerPorId(idAlerta);
@@ -87,7 +76,7 @@ export function useAlertaDetalle(idAlerta: string): UseAlertaDetalleResult {
       setError("Error al cargar el detalle de la alerta");
       setAlerta(null);
     } finally {
-      setLoading(false);
+      setCargando(false);
     }
   }, [idAlerta]);
 
@@ -101,48 +90,7 @@ export function useAlertaDetalle(idAlerta: string): UseAlertaDetalleResult {
 
   return {
     alerta,
-    loading,
-    error,
-    refetch,
-  };
-}
-
-/**
- * Hook para obtener todas las alertas
- */
-export function useAlertas(): UseAlertasResult {
-  const [alertas, setAlertas] = useState<Alerta[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const obtenerAlertas = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Obtener todas las alertas usando el historial con un límite alto
-      const datos = await alertasService.obtenerHistorial({ limite: 100 });
-      setAlertas(datos.datos?.alertas || []);
-    } catch (err) {
-      console.error("Error al obtener todas las alertas:", err);
-      setError("Error al cargar las alertas");
-      setAlertas([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const refetch = useCallback(async () => {
-    await obtenerAlertas();
-  }, [obtenerAlertas]);
-
-  useEffect(() => {
-    obtenerAlertas();
-  }, [obtenerAlertas]);
-
-  return {
-    alertas,
-    loading,
+    cargando,
     error,
     refetch,
   };

@@ -2,9 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertaBadge } from "@/components/AlertaBadge";
-import { CheckCircle, User, Calendar, AlertTriangle } from "lucide-react";
-import type { CierreAlerta as CierreAlertaType } from "@/types/alertas/Alerta";
+import { CheckCircle, User, Calendar } from "lucide-react";
+import type { CierreAlerta as CierreAlertaType } from "@/services/alertas/alertasService";
 
 interface CierreAlertaExtended extends CierreAlertaType {
   idUsuarioWeb?: string;
@@ -20,10 +19,9 @@ interface CierreAlertaExtended extends CierreAlertaType {
 
 interface CierreAlertaProps {
   cierre: CierreAlertaExtended;
-  estadoAlerta: string;
 }
 
-export function CierreAlerta({ cierre, estadoAlerta }: CierreAlertaProps) {
+export function CierreAlerta({ cierre }: CierreAlertaProps) {
   if (!cierre) return null;
 
   return (

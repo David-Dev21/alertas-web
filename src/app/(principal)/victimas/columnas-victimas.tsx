@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal, CheckCircle, XCircle, Eye, Trash2, Clock } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Eye, Clock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,9 +14,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Victima } from "@/types/response/victimas";
+import { Victima } from "@/services/victimas/victimasService";
 import { formatearFechaUTC } from "@/lib/utils";
 import Link from "next/link";
+import { EstadoCuenta } from "@/types/enums";
 
 function AccionesVictima({ victima }: { victima: Victima }) {
   return (
@@ -98,31 +99,31 @@ export const columnasVictimas: ColumnDef<Victima>[] = [
     accessorKey: "estadoCuenta",
     header: "Estado",
     cell: ({ row }) => {
-      const estado = row.getValue("estadoCuenta") as string;
-      const obtenerTextoEstado = (estado: string) => {
+      const estado = row.getValue("estadoCuenta") as EstadoCuenta;
+      const obtenerTextoEstado = (estado: EstadoCuenta) => {
         switch (estado) {
-          case "ACTIVA":
+          case EstadoCuenta.ACTIVA:
             return "Activa";
-          case "INACTIVA":
+          case EstadoCuenta.INACTIVA:
             return "Inactiva";
-          case "SUSPENDIDA":
+          case EstadoCuenta.SUSPENDIDA:
             return "Suspendida";
-          case "PENDIENTE_VERIFICACION":
+          case EstadoCuenta.PENDIENTE_VERIFICACION:
             return "Pendiente Verificación";
           default:
             return estado;
         }
       };
 
-      const obtenerVariantEstado = (estado: string) => {
+      const obtenerVariantEstado = (estado: EstadoCuenta) => {
         switch (estado) {
-          case "ACTIVA":
+          case EstadoCuenta.ACTIVA:
             return "default";
-          case "INACTIVA":
+          case EstadoCuenta.INACTIVA:
             return "secondary";
-          case "SUSPENDIDA":
+          case EstadoCuenta.SUSPENDIDA:
             return "destructive";
-          case "PENDIENTE_VERIFICACION":
+          case EstadoCuenta.PENDIENTE_VERIFICACION:
             return "outline";
           default:
             return "outline";

@@ -9,8 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Save } from "lucide-react";
 import { Personal } from "@/services/personalService";
 import { usePersonal } from "@/hooks/personal/usePersonal";
-import { ubicacionesService } from "@/services/ubicaciones/departamentosService";
-import { Departamento } from "@/types/response/ubicaciones";
+import { ubicacionesService, Departamento } from "@/services/ubicaciones/departamentosService";
 
 interface ModalEditarPersonalProps {
   personal: Personal | null;
@@ -34,9 +33,7 @@ export function ModalEditarPersonal({ personal, abierto, onCerrar, onActualizado
       setCargandoDepartamentos(true);
       try {
         const respuesta = await ubicacionesService.obtenerDepartamentos();
-        if (respuesta.exito && respuesta.datos) {
-          setDepartamentos(respuesta.datos);
-        }
+        setDepartamentos(respuesta);
       } catch (error) {
         console.error("Error al cargar departamentos:", error);
       } finally {
@@ -83,7 +80,7 @@ export function ModalEditarPersonal({ personal, abierto, onCerrar, onActualizado
     }
 
     const resultado = await actualizarPersonal(personal.id, datosActualizar);
-    if (resultado?.exito) {
+    if (resultado) {
       onActualizado();
       onCerrar();
     }

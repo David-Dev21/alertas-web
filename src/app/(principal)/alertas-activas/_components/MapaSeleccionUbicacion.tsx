@@ -1,12 +1,11 @@
 "use client";
-import { useRef, useState, useCallback, useEffect } from "react";
-import type { Map as LeafletMap } from "leaflet";
+import { useState, useCallback, useEffect } from "react";
+import type { LeafletMouseEvent } from "leaflet";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { MapPin, Loader2 } from "lucide-react";
 import { MAPA_CONFIG } from "@/lib/mapaConfig";
 import { createAssignedOperativeIcon } from "./MapIcons";
-import type { UbicacionPoint } from "@/types/alertas/Alerta";
 
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import("react-leaflet").then((mod) => mod.TileLayer), { ssr: false });
@@ -24,7 +23,7 @@ const MapEventHandler = dynamic(
         useEffect(() => {
           if (!map) return;
 
-          const handleClick = (event: any) => {
+          const handleClick = (event: LeafletMouseEvent) => {
             const { lat, lng } = event.latlng;
             onMapClick([lat, lng]);
           };

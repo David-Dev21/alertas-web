@@ -69,7 +69,7 @@ export const useNotificacionesPush = (): UseNotificacionesPushReturn => {
         setPermisoConcedido(false);
 
         // Mensaje específico para Brave
-        if ((navigator as any).brave) {
+        if ((navigator as { brave?: unknown }).brave) {
           toast.error("Notificaciones bloqueadas por Brave", {
             description: "Ve a brave://settings/privacy y activa 'Google Services for push messaging'",
             duration: 10000,
@@ -82,7 +82,7 @@ export const useNotificacionesPush = (): UseNotificacionesPushReturn => {
       console.error("Error al solicitar permiso:", error);
 
       // Mensaje específico para Brave
-      if ((navigator as any).brave && error instanceof Error && error.message.includes("push service error")) {
+      if ((navigator as { brave?: unknown }).brave && error instanceof Error && error.message.includes("push service error")) {
         toast.error("Notificaciones bloqueadas por Brave", {
           description: "Activa 'Google Services for push messaging' en la configuración de privacidad",
           duration: 10000,

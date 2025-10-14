@@ -49,27 +49,26 @@ interface DatosSistema {
   nombre: string;
   roles: DatosRol[];
   modulos: DatosModulo[];
-  permisos: any[];
+  permisos: string[];
 }
 
 interface AlmacenamientoAutenticacion {
   accessToken: string | null;
   datosUsuario: DatosUsuario | null;
   datosSistema: DatosSistema | null;
-  estaAutenticado: boolean;
   setToken: (token: string | null) => void;
   setDatosUsuario: (datosUsuario: DatosUsuario | null) => void;
   setUbicacionUsuario: (idDepartamento: number, departamento: string, latitud?: number, longitud?: number) => void;
   setRoles: (roles: DatosRol[]) => void;
   setModulos: (modulos: DatosModulo[]) => void;
-  setPermisos: (permisos: any[]) => void;
+  setPermisos: (permisos: string[]) => void;
   setDatosSistema: (datosSistema: DatosSistema | null) => void;
   cerrarSesion: () => void;
   inicializar: () => void;
 }
 
 // Funciones helper para localStorage
-const guardarEnLocalStorage = (clave: string, valor: any) => {
+const guardarEnLocalStorage = (clave: string, valor: unknown) => {
   if (typeof window === "undefined") return;
   if (valor === null) {
     localStorage.removeItem(clave);
@@ -95,11 +94,22 @@ const leerObjetoDeLocalStorage = (clave: string) => {
   }
 };
 
-export const useAutenticacionStore = create<AlmacenamientoAutenticacion>()((set, get) => ({
-  accessToken: null,
-  datosUsuario: null,
-  datosSistema: null,
-  estaAutenticado: false,
+export const useAutenticacionStore = create<AlmacenamientoAutenticacion>()((set) => ({
+  // Inicializar automáticamente desde localStorage
+  accessToken: (() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("access_token");
+  })(),
+  datosUsuario: (() => {
+    if (typeof window === "undefined") return null;
+    const datos = localStorage.getItem("datosUsuario");
+    return datos ? JSON.parse(datos) : null;
+  })(),
+  datosSistema: (() => {
+    if (typeof window === "undefined") return null;
+    const datos = localStorage.getItem("datosSistema");
+    return datos ? JSON.parse(datos) : null;
+  })(),
 
   setToken: (token: string | null) => {
     guardarEnLocalStorage("access_token", token);
@@ -108,18 +118,16 @@ export const useAutenticacionStore = create<AlmacenamientoAutenticacion>()((set,
       guardarEnLocalStorage("refresh_token", null);
     }
 
-    set((estado) => ({
+    set(() => ({
       accessToken: token,
-      estaAutenticado: !!token && !!estado.datosUsuario,
     }));
   },
 
   setDatosUsuario: (datosUsuario: DatosUsuario | null) => {
     guardarEnLocalStorage("datosUsuario", datosUsuario);
 
-    set((estado) => ({
+    set(() => ({
       datosUsuario,
-      estaAutenticado: !!estado.accessToken && !!datosUsuario,
     }));
   },
 
@@ -148,7 +156,7 @@ export const useAutenticacionStore = create<AlmacenamientoAutenticacion>()((set,
       datosSistema: estado.datosSistema ? { ...estado.datosSistema, modulos } : { nombre: "", roles: [], modulos, permisos: [] },
     })),
 
-  setPermisos: (permisos: any[]) =>
+  setPermisos: (permisos: string[]) =>
     set((estado) => ({
       datosSistema: estado.datosSistema ? { ...estado.datosSistema, permisos } : { nombre: "", roles: [], modulos: [], permisos },
     })),
@@ -168,7 +176,6 @@ export const useAutenticacionStore = create<AlmacenamientoAutenticacion>()((set,
       accessToken: null,
       datosUsuario: null,
       datosSistema: null,
-      estaAutenticado: false,
     });
   },
 
@@ -182,7 +189,6 @@ export const useAutenticacionStore = create<AlmacenamientoAutenticacion>()((set,
       accessToken: token,
       datosUsuario,
       datosSistema,
-      estaAutenticado: !!(token && datosUsuario),
     });
   },
 }));
