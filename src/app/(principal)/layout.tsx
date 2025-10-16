@@ -64,9 +64,9 @@ export default function LayoutPrincipal({ children }: { children: React.ReactNod
   // Si no hay token, datos de usuario, o el token está vencido, redirigir al login
   useEffect(() => {
     if (!token || !datosUsuario || tokenVencido) {
-      router.push("https://kerveros-dev.policia.bo/auth/login");
+      window.location.href = "https://kerveros-dev.policia.bo/auth/login";
     }
-  }, [token, datosUsuario, tokenVencido, router]);
+  }, [token, datosUsuario, tokenVencido]);
 
   // Si no está autenticado o token vencido, no renderizar
   if (!token || !datosUsuario || tokenVencido) {

@@ -1,5 +1,4 @@
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
-import { jwtDecode } from "jwt-decode";
 
 const baseApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -15,7 +14,6 @@ let failedQueue: Array<{
   resolve: (value?: unknown) => void;
   reject: (error?: unknown) => void;
 }> = [];
-let refreshTimeoutId: NodeJS.Timeout | null = null; // Para rastrear el timer activo
 
 // Función para procesar la cola de peticiones fallidas
 const processQueue = (error: unknown, token: string | null = null) => {
@@ -55,46 +53,11 @@ const refreshToken = async () => {
   return access_token;
 };
 
-// Función para iniciar timer de refresh automático
-const startRefreshTimer = (token: string) => {
-  // Limpiar timer anterior si existe
-  if (refreshTimeoutId) {
-    clearTimeout(refreshTimeoutId);
-  }
-
-  try {
-    const decoded: { exp: number } = jwtDecode(token);
-    const currentTime = Date.now() / 1000;
-    const timeUntilExpiry = decoded.exp - currentTime;
-    const refreshTime = Math.max((timeUntilExpiry - 300) * 1000, 0); // 5 minutos antes
-
-    refreshTimeoutId = setTimeout(async () => {
-      try {
-        await refreshToken();
-        const newToken = localStorage.getItem("access_token");
-        if (newToken) {
-          startRefreshTimer(newToken); // Reiniciar recursivamente
-        }
-      } catch (error) {
-        console.error("Error en refresh automático:", error);
-        localStorage.clear();
-        window.location.href = "https://kerveros-dev.policia.bo";
-      }
-    }, refreshTime);
-  } catch (error) {
-    console.error("Error decodificando token:", error);
-  }
-};
-
 baseApi.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("access_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      // Iniciar o reiniciar timer si no hay uno activo
-      if (!refreshTimeoutId) {
-        startRefreshTimer(token);
-      }
     }
   }
 
@@ -163,14 +126,12 @@ baseApi.interceptors.response.use(
       try {
         const newToken = await refreshToken();
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        // Reiniciar timer con el nuevo token
-        startRefreshTimer(newToken);
         processQueue(null, newToken);
         return baseApi(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
         localStorage.clear();
-        window.location.href = "https://kerveros-dev.policia.bo";
+        window.location.href = "https://kerveros-dev.policia.bo/auth/login";
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
