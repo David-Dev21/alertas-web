@@ -7,10 +7,6 @@ const nextConfig: NextConfig = {
   // Configuración para despliegue standalone (útil para Docker)
   output: "standalone",
 
-  // Optimizaciones de build
-  swcMinify: true,
-
-  // Configuración de imágenes
   images: {
     domains: ["kerveros-dev.policia.bo", "jupiter-guardian.policia.bo", "localhost"],
     unoptimized: false,
@@ -41,7 +37,6 @@ const nextConfig: NextConfig = {
 
   // Configuración experimental para optimizaciones
   experimental: {
-    optimizeCss: true,
     scrollRestoration: true,
   },
 

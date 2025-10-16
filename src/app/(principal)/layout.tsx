@@ -16,12 +16,10 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { EstadoConexion } from "@/components/EstadoConexion";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 export default function LayoutPrincipal({ children }: { children: React.ReactNode }) {
   const { alertasPendientes } = useAlertaStore();
   const cantidadPendientes = alertasPendientes.length;
-  const router = useRouter();
 
   // Verificar autenticación directamente desde localStorage
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
